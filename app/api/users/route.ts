@@ -1,30 +1,36 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db/db';
-import User from '@/lib/models/User';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]';
+import { userService } from '@/lib/services/UserService';
+import { FullUserDto, EditUserDto, ChangePasswordDto, UpdateUserLocationDto } from '@/lib/types/user';
 
-export async function GET() {
+// GET /api/users/me - Get current user
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    await dbConnect();
-    const users = await User.find({});
-    return NextResponse.json(users);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    );
+    const user = await userService.getCurrentUser(session.user.id);
+    return NextResponse.json(user);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 404 });
   }
 }
 
-export async function POST(request: Request) {
+// PUT /api/users/me - Update current user
+export async function PUT(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    await dbConnect();
-    const body = await request.json();
-    const user = await User.create(body);
-    return NextResponse.json(user, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
+    const dto: EditUserDto = await request.json();
+    await userService.updateUser(session.user.id, dto);
+    return NextResponse.json({}, { status: 204 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
