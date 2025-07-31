@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.dark-bg, body {
+  background-color: #080c1c !important;
+    color: #fff !important;
+}
+
+.content-bg{
+    background-color: #1c2434 !important;
+    color: #fff;
+}
+
+.border, .border-bottom{
+    border-color: #404358 !important;
+}
+
+.logo{
+    height: 40px;
+}
+.card-body,.card-header,.card-footer {
+  border: 0px solid #1c2434 !important;
+}
+
+.star-rating {
+  color: gold;
+}
+
+input, select, textarea, option,.basic-single {
+  background-color: #ededed !important;
+  color: #171717 !important;
+}

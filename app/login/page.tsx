@@ -49,10 +49,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4 bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen dark-bg p-4 bg-gray-50">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
-        <div className="bg-white border rounded-2xl shadow-lg overflow-hidden">
-          <div className="text-center py-6 px-4 border-b">
+        <div className="content-bg border rounded-2xl shadow-lg overflow-hidden">
+          <div className="text-center py-6 px-4">
             <Image
               src="/logo-light.png"
               alt="App Logo"
@@ -61,7 +61,7 @@ export default function LoginPage() {
               className="mx-auto mb-2"
             />
             <h2 className="text-xl font-semibold">Login</h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-light">
               Dobrodošli, molimo da se logirate
             </p>
           </div>
@@ -155,7 +155,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="text-center text-sm text-gray-500 mt-4">
+            <div className="text-center text-sm text-light mt-4">
               Nemate račun?
               <a href="/register" className="ml-1 text-blue-600 hover:underline">
                 Registracija
