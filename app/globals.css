@@ -54,3 +54,10 @@ input, select, textarea, option,.basic-single {
   background-color: #ededed !important;
   color: #171717 !important;
 }
+
+.bg-hero{
+  background-image: url('/hero.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 95vh;
+}
