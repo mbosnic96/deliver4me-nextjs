@@ -5,7 +5,6 @@ import { userService } from '@/lib/services/UserService';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  // Add admin role check here if needed
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

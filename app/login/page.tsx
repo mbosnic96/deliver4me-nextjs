@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Image from 'next/image';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 
 type LoginFormData = {
   email: string;
@@ -33,17 +33,21 @@ export default function LoginPage() {
     if (res?.error) {
       setError(res.error || 'Login failed');
     } else {
-      // Optional: fetch session to get role or redirect manually
-      const role = 'client'; // fetch role from backend or session if needed
-      switch (role.toLowerCase()) {
-        case 'admin':
-          router.push('/admin');
-          break;
-        case 'driver':
-          router.push('/driver');
-          break;
-        default:
-          router.push('/client');
+      const session = await getSession();
+
+      if (session?.user?.role) {
+        switch (session.user.role.toLowerCase()) {
+          case 'admin':
+            router.push('/admin/dashboard');
+            break;
+          case 'driver':
+            router.push('/driver/dashboard');
+            break;
+          default:
+            router.push('/profile');
+        }
+      } else {
+        router.push('/profile');
       }
     }
   };
@@ -61,9 +65,7 @@ export default function LoginPage() {
               className="mx-auto mb-2"
             />
             <h2 className="text-xl font-semibold">Login</h2>
-            <p className="text-sm text-light">
-              Dobrodošli, molimo da se logirate
-            </p>
+            <p className="text-sm text-light">Dobrodošli, molimo da se logirate</p>
           </div>
 
           <div className="p-6 space-y-4">
@@ -88,9 +90,7 @@ export default function LoginPage() {
                 })}
               />
               {errors.email && (
-                <p className="text-red-600 text-xs mt-1">
-                  {errors.email.message}
-                </p>
+                <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>
               )}
             </div>
 
@@ -111,9 +111,7 @@ export default function LoginPage() {
                 })}
               />
               {errors.password && (
-                <p className="text-red-600 text-xs mt-1">
-                  {errors.password.message}
-                </p>
+                <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>
               )}
             </div>
 

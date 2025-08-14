@@ -1,6 +1,6 @@
 import { FullUserDto, EditUserDto, ChangePasswordDto, UpdateUserLocationDto } from '@/lib/types/user';
 import User, { IUser, IUserLean } from '@/lib/models/User';
-import dbConnect from '@/lib/db/db';
+import { dbConnect } from '@/lib/db/db';
 import bcrypt from 'bcryptjs';
 import { deleteFile, uploadBase64Image } from '@/lib/file-utils';
 

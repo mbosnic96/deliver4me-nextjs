@@ -16,13 +16,12 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
 
-  // Dropmenu toggle state for user menu on desktop
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
     <nav className="w-full content-bg border-b border-gray-200 shadow-md z-50 fixed top-0 left-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-        {/* Left side: Logo + Početna */}
+        
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-light.png" alt="Logo" width={120} height={80} />
@@ -36,7 +35,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right side nav */}
+       
         <div className="hidden md:flex items-center gap-6 relative">
           {status === 'loading' ? null : !session?.user ? (
             <>
@@ -57,7 +56,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              {/* User button */}
+          
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 text-white hover:text-indigo-400 transition"
@@ -68,7 +67,6 @@ export default function Navbar() {
                 <span>{session.user.name}</span>
               </button>
 
-              {/* Dropdown menu */}
               {userMenuOpen && (
                 <div className="absolute right-0 mt-10 w-40 bg-white rounded-md shadow-lg py-2 z-50 text-gray-800">
                   <Link
@@ -103,7 +101,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile nav */}
+     
       {isOpen && (
         <div className="md:hidden px-4 pb-4 content-bg border-t border-gray-200 space-y-2">
           {status === 'loading' ? null : !session?.user ? (
