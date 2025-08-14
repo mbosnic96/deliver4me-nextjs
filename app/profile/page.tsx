@@ -12,6 +12,9 @@ import Swal from 'sweetalert2'
 import Sidebar from '@/components/Sidebar'
 import { uploadBase64Image } from '@/lib/file-utils'
 import { Button } from "@/components/ui/button"
+
+import { Input } from "@/components/ui/input"
+
 import ChangeEmailDialog from "@/components/ChangeEmailDialog"
 
 type Role = 'client' | 'driver' | 'admin' | undefined
@@ -118,7 +121,7 @@ const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
           >
             Add photo
           </button>
-          <input
+          <Input
             type="file"
             ref={fileInputRef}
             accept="image/*"
@@ -487,7 +490,7 @@ const updatePositionOnly = useCallback(async () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Full name
                       </label>
-                      <input
+                      <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         {...register('name', { required: 'Name is required' })}
@@ -501,7 +504,7 @@ const updatePositionOnly = useCallback(async () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Username
                       </label>
-                      <input
+                      <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         {...register('userName', { required: 'Username is required' })}
@@ -511,7 +514,7 @@ const updatePositionOnly = useCallback(async () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Country
@@ -550,7 +553,7 @@ const updatePositionOnly = useCallback(async () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           City
@@ -574,7 +577,7 @@ const updatePositionOnly = useCallback(async () => {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Postal code
                         </label>
-                        <input
+                        <Input
                           type="text"
                           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                           {...register('postalCode')}
@@ -586,7 +589,7 @@ const updatePositionOnly = useCallback(async () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Address
                       </label>
-                      <input
+                      <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         {...register('address')}
@@ -597,7 +600,7 @@ const updatePositionOnly = useCallback(async () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Phone
                       </label>
-                      <input
+                      <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         {...register('phone', { required: 'Phone is required' })}
