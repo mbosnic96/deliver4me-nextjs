@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
@@ -6,10 +7,12 @@ import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import Select from 'react-select'
 import { getCountries, getStates, getCities, getCityLatLng } from '../../lib/services/CscService'
-import { userService } from '@/lib/services/UserService'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import Sidebar from '@/components/Sidebar'
+import { uploadBase64Image } from '@/lib/file-utils'
+import { Button } from "@/components/ui/button"
+import ChangeEmailDialog from "@/components/ChangeEmailDialog"
 
 type Role = 'client' | 'driver' | 'admin' | undefined
 type FormData = {
@@ -45,47 +48,88 @@ const Marker = dynamic(
 const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
   photoUrl: string | null
   onRemove: () => void
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}) => (
-  <div className="flex flex-col items-center">
-    <div className="mb-4">
-      {photoUrl ? (
-        <img
-          src={photoUrl}
-          alt="Profile"
-          className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-        />
-      ) : (
-        <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
+  onChange: (fileUrl: string) => void
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Only JPEG, PNG, and WebP images are allowed')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) { 
+      toast.error('File size must be less than 5MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const result = event.target?.result
+      if (typeof result === 'string') {
+        onChange(result)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="mb-4">
+        {photoUrl ? (
           <img
-            src="/user.png"
-            alt="User"
-            className="w-16 h-16 opacity-50 dark:opacity-30"
+            src={photoUrl}
+            alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
           />
-        </div>
+        ) : (
+          <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
+            <img
+              src="/user.png"
+              alt="User"
+              className="w-16 h-16 opacity-50 dark:opacity-30"
+            />
+          </div>
+        )}
+      </div>
+      {photoUrl ? (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+        >
+          Remove photo
+        </button>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={handleClick}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer"
+          >
+            Add photo
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
+        </>
       )}
     </div>
-    {photoUrl ? (
-      <button
-        type="button"
-        onClick={onRemove}
-        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-      >
-        Remove photo
-      </button>
-    ) : (
-      <label className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer">
-        Add photo
-        <input
-          type="file"
-          accept="image/*"
-          onChange={onChange}
-          className="hidden"
-        />
-      </label>
-    )}
-  </div>
-)
+  )
+}
 
 const LocationMap = ({ 
   latitude, 
@@ -146,6 +190,7 @@ export default function AccountSettings() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const markerRef = useRef<any>(null)
 const mapRef = useRef<any>(null)
+ const [open, setOpen] = useState(false)
 
 
   
@@ -185,6 +230,7 @@ const mapRef = useRef<any>(null)
       const res = await fetch('/api/users/me')
       if (!res.ok) throw new Error('Failed to load user')
       const user = await res.json()
+     console.log('User data:', user)
       
       reset({
         name: user.name,
@@ -230,8 +276,10 @@ const mapRef = useRef<any>(null)
     const timer = setTimeout(() => {
       const countryStates = getStates(country)
       setSelectedStates(countryStates)
+      if(!state){
       setValue('state', '', { shouldDirty: true })
       setValue('city', '', { shouldDirty: true })
+      }
       setSelectedCities([])
       setLoadingStates(false)
     }, 300)
@@ -247,7 +295,9 @@ const mapRef = useRef<any>(null)
     const timer = setTimeout(() => {
       const countryCities = getCities(country, state)
       setSelectedCities(countryCities)
-      setValue('city', '', { shouldDirty: true })
+      if(!city){
+        setValue('city', '', { shouldDirty: true })
+      }
       setLoadingCities(false)
     }, 300)
     
@@ -299,86 +349,100 @@ const updateMapWithCity = useCallback(async () => {
     }
   }, [])
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    try {
-      setLoading(true)
-      const fileUrl = await handleFileUpload(file)
-      if (fileUrl) {
-        setValue('photoUrl', fileUrl, { shouldDirty: true })
-      }
-    } finally {
-      setLoading(false)
+const handleFileChange = useCallback(async (base64Data: string) => {
+  try {
+    setLoading(true)
+    const fileUrl = await uploadBase64Image(base64Data, 'profile')
+    if (fileUrl) {
+      setValue('photoUrl', fileUrl, { shouldDirty: true })
     }
-  }, [handleFileUpload, setValue])
+  } catch (error) {
+    console.error('Upload failed:', error)
+    toast.error('Failed to upload image')
+  } finally {
+    setLoading(false)
+  }
+}, [setValue])
 
   const removePhoto = useCallback(() => {
     setValue('photoUrl', null, { shouldDirty: true })
   }, [setValue])
 
-  const onSubmit = useCallback(async (data: FormData) => {
-    if (!isDirty || !session?.user?.id) return
+const onSubmit = useCallback(async (data: FormData) => {
+  if (!isDirty || !session?.user?.id) return;
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/users/${session.user.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update profile');
+    toast.success('Profile updated successfully');
+    reset(data);
+  } catch (error) {
+    console.error('Failed to update profile', error);
+    toast.error('Failed to update profile');
+  } finally {
+    setLoading(false);
+  }
+}, [isDirty, reset, session?.user?.id]);
 
-    setLoading(true)
+
+const requestAccountDeletion = useCallback(async () => {
+  if (!session?.user?.id) return;
+
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will permanently delete your account!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Delete account',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    setLoading(true);
     try {
-      await userService.updateUser(session.user.id, data)
-      toast.success('Profile updated successfully')
-      reset(data)
+      const res = await fetch(`/api/users/${session.user.id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete account');
+      Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
     } catch (error) {
-      console.error('Failed to update profile', error)
-      toast.error('Failed to update profile')
+      console.error('Failed to delete account', error);
+      Swal.fire('Error', 'Failed to delete account', 'error');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isDirty, reset, session?.user?.id])
+  }
+}, [session?.user?.id]);
 
-  const requestAccountDeletion = useCallback(async () => {
-    if (!session?.user?.id) return
 
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete your account!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Delete account',
-      cancelButtonText: 'Cancel'
-    })
+const updatePositionOnly = useCallback(async () => {
+  if (!latitude || !longitude || !session?.user?.id) {
+    toast.error('Please select a location first');
+    return;
+  }
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/users/${session.user.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ latitude, longitude })
+    });
+    if (!res.ok) throw new Error('Failed to update location');
+    toast.success('Location updated successfully');
+  } catch (error) {
+    console.error('Failed to update location', error);
+    toast.error('Failed to update location');
+  } finally {
+    setLoading(false);
+  }
+}, [latitude, longitude, session?.user?.id]);
 
-    if (result.isConfirmed) {
-      setLoading(true)
-      try {
-        await userService.requestAccountDeletion(session.user.id)
-        Swal.fire('Deleted!', 'Your account has been deleted.', 'success')
-      } catch (error) {
-        console.error('Failed to delete account', error)
-        Swal.fire('Error', 'Failed to delete account', 'error')
-      } finally {
-        setLoading(false)
-      }
-    }
-  }, [session?.user?.id])
-
-  const updatePositionOnly = useCallback(async () => {
-    if (!latitude || !longitude || !session?.user?.id) {
-      toast.error('Please select a location first')
-      return
-    }
-
-    setLoading(true)
-    try {
-      await userService.updateLocation(session.user.id, { latitude, longitude })
-      toast.success('Location updated successfully')
-    } catch (error) {
-      console.error('Failed to update location', error)
-      toast.error('Failed to update location')
-    } finally {
-      setLoading(false)
-    }
-  }, [latitude, longitude, session?.user?.id])
 
   const handleMarkerDragEnd = useCallback(() => {
   if (markerRef.current) {
@@ -402,25 +466,22 @@ const updateMapWithCity = useCallback(async () => {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <main className={`flex-1 transition-all duration-300 mt-[70px] ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Profile Section */}
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Profile</h2>
                 
                 <div className="flex flex-col lg:flex-row gap-6">
-                  {/* Photo Upload */}
                   <div className="w-full lg:w-1/3">
-                    <PhotoUpload 
-                      photoUrl={photoUrl}
-                      onRemove={removePhoto}
-                      onChange={handleFileChange}
-                    />
+                  <PhotoUpload 
+  photoUrl={photoUrl}
+  onRemove={removePhoto}
+  onChange={handleFileChange}
+/>
                   </div>
 
-                  {/* Form Fields */}
                   <div className="w-full lg:w-2/3 space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -559,7 +620,6 @@ const updateMapWithCity = useCallback(async () => {
                 </div>
               </section>
 
-              {/* Map Section */}
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Location</h3>
                 <p className="mb-4 text-gray-600 dark:text-gray-300">
@@ -586,7 +646,6 @@ const updateMapWithCity = useCallback(async () => {
                 </div>
               </section>
 
-              {/* Account Section */}
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Account Settings</h3>
                 
@@ -595,12 +654,9 @@ const updateMapWithCity = useCallback(async () => {
                     <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Email address</h4>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">{watch('email')}</span>
-                      <button
-                        type="button"
-                        className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
-                      >
-                        Change Email
-                      </button>
+                       <Button  className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200" onClick={() => setOpen(true)}>Change Email</Button>
+      <ChangeEmailDialog open={open} onOpenChange={setOpen} currentEmail={watch('email')}/>
+                     
                     </div>
                   </div>
 
@@ -619,7 +675,7 @@ const updateMapWithCity = useCallback(async () => {
                 </div>
               </section>
 
-              {/* Danger Zone */}
+             
               {role !== 'admin' && (
                 <section className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-red-500">
                   <h3 className="text-xl font-bold mb-4 text-red-500">Danger Zone</h3>

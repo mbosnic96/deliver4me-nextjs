@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useCallback, useMemo } from 'react'
 import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import '../node_modules/leaflet/dist/leaflet.css'
 
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+import markerIcon from 'marker-icon.png'
+import markerIcon2x from 'marker-icon-2x.png'
+import markerShadow from 'marker-shadow.png'
 
 
 const createMarkerIcon = () => {

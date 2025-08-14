@@ -8,7 +8,7 @@ export class UserService {
   async getCurrentUser(userId: string): Promise<FullUserDto> {
     await dbConnect();
     const user = await User.findById(userId).lean<IUserLean>().exec();
-    
+
     if (!user) {
       throw new Error('User not found');
     }
@@ -18,7 +18,7 @@ export class UserService {
 
   async updateUser(userId: string, dto: EditUserDto): Promise<void> {
     await dbConnect();
-    
+
     const user = await User.findById(userId).exec();
     if (!user) {
       throw new Error('User not found');
@@ -34,30 +34,48 @@ export class UserService {
     user.state = dto.state;
     user.country = dto.country;
     user.postalCode = dto.postalCode;
+    user.email = dto.email;
     user.updatedAt = new Date();
 
     // Handle photo update
     if (dto.photoUrl === null) {
-      // Delete existing photo if requested
-      if (user.photoUrl) {
-        await deleteFile(user.photoUrl);
-        user.photoUrl = undefined;
+      if (user.photoUrl && user.photoUrl !== '/user.png') {
+        try {
+          await deleteFile(user.photoUrl);
+        } catch (error) {
+          console.error('Failed to delete photo file:', error);
+        }
       }
+      user.photoUrl = '/user.png';
     } else if (dto.photoUrl?.startsWith('data:image')) {
-      // Upload new photo
-      const photoUrl = await uploadBase64Image(dto.photoUrl, 'users');
-      if (user.photoUrl) {
-        await deleteFile(user.photoUrl);
-      }
-      user.photoUrl = photoUrl;
-    }
+      try {
+        const photoUrl = await uploadBase64Image(dto.photoUrl, 'users');
 
+
+        if (user.photoUrl &&
+          user.photoUrl !== '/user.png' &&
+          user.photoUrl !== photoUrl) {
+          try {
+            await deleteFile(user.photoUrl);
+          } catch (error) {
+            console.error('Failed to delete old photo:', error);
+          }
+        }
+
+        user.photoUrl = photoUrl;
+      } catch (error) {
+        console.error('Failed to upload new photo:', error);
+        throw new Error('Failed to update profile photo');
+      }
+    } else if (dto.photoUrl !== undefined) {
+      user.photoUrl = dto.photoUrl;
+    }
     await user.save();
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
     await dbConnect();
-    
+
     const user = await User.findById(userId).exec();
     if (!user) {
       throw new Error('User not found');
@@ -75,7 +93,7 @@ export class UserService {
 
   async updateLocation(userId: string, dto: UpdateUserLocationDto): Promise<void> {
     await dbConnect();
-    
+
     const user = await User.findById(userId).exec();
     if (!user) {
       throw new Error('User not found');
@@ -90,7 +108,7 @@ export class UserService {
   async getUserById(userId: string): Promise<FullUserDto> {
     await dbConnect();
     const user = await User.findById(userId).lean<IUserLean>().exec();
-    
+
     if (!user) {
       throw new Error('User not found');
     }
@@ -100,7 +118,7 @@ export class UserService {
 
   async requestAccountDeletion(userId: string): Promise<void> {
     await dbConnect();
-    
+
     const user = await User.findById(userId).exec();
     if (!user) {
       throw new Error('User not found');
@@ -113,7 +131,7 @@ export class UserService {
 
   async restoreUser(userId: string): Promise<void> {
     await dbConnect();
-    
+
     const user = await User.findById(userId).exec();
     if (!user) {
       throw new Error('User not found');
@@ -123,6 +141,17 @@ export class UserService {
     user.deletedAt = undefined;
     await user.save();
   }
+
+
+  async updateEmail(userId: string, newEmail: string): Promise<void> {
+  await dbConnect();
+  const user = await User.findById(userId).exec();
+  if (!user) throw new Error('User not found');
+  
+  user.email = newEmail;
+  user.updatedAt = new Date();
+  await user.save();
+}
 
   private mapUserToDto(user: IUserLean): FullUserDto {
     return {
