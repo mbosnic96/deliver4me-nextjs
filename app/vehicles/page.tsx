@@ -87,8 +87,12 @@ export default function VehiclesPage() {
     return <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center">Please sign in</div>;
   }
 
+  const Spinner = ({ size = "lg" }) => (
+  <div className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}></div>
+);
+
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-screen container mx-auto">
       <Sidebar
         role={role}
         navbarHeight={64}
@@ -107,10 +111,10 @@ export default function VehiclesPage() {
           </button>
 
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-            </div>
-          ) : (
+  <div className="flex justify-center items-center h-64">
+    <Spinner size="lg" />
+  </div>
+) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {vehicles.map((vehicle) => (
                 <div key={vehicle._id} className="group">

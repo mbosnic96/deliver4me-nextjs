@@ -24,7 +24,7 @@ export default function VehicleTypesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-screen cntainer mx-auto">
       <Sidebar
         role={role}
         navbarHeight={64}

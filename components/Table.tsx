@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/dialog";
 import Swal from "sweetalert2";
 
+const Spinner = ({ size = "lg" }) => (
+  <div className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}></div>
+);
+
 interface TableProps<T> {
   title: string;
   columns: ColumnDef<T, any>[];
@@ -41,9 +45,15 @@ export function Table<T extends { _id: string }>({
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await axios.get<T[]>(apiBase);
-    setData(res.data);
-    setLoading(false);
+    try {
+      const res = await axios.get<T[]>(apiBase);
+      setData(res.data);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to fetch data", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -70,15 +80,20 @@ export function Table<T extends { _id: string }>({
 
     if (!result.isConfirmed) return;
 
-    await axios.delete(`${apiBase}/${id}`);
-    fetchData();
-    Swal.fire("Deleted!", "Item has been deleted.", "success");
+    try {
+      await axios.delete(`${apiBase}/${id}`);
+      fetchData();
+      Swal.fire("Deleted!", "Item has been deleted.", "success");
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to delete item", "error");
+    }
   };
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">{title}</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
         <Button
           onClick={() => {
             setEditingRow(undefined);
@@ -90,56 +105,81 @@ export function Table<T extends { _id: string }>({
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="flex justify-center py-20">
+          <Spinner size="lg" />
+        </div>
       ) : (
-        <table className="w-full border border-gray-200">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b">
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="p-2 text-left border-b">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    Actions
                   </th>
-                ))}
-                <th className="p-2 text-left border-b">Actions</th>
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="p-2 border-b">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              {table.getRowModel().rows.map((row, idx) => (
+                <tr
+                  key={row.id}
+                  className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300"
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                  <td className="px-4 py-3 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingRow(row.original);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(row.original._id)}
+                    >
+                      Delete
+                    </Button>
                   </td>
-                ))}
-                <td className="p-2 border-b space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingRow(row.original);
-                      setDialogOpen(true);
-                    }}
+                </tr>
+              ))}
+              {data.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={columns.length + 1}
+                    className="px-4 py-6 text-center text-gray-500 dark:text-gray-400"
                   >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(row.original._id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    No data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingRow ? "Edit Item" : "Add New Item"}</DialogTitle>
           </DialogHeader>

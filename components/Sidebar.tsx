@@ -121,7 +121,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
            
             <li>
               <SidebarLink 
-                href={role === 'admin' ? '/admin/account' : role === 'driver' ? '/driver/account' : '/client/account'} 
+                href="profile" 
                 icon={<Settings size={18} />} 
                 label="Account Settings" 
               />
