@@ -1,4 +1,3 @@
-// app/api/users/email/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
@@ -9,7 +8,6 @@ export async function PATCH(
   try {
     const { email } = await request.json();
 
-    // Basic validation
     if (!email) {
       return NextResponse.json(
         { error: 'Email is required' },
@@ -17,7 +15,7 @@ export async function PATCH(
       );
     }
 
-    // Simple email format validation
+   
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -26,7 +24,7 @@ export async function PATCH(
       );
     }
 
-    // Update the email
+   
     await userService.updateEmail(params.id, email);
 
     return NextResponse.json(
