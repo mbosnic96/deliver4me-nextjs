@@ -12,10 +12,10 @@ import Swal from 'sweetalert2'
 import Sidebar from '@/components/Sidebar'
 import { uploadBase64Image } from '@/lib/file-utils'
 import { Button } from "@/components/ui/button"
-
 import { Input } from "@/components/ui/input"
-
 import ChangeEmailDialog from "@/components/ChangeEmailDialog"
+import ChangePasswordDialog from "@/components/ChangePasswordDialog"
+
 
 type Role = 'client' | 'driver' | 'admin' | undefined
 type FormData = {
@@ -194,6 +194,8 @@ export default function AccountSettings() {
   const markerRef = useRef<any>(null)
 const mapRef = useRef<any>(null)
  const [open, setOpen] = useState(false)
+ const [openPassword, setOpenPassword] = useState(false)
+
 
 
   
@@ -664,17 +666,19 @@ const updatePositionOnly = useCallback(async () => {
                   </div>
 
                   <div>
-                    <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Password</h4>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 dark:text-gray-400">••••••••••</span>
-                      <button
-                        type="button"
-                        className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
-                      >
-                        Change Password
-                      </button>
-                    </div>
-                  </div>
+  <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Password</h4>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-600 dark:text-gray-400">••••••••</span>
+    <Button 
+      className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
+      onClick={() => setOpenPassword(true)}
+    >
+      Change Password
+    </Button>
+    <ChangePasswordDialog open={openPassword} onOpenChange={setOpenPassword} />
+  </div>
+</div>
+
                 </div>
               </section>
 

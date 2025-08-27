@@ -27,7 +27,6 @@ export interface EditUserDto {
   postalCode?: string;
   photoUrl?: string | null;
   updatedAt?: Date;
-  email?: string; 
 }
 
 export interface ChangePasswordDto {
