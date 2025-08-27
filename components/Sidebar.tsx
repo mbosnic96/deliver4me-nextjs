@@ -112,6 +112,9 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
                 <li>
                   <SidebarLink href="/admin/users" icon={<UserCog size={18} />} label="Users" />
                 </li>
+                  <li>
+                  <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="My Vehicles" />
+                </li>
               </>
             )}
 
