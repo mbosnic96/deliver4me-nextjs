@@ -18,7 +18,11 @@ import {
 import Swal from "sweetalert2";
 
 const Spinner = ({ size = "lg" }) => (
-  <div className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}></div>
+  <div
+    className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${
+      size === "lg" ? "h-8 w-8" : "h-4 w-4"
+    }`}
+  ></div>
 );
 
 interface TableProps<T> {
@@ -30,13 +34,15 @@ interface TableProps<T> {
     onClose: () => void;
     onSaved: () => void;
   }>;
+  toggleActive?: boolean;
 }
 
-export function Table<T extends { _id: string }>({
+export function Table<T extends { id: string; isDeleted?: boolean }>({
   title,
   columns,
   apiBase,
   FormComponent,
+  toggleActive = false,
 }: TableProps<T>) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,6 +72,26 @@ export function Table<T extends { _id: string }>({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handleToggle = async (row: T) => {
+    const id = row.id;
+    if (row.isDeleted === undefined) return;
+
+    const action = row.isDeleted ? "activate" : "deactivate";
+
+    try {
+      if (row.isDeleted) {
+        await axios.patch(`${apiBase}/${id}/restore`);
+      } else {
+        await axios.delete(`${apiBase}/${id}`);
+      }
+      Swal.fire("Success", `Item ${action}d`, "success");
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", `Failed to ${action} item`, "error");
+    }
+  };
+
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -93,14 +119,16 @@ export function Table<T extends { _id: string }>({
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {title}
+        </h2>
         <Button
           onClick={() => {
             setEditingRow(undefined);
             setDialogOpen(true);
           }}
         >
-          Add New
+          Dodaj
         </Button>
       </div>
 
@@ -119,11 +147,14 @@ export function Table<T extends { _id: string }>({
                       key={header.id}
                       className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200"
                     >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                     </th>
                   ))}
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    Actions
+                    Akcije
                   </th>
                 </tr>
               ))}
@@ -132,7 +163,11 @@ export function Table<T extends { _id: string }>({
               {table.getRowModel().rows.map((row, idx) => (
                 <tr
                   key={row.id}
-                  className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
+                  className={
+                    idx % 2 === 0
+                      ? "bg-gray-50 dark:bg-gray-800"
+                      : "bg-white dark:bg-gray-900"
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
@@ -151,15 +186,26 @@ export function Table<T extends { _id: string }>({
                         setDialogOpen(true);
                       }}
                     >
-                      Edit
+                      Uredi
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(row.original._id)}
-                    >
-                      Delete
-                    </Button>
+
+                    {toggleActive && row.original.isDeleted !== undefined ? (
+                      <Button
+                        variant={row.original.isDeleted ? "default" : "destructive"}
+                        size="sm"
+                        onClick={() => handleToggle(row.original)}
+                      >
+                        {row.original.isDeleted ? "Aktiviraj" : "Deaktiviraj"}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(row.original.id)}
+                      >
+                        Briši
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -169,7 +215,7 @@ export function Table<T extends { _id: string }>({
                     colSpan={columns.length + 1}
                     className="px-4 py-6 text-center text-gray-500 dark:text-gray-400"
                   >
-                    No data available
+                    Nema podataka
                   </td>
                 </tr>
               )}
@@ -181,7 +227,7 @@ export function Table<T extends { _id: string }>({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingRow ? "Edit Item" : "Add New Item"}</DialogTitle>
+            <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
           </DialogHeader>
           <FormComponent
             initialData={editingRow}

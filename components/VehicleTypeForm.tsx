@@ -38,33 +38,33 @@ export function VehicleTypeForm({
     <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-white dark:bg-gray-800 rounded-lg shadow">
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Name
+          Naziv
         </label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          placeholder="Enter vehicle type name"
+          placeholder="Naziv tipa vozila"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Description
+          Opis
         </label>
         <Input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter description"
+          placeholder="Opis vozila"
         />
       </div>
 
       <div className="flex justify-end space-x-2 pt-2">
         <Button type="button" variant="outline" onClick={onClose}>
-          Cancel
+          Otkaži
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Save"}
+          {loading ? "Spremanje..." : "Sačuvaj"}
         </Button>
       </div>
     </form>

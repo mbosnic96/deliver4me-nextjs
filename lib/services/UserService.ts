@@ -5,6 +5,14 @@ import bcrypt from 'bcryptjs';
 import { deleteFile, uploadBase64Image } from '@/lib/file-utils';
 
 export class UserService {
+
+  async getAllUsers(): Promise<FullUserDto[]> {
+  await dbConnect();
+  const users = await User.find().lean<IUserLean[]>().exec();
+  return users.map(this.mapUserToDto);
+}
+
+
   async getCurrentUser(userId: string): Promise<FullUserDto> {
     await dbConnect();
     const user = await User.findById(userId).lean<IUserLean>().exec();
@@ -36,6 +44,10 @@ export class UserService {
     user.postalCode = dto.postalCode;
     user.email = dto.email;
     user.updatedAt = new Date();
+      if (dto.role !== undefined) {
+    user.role = dto.role;
+  }
+
 
     // Handle photo update
     if (dto.photoUrl === null) {
@@ -169,6 +181,7 @@ export class UserService {
       photoUrl: user.photoUrl,
       latitude: user.latitude,
       longitude: user.longitude,
+      isDeleted: !!user.isDeleted
     };
   }
 }

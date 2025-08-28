@@ -30,7 +30,6 @@ export default function ChangePasswordDialog({
 
   useEffect(() => {
     if (open) {
-      // reset fields when dialog opens
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
@@ -46,11 +45,11 @@ export default function ChangePasswordDialog({
     }
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required")
+      setError("Sva polja su obaveezna")
       return
     }
     if (newPassword !== confirmPassword) {
-      setError("New passwords do not match")
+      setError("Nove lozinke se ne poklapaju!")
       return
     }
 
@@ -67,10 +66,10 @@ export default function ChangePasswordDialog({
 
       if (!res.ok) {
         const { error } = await res.json()
-        throw new Error(error || "Failed to update password")
+        throw new Error(error || "Neuspješna promjena lozinke.")
       }
 
-      setSuccess("Password updated successfully")
+      setSuccess("Lozinka ažurirana.")
       setTimeout(() => {
         onOpenChange(false)
       }, 1200)
@@ -85,29 +84,29 @@ export default function ChangePasswordDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle>Promijeni lozinku</DialogTitle>
           <DialogDescription>
-            Enter your current password and a new one. Make sure it is strong.
+            Unesite trenutnu, zatim novu lozinku. Potrudite se da je nova lozinka jaka i sadrži više od 8 znakova.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-2">
           <Input
             type="password"
-            placeholder="Current password"
+            placeholder="Trenutna lozinka"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             disabled={loading}
           />
           <Input
             type="password"
-            placeholder="New password"
+            placeholder="Nova lozinka"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             disabled={loading}
           />
           <Input
             type="password"
-            placeholder="Confirm new password"
+            placeholder="Potvrdite novu lozinku"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={loading}
@@ -117,13 +116,13 @@ export default function ChangePasswordDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            Otkaži
           </Button>
           <Button 
             onClick={handleSave} 
             disabled={loading || !currentPassword || !newPassword || !confirmPassword}
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? "Spremanje..." : "Sačuvaj"}
           </Button>
         </DialogFooter>
       </DialogContent>

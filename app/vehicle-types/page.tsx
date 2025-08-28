@@ -8,14 +8,14 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 type VehicleType = {
-  _id: string;
+  id: string;
   name: string;
   description: string;
 };
 
 const columns: ColumnDef<VehicleType>[] = [
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "description", header: "Description" }
+  { accessorKey: "name", header: "Naziv" },
+  { accessorKey: "description", header: "Opis" }
 ];
 
 export default function VehicleTypesPage() {
@@ -24,7 +24,7 @@ export default function VehicleTypesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen cntainer mx-auto">
+    <div className="flex min-h-screen container mx-auto">
       <Sidebar
         role={role}
         navbarHeight={64}
@@ -35,7 +35,7 @@ export default function VehicleTypesPage() {
       <main className={`flex-1 transition-all duration-300 mt-[70px] ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="p-4 md:p-6">
           <Table<VehicleType>
-            title="Vehicle Types"
+            title="Tipovi vozila"
             columns={columns}
             apiBase="/api/vehicle-types"
             FormComponent={VehicleTypeForm}

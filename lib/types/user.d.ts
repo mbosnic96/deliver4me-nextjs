@@ -3,7 +3,7 @@ export interface FullUserDto {
   name: string;
   userName: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: string;
   address?: string;
   city?: string;
@@ -13,6 +13,7 @@ export interface FullUserDto {
   photoUrl?: string;
   latitude?: number;
   longitude?: number;
+  isDeleted: !!user.isDeleted
 }
 
 export interface EditUserDto {
@@ -27,6 +28,7 @@ export interface EditUserDto {
   postalCode?: string;
   photoUrl?: string | null;
   updatedAt?: Date;
+  role?: string;
 }
 
 export interface ChangePasswordDto {

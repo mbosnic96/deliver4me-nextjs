@@ -16,9 +16,15 @@ export const authOptions = {
         await dbConnect();
         const user = await User.findOne({ email: credentials?.email });
 
-        if (!user) throw new Error('No user found');
-        const isMatch = await bcrypt.compare(credentials!.password, user.password);
-        if (!isMatch) throw new Error('Incorrect password');
+if (!user) throw new Error('No user found');
+
+if (user.isDeleted) {
+  throw new Error('Account disabled');
+}
+
+const isMatch = await bcrypt.compare(credentials!.password, user.password);
+if (!isMatch) throw new Error('Incorrect password');
+
 
         return {
           id: user._id.toString(),

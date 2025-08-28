@@ -55,7 +55,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
       <button
         onClick={toggleSidebar}
         className="absolute -right-3 top-4 bg-gray-800 text-white rounded-full p-1 hover:bg-gray-700 transition"
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={collapsed ? 'Prikaži' : 'Sakrij'}
       >
         {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
@@ -64,7 +64,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           {!collapsed && (
             <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-              {role === 'admin' ? 'Admin Panel' : role === 'driver' ? 'Driver Portal' : 'Client Portal'}
+              Moji linkovi
             </h1>
           )}
         </div>
@@ -88,10 +88,10 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
             {role === 'driver' && (
               <>
                 <li>
-                  <SidebarLink href="/driver/vehicles" icon={<Truck size={18} />} label="My Vehicles" />
+                  <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="Moja vozila" />
                 </li>
                 <li>
-                  <SidebarLink href="/driver/my-loads" icon={<Truck size={18} />} label="My Loads" />
+                  <SidebarLink href="/driver/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
                 </li>
               </>
             )}
@@ -99,7 +99,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
          
             {role === 'client' && (
               <li>
-                <SidebarLink href="/client/my-loads" icon={<Truck size={18} />} label="My Loads" />
+                <SidebarLink href="/client/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
               </li>
             )}
 
@@ -107,13 +107,13 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
             {role === 'admin' && (
               <>
                 <li>
-                  <SidebarLink href="/vehicle-types" icon={<UserCog size={18} />} label="Vehicle Types" />
+                  <SidebarLink href="/vehicle-types" icon={<UserCog size={18} />} label="Tipovi vozila" />
                 </li>
                 <li>
-                  <SidebarLink href="/admin/users" icon={<UserCog size={18} />} label="Users" />
+                  <SidebarLink href="/users" icon={<UserCog size={18} />} label="Korisnici" />
                 </li>
                   <li>
-                  <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="My Vehicles" />
+                  <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="Moja vozila" />
                 </li>
               </>
             )}
@@ -123,7 +123,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
               <SidebarLink 
                 href="profile" 
                 icon={<Settings size={18} />} 
-                label="Account Settings" 
+                label="Profil" 
               />
             </li>
           </ul>

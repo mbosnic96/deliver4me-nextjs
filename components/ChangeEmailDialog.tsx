@@ -23,11 +23,10 @@ export default function ChangeEmailDialog({
   currentEmail: string
 }) {
   const { data: session } = useSession()
-  const [email, setEmail] = useState("") // Initialize empty
+  const [email, setEmail] = useState("") 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Add useEffect to update email when dialog opens or currentEmail changes
   useEffect(() => {
     if (open) {
       setEmail(currentEmail)
@@ -56,7 +55,7 @@ export default function ChangeEmailDialog({
 
       if (!res.ok) {
         const { error } = await res.json()
-        throw new Error(error || "Failed to update email")
+        throw new Error(error || "Neuspješno ažuriranje emaila.")
       }
 
       onOpenChange(false)
@@ -71,15 +70,15 @@ export default function ChangeEmailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Change Email</DialogTitle>
+          <DialogTitle>Promjena e-mail adrese</DialogTitle>
           <DialogDescription>
-            Pažljivo unesite novu email adresu. 
+            Pažljivo unesite novu e-mail adresu. 
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-2">
           <Input
             type="email"
-            placeholder={`Current: ${currentEmail}`}
+            placeholder={`Trenutna: ${currentEmail}`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
@@ -88,13 +87,13 @@ export default function ChangeEmailDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            Otkaži
           </Button>
           <Button 
             onClick={handleSave} 
             disabled={loading || !email || email === currentEmail}
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? "Spremanje..." : "Sačuvaj"}
           </Button>
         </DialogFooter>
       </DialogContent>
