@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import 'leaflet/dist/leaflet.css';
 
 :root {
   --background: #ffffff;
@@ -60,4 +61,8 @@ input, select, textarea, option,.basic-single {
   background-size: cover;
   background-position: center;
   height: 95vh;
+}
+
+.leaflet-container {
+  z-index: 0 !important;
 }

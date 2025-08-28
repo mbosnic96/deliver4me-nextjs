@@ -5,8 +5,8 @@ export interface IUser extends Document {
   userName: string;
   email: string;
   password: string;
-  phone: string;
-  role: 'client' | 'driver';
+  phone?: string;
+  role: 'client' | 'driver' | 'admin';
   address?: string;
   city?: string;
   state?: string;
@@ -31,8 +31,8 @@ const UserSchema = new Schema<IUser>(
     userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true },
-    role: { type: String, required: true, enum: ['client', 'driver'] },
+    phone: String,
+    role: { type: String, required: true, enum: ['client', 'driver','admin'] },
     address: String,
     city: String,
     state: String,
@@ -47,7 +47,6 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// Check if the model exists before compiling it
-const User = models.User || model<IUser>('User', UserSchema);
+const UserModel = models?.User || model<IUser>('User', UserSchema);
 
-export default User;
+export default UserModel;
