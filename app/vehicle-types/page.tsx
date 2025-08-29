@@ -27,12 +27,12 @@ export default function VehicleTypesPage() {
     <div className="flex min-h-screen container mx-auto">
       <Sidebar
         role={role}
-        navbarHeight={64}
+        navbarHeight={84}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 mt-[70px] ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="p-4 md:p-6">
           <Table<VehicleType>
             title="Tipovi vozila"

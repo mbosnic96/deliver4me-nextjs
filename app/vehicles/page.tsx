@@ -95,12 +95,12 @@ export default function VehiclesPage() {
     <div className="flex min-h-screen container mx-auto">
       <Sidebar
         role={role}
-        navbarHeight={64}
+        navbarHeight={84}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 mt-[70px] ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="p-4 md:p-6">
           <button
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors mb-5"

@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const user = await userService.getUserById(params.id);
     return NextResponse.json(user);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+  } catch (err) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 }
 

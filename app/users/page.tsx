@@ -67,13 +67,13 @@ export default function UsersPage() {
     <div className="flex min-h-screen container mx-auto">
       <Sidebar
         role={role}
-        navbarHeight={64}
+        navbarHeight={84}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
 
       <main
-        className={`flex-1 transition-all duration-300 mt-[70px] ${
+        className={`flex-1 transition-all duration-300 ${
           sidebarCollapsed ? "ml-16" : "ml-64"
         }`}
       >
