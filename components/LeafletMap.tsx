@@ -4,16 +4,13 @@ import { useEffect, useRef, useCallback, useMemo } from 'react'
 import L from 'leaflet'
 import '../node_modules/leaflet/dist/leaflet.css'
 
-import markerIcon from 'marker-icon.png'
-import markerIcon2x from 'marker-icon-2x.png'
-import markerShadow from 'marker-shadow.png'
 
 
 const createMarkerIcon = () => {
   return L.icon({
-    iconUrl: markerIcon.src,
-    iconRetinaUrl: markerIcon2x.src,
-    shadowUrl: markerShadow.src,
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],

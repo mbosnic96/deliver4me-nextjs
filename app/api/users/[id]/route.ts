@@ -2,14 +2,27 @@ import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } | undefined }
+) {
   try {
-    const user = await userService.getUserById(params.id);
+   
+    const { id } = await params!;
+
+    const user = await userService.getUserById(id);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     return NextResponse.json(user);
-  } catch (err) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  } catch (err: any) {
+    console.error("GET /api/users/[id] error:", err);
+    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
   }
 }
+
 
 // full user update
 export async function PUT(

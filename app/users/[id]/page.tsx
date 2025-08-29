@@ -9,6 +9,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import RatingsCard from "@/components/RatingsCard";
 import ReviewsList from "@/components/ReviewsList";
+import { LeafletMap } from "@/components/LeafletMap";
+import { LatLngTuple } from "leaflet";
 
 interface UserProfilePageProps {
   params: Promise<{ id: string }>;
@@ -20,6 +22,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +32,10 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
         const resUser = await fetch(`/api/users/${id}`);
         const userData: FullUserDto = await resUser.json();
         setUser(userData);
+
+        if (userData.latitude && userData.longitude) {
+          setUserLocation([userData.latitude, userData.longitude]);
+        }
 
         const resVehicles = await fetch(`/api/users/${id}/vehicles`);
         const vehiclesData: Vehicle[] = resVehicles.ok ? await resVehicles.json() : [];
@@ -139,9 +146,17 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
       <div className="p-4 border rounded-2xl bg-gray-50 dark:bg-gray-800">
         <h3 className="text-lg font-semibold mb-2">Tačna lokacija</h3>
         <p className="text-gray-500 mb-3">Prikazana je zadnja poznata lokacija korisnika.</p>
-        <div id="map" className="h-72 rounded-2xl border"></div>
-      </div>
+        <div className="h-72 rounded-2xl border">
+          {userLocation ? (
+          <LeafletMap lat={userLocation[0]} lng={userLocation[1]} zoom={13} />
 
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              Lokacija korisnika nije dostupna
+            </div>
+          )}
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {vehicles.map((vehicle) => (
           <div key={vehicle._id} className="group">
