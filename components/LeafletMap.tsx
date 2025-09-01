@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useMemo } from 'react'
 import L from 'leaflet'
 import '../node_modules/leaflet/dist/leaflet.css'
 
-
+//ikone s neta jer izbaci da ih nema nekad iako su bile tu.
 
 const createMarkerIcon = () => {
   return L.icon({
