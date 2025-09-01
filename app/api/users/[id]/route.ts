@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
-
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } | undefined }
-) {
+// GET
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-   
-    const { id } = await params!;
-
+    const { id } = await context.params;
     const user = await userService.getUserById(id);
 
     if (!user) {
@@ -23,15 +18,12 @@ export async function GET(
   }
 }
 
-
 // full user update
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
-    await userService.updateUser(params.id, body);
+    await userService.updateUser(id, body);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Failed to update user:', error);
@@ -40,13 +32,11 @@ export async function PUT(
 }
 
 // location update only
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
-    await userService.updateLocation(params.id, body);
+    await userService.updateLocation(id, body);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Failed to update location:', error);
@@ -55,12 +45,10 @@ export async function PATCH(
 }
 
 // DELETE
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    await userService.requestAccountDeletion(params.id);
+    const { id } = await context.params; 
+    await userService.requestAccountDeletion(id);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Failed to delete user:', error);

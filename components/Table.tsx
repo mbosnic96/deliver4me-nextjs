@@ -49,18 +49,22 @@ export function Table<T extends { id: string; isDeleted?: boolean }>({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRow, setEditingRow] = useState<T | undefined>(undefined);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get<T[]>(apiBase);
-      setData(res.data);
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Failed to fetch data", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get<T[]>(apiBase);
+    const mapped = res.data.map((item: any) => ({
+      ...item,
+      id: item.id || item._id, 
+    }));
+    setData(mapped);
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Failed to fetch data", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchData();
