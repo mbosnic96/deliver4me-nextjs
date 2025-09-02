@@ -142,7 +142,7 @@ export default function LoadPage({ params }: LoadPageProps) {
             className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <ArrowLeft size={16} className="mr-2 text-blue-600" />
-            Back to Loads
+            Nazad
           </Link>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function LoadPage({ params }: LoadPageProps) {
               className="flex items-center text-white hover:text-blue-600  transition-colors"
             >
               <ArrowLeft size={20} className="mr-2 text-blue-600" />
-              Back to Loads
+               Nazad
             </Link>
             <div className="flex items-center space-x-2">
               <button className="p-2 text-blue-600 hover:text-blue-600 transition-colors">
