@@ -4,9 +4,13 @@ import React, { useEffect, useState, use } from "react";
 import Image from "next/image";
 import { FullUserDto } from "@/lib/types/user";
 import { Vehicle } from "@/lib/types/vehicle";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import { 
+  MapPin, Phone, Mail, Truck, Ruler, 
+  Calendar, Star, Award, Clock, User,
+  ArrowLeft, Shield, BadgeCheck, Navigation,
+  AtSign
+} from "lucide-react";
+import Link from "next/link";
 import RatingsCard from "@/components/RatingsCard";
 import ReviewsList from "@/components/ReviewsList";
 import { LeafletMap } from "@/components/LeafletMap";
@@ -23,27 +27,45 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
+  const [currentVehicleImageIndex, setCurrentVehicleImageIndex] = useState<{[key: string]: number}>({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const resUser = await fetch(`/api/users/${id}`);
-        const userData: FullUserDto = await resUser.json();
-        setUser(userData);
+        const [userRes, vehiclesRes, reviewsRes] = await Promise.all([
+          fetch(`/api/users/${id}`),
+          fetch(`/api/users/${id}/vehicles`),
+          fetch(`/api/users/${id}/reviews`)
+        ]);
 
-        if (userData.latitude && userData.longitude) {
-          setUserLocation([userData.latitude, userData.longitude]);
+        if (userRes.ok) {
+          const userData: FullUserDto = await userRes.json();
+          setUser(userData);
+
+          if (userData.latitude && userData.longitude) {
+            setUserLocation([userData.latitude, userData.longitude]);
+          }
         }
 
-        const resVehicles = await fetch(`/api/users/${id}/vehicles`);
-        const vehiclesData: Vehicle[] = resVehicles.ok ? await resVehicles.json() : [];
-        setVehicles(vehiclesData);
+        if (vehiclesRes.ok) {
+          const vehiclesData: Vehicle[] = await vehiclesRes.json();
+          setVehicles(vehiclesData);
+          
+          // Initialize image indices for each vehicle using id or _id
+          const initialIndices: {[key: string]: number} = {};
+          vehiclesData.forEach(vehicle => {
+            const vehicleId = vehicle.id || vehicle._id || `temp-${Math.random()}`;
+            initialIndices[vehicleId] = 0;
+          });
+          setCurrentVehicleImageIndex(initialIndices);
+        }
 
-        const resReviews = await fetch(`/api/users/${id}/reviews`);
-        const reviewsData = resReviews.ok ? await resReviews.json() : [];
-        setReviews(reviewsData);
+        if (reviewsRes.ok) {
+          const reviewsData = await reviewsRes.json();
+          setReviews(reviewsData);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -54,179 +76,330 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
     fetchData();
   }, [id]);
 
-  if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (!user) return <div className="p-6 text-center text-red-500">User not found</div>;
+  // Helper function to get vehicle ID safely
+  const getVehicleId = (vehicle: Vehicle): string => {
+    return vehicle.id || vehicle._id || `temp-${vehicles.indexOf(vehicle)}`;
+  };
+
+  const nextVehicleImage = (vehicle: Vehicle) => {
+    const vehicleId = getVehicleId(vehicle);
+    if (vehicle.images.length > 0) {
+      setCurrentVehicleImageIndex(prev => ({
+        ...prev,
+        [vehicleId]: ((prev[vehicleId] || 0) + 1) % vehicle.images.length
+      }));
+    }
+  };
+
+  const prevVehicleImage = (vehicle: Vehicle) => {
+    const vehicleId = getVehicleId(vehicle);
+    if (vehicle.images.length > 0) {
+      setCurrentVehicleImageIndex(prev => ({
+        ...prev,
+        [vehicleId]: ((prev[vehicleId] || 0) - 1 + vehicle.images.length) % vehicle.images.length
+      }));
+    }
+  };
+
+const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
+  if (!imagePath) return '/assets/default-vehicle.jpg';
+  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
+  const vehicleId = getVehicleId(vehicle);
+  return `/uploads/vehicles/${vehicleId}/${imagePath}`;
+};
+
+
+  const getCurrentImageIndex = (vehicle: Vehicle): number => {
+    const vehicleId = getVehicleId(vehicle);
+    return currentVehicleImageIndex[vehicleId] || 0;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-semibold text-blue-500 mb-2">User Not Found</div>
+          <p className="text-gray-600 mb-4">The requested user could not be found.</p>
+          <Link href="/users" className="btn btn-primary">
+            <ArrowLeft size={16} className="mr-2" />
+            Back to Users
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const averageRating = reviews.length
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0;
   const totalReviews = reviews.length;
 
-  const carouselSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-    adaptiveHeight: true,
-  };
-
   return (
-    <div className="container mx-auto mt-12 space-y-12">
-      <div className="p-4 border rounded-2xl bg-gray-50 dark:bg-gray-800">
-        <h2 className="text-2xl font-semibold mb-4">Profil korisnika</h2>
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-1/3 flex justify-center">
-            <div className="w-48 h-48 relative rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-              {user.photoUrl ? (
-                <Image
-                  src={user.photoUrl}
-                  alt="Profile Photo"
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <Image
-                  src="/user.png"
-                  alt="Placeholder"
-                  fill
-                  className="object-cover"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="lg:w-2/3 space-y-3">
-            <div>
-              <label className="text-gray-500">Ime i prezime</label>
-              <div className="font-bold">{user.name}</div>
-            </div>
-            <div>
-              <label className="text-gray-500">Korisničko ime</label>
-              <div className="font-bold">{user.userName}</div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-gray-500">Država</label>
-                <div className="font-bold">{user.country || "-"}</div>
-              </div>
-              <div>
-                <label className="text-gray-500">Regija/Kanton</label>
-                <div className="font-bold">{user.state || "-"}</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-gray-500">Grad</label>
-                <div className="font-bold">{user.city || "-"}</div>
-              </div>
-              <div>
-                <label className="text-gray-500">Poštanski broj</label>
-                <div className="font-bold">{user.postalCode || "-"}</div>
-              </div>
-            </div>
-            <div>
-              <label className="text-gray-500">Adresa</label>
-              <div className="font-bold">{user.address || "-"}</div>
-            </div>
-            <div>
-              <label className="text-gray-500">Telefon</label>
-              <div className="font-bold">{user.phone || "-"}</div>
-              {user.phone && (
-                <a href={`tel:${user.phone}`} className="btn btn-primary mt-2 inline-block">
-                  Kontaktiraj
-                </a>
-              )}
-            </div>
+    <div className="min-h-screen">
+      {/* Header */}
+      <div className="content-bg shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/users" className="flex items-center text-gray-600 hover:text-blue-500">
+              <ArrowLeft size={20} className="mr-2" />
+              Back to Users
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="p-4 border rounded-2xl bg-gray-50 dark:bg-gray-800">
-        <h3 className="text-lg font-semibold mb-2">Tačna lokacija</h3>
-        <p className="text-gray-500 mb-3">Prikazana je zadnja poznata lokacija korisnika.</p>
-        <div className="h-72 rounded-2xl border">
-          {userLocation ? (
-          <LeafletMap lat={userLocation[0]} lng={userLocation[1]} zoom={13} />
-
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-500">
-              Lokacija korisnika nije dostupna
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {vehicles.map((vehicle) => (
-          <div key={vehicle._id} className="group">
-            <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-lg border-0 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="relative h-56 overflow-hidden rounded-t-lg">
-                {vehicle.images.length > 0 ? (
-                  <Slider {...carouselSettings}>
-                    {vehicle.images.map((img, i) => (
-                      <div key={i} className="h-56">
-                        <img
-                          src={img || "/assets/default-vehicle.jpg"}
-                          className="w-full h-56 object-contain"
-                          alt={`Vehicle ${i + 1}`}
-                        />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* User Profile Card */}
+            <div className="content-bg rounded-xl shadow-sm border p-6">
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex justify-center lg:justify-start">
+                  <div className="w-32 h-32 relative rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
+                    {user.photoUrl ? (
+                      <Image
+                        src={user.photoUrl}
+                        alt="Profile Photo"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <User size={48} className="text-blue-500" />
                       </div>
-                    ))}
-                  </Slider>
-                ) : (
-                  <img
-                    src="/assets/default-vehicle.jpg"
-                    className="w-full h-56 object-cover"
-                    alt="Default vehicle"
-                  />
-                )}
-                {vehicle.vehicleType && (
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg z-10">
-                    {vehicle.vehicleType.name}
+                    )}
                   </div>
-                )}
-              </div>
-              <div className="flex-1 p-4 pb-2">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {vehicle.model || "Unknown Model"}
-                    </h3>
-                    <small className="text-gray-600 dark:text-gray-400">
-                      {vehicle.brand || "Unknown Brand"}
-                    </small>
-                  </div>
-                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm font-medium">
-                    {vehicle.volume?.toFixed(2) ?? 0} m³
-                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
-                      Registracija
+
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h1 className="text-2xl font-bold text-white">{user.name}</h1>
+                      <p className="flex items-center text-blue-600">
+                        <AtSign size={14} className="mr-1 text-blue-600" />
+                        {user.userName}
+                      </p>
                     </div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {vehicle.plateNumber || "-"}
+                    <div className="flex items-center space-x-2">
+                      {user.role === 'admin' && (
+                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                          <Shield size={12} className="inline mr-1 text-blue-600" />
+                          Admin
+                        </span>
+                      )}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        user.role === 'driver' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {user.role === 'driver' ? 'Vozač' : 'Klijent'}
+                      </span>
                     </div>
                   </div>
-                  <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">
-                      Dimenzije
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center text-white">
+                      <MapPin size={16} className="mr-2 text-blue-600" />
+                      <span>{user.city || 'Nepoznato'}, {user.country || 'Nepoznato'}</span>
                     </div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {vehicle.width ?? 0}x{vehicle.length ?? 0}x{vehicle.height ?? 0} m
+                    <div className="flex items-center text-white">
+                      <Phone size={16} className="mr-2 text-blue-500" />
+                      <a href={`tel:${user.phone}`} className="hover:text-primary-600">
+                        {user.phone || 'Nepoznato'}
+                      </a>
                     </div>
+                  </div>
+
+                  {user.address && (
+                    <div className="text-white">
+                      <MapPin size={16} className="inline mr-2 text-blue-600" />
+                      {user.address}
+                    </div>
+                  )}
+
+                  <div className="flex space-x-3 pt-4">
+                    <a
+                      href={`tel:${user.phone}`}
+                      className="btn btn-primary flex items-center"
+                    >
+                      <Phone size={16} className="mr-2 text-blue-600" />
+                      Pozovi
+                    </a>
+                    {user.email && (
+                      <a
+                        href={`mailto:${user.email}`}
+                        className="btn btn-outline flex items-center"
+                      >
+                        <Mail size={16} className="mr-2 text-blue-600" />
+                        Email
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
 
-      <RatingsCard averageRating={averageRating} totalReviews={totalReviews} />
-      <ReviewsList userId={user.id} />
+            {/* Location Map */}
+            <div className="content-bg rounded-xl shadow-sm border p-6">
+              <h3 className="font-semibold text-white mb-4 flex items-center">
+                <Navigation size={20} className="mr-2 text-blue-600" />
+                Lokacija korisnika
+              </h3>
+              <p className="text-white mb-4 text-sm">
+                Prikazana je zadnja poznata lokacija korisnika.
+              </p>
+              <div className="h-72 rounded-lg border overflow-hidden">
+                {userLocation ? (
+                  <LeafletMap 
+                    lat={userLocation[0]} 
+                    lng={userLocation[1]} 
+                    zoom={13}
+                    className="h-full w-full"
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-white content-bg">
+                    <div className="text-center">
+                      <MapPin size={32} className="mx-auto text-blue-600 mb-2" />
+                      <p>Lokacija korisnika nije dostupna</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Ratings Section */}
+            <RatingsCard averageRating={averageRating} totalReviews={totalReviews} />
+
+            {/* Reviews Section */}
+            <ReviewsList userId={user.id} />
+          </div>
+
+          {/* Sidebar - Vehicles */}
+          <div className="space-y-6">
+            {/* Vehicles Header */}
+            <div className="content-bg rounded-xl shadow-sm border p-6">
+              <h3 className="font-semibold text-white mb-4 flex items-center">
+                <Truck size={20} className="mr-2 text-blue-600" />
+                Vozila ({vehicles.length})
+              </h3>
+              {vehicles.length === 0 && (
+                <p className="text-white text-center py-8">
+                  Korisnik nema registrovanih vozila
+                </p>
+              )}
+            </div>
+
+            {/* Vehicles List */}
+            {vehicles.map((vehicle) => {
+              const currentIndex = getCurrentImageIndex(vehicle);
+              
+              return (
+                <div key={getVehicleId(vehicle)} className="content-bg rounded-xl shadow-sm border overflow-hidden">
+                  {/* Vehicle Images */}
+                  {vehicle.images.length > 0 && (
+                    <div className="relative aspect-video">
+                      <Image
+                        src={getVehicleImageUrl(vehicle, vehicle.images[currentIndex])}
+                        alt={vehicle.model || "Vehicle"}
+                        fill
+                        className="object-cover"
+                      />
+                      
+                      {/* Navigation Arrows */}
+                      {vehicle.images.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => prevVehicleImage(vehicle)}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:content-bg p-1 rounded-full shadow-md transition-colors"
+                          >
+                            <ArrowLeft size={16} />
+                          </button>
+                          <button
+                            onClick={() => nextVehicleImage(vehicle)}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:content-bg p-1 rounded-full shadow-md transition-colors"
+                          >
+                            <ArrowLeft size={16} className="rotate-180 text-blue-500" />
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* Image Counter */}
+                      {vehicle.images.length > 1 && (
+                        <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
+                          {currentIndex + 1} / {vehicle.images.length}
+                        </div>
+                      )}
+                      
+                      {/* Vehicle Type Badge */}
+                      {vehicle.vehicleType && (
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                          {vehicle.vehicleType.name}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Vehicle Details */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-semibold text-blue-500">
+                          {vehicle.model || "Nepoznat model"}
+                        </h4>
+                        <p className="text-white text-sm">
+                          {vehicle.brand || "Nepoznata marka"}
+                        </p>
+                      </div>
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                        {vehicle.volume?.toFixed(2) ?? 0} m³
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
+                          Registracija
+                        </div>
+                        <div className="font-semibold text-white">
+                          {vehicle.plateNumber || "-"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
+                          Dimenzije
+                        </div>
+                        <div className="font-semibold text-white">
+                          {vehicle.width ?? 0}×{vehicle.length ?? 0}×{vehicle.height ?? 0}m
+                        </div>
+                      </div>
+                    </div>
+
+                    {vehicle.cargoPercentage !== undefined && (
+                      <div className="mt-3 pt-3 border-t">
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
+                          Zauzeće tereta
+                        </div>
+                        <div className="font-semibold text-white">
+                          {vehicle.cargoPercentage}%
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
