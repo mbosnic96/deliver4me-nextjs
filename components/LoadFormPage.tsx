@@ -208,7 +208,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
       if (!res.ok) throw new Error('Failed to upload images')
     } catch (err) {
       console.error(err)
-      Swal.fire({ icon: 'warning', title: 'Upozorenje',customClass: { popup: 'pointer-events-auto' }, text: 'Slike nisu uspješno uploadane.', timer: 3000, showConfirmButton: false })
+      Swal.fire({ icon: 'warning', title: 'Upozorenje',customClass: { popup: 'pointer-events-auto' }, text: 'Slike nisu uploadovane.', timer: 3000, showConfirmButton: false })
     }
   }
 
