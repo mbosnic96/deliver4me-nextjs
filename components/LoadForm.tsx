@@ -56,8 +56,9 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showCloseWarning, setShowCloseWarning] = useState(false)
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([])
 
-  // Initialize countries and form
+
   useEffect(() => {
     setCountries(getCountries().map(c => ({ value: c.value, label: c.label })))
     if (initialData) {
@@ -81,13 +82,11 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }, [initialData])
 
-  // Handle form changes
   const handleChange = (field: string, value: any) => {
     setForm((prev: typeof form) => ({ ...prev, [field]: value }))
     setIsDirty(true)
   }
 
-  // CSC handlers
   const handlePickupCountryChange = (option: any) => {
     handleChange('pickupCountry', option)
     handleChange('pickupState', null)
@@ -125,7 +124,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     handleChange('deliveryLongitude', coords?.lng ?? 0)
   }
 
-  // Auto volume calculation
   useEffect(() => {
     const width = parseFloat(form.cargoWidth) || 0
     const height = parseFloat(form.cargoHeight) || 0
@@ -133,7 +131,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     handleChange('cargoVolume', (width * height * length).toFixed(2))
   }, [form.cargoWidth, form.cargoHeight, form.cargoLength])
 
-  // Image handlers
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const files = Array.from(e.target.files)
@@ -142,24 +140,18 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setIsDirty(true)
   }
 
-  const removeImage = async (index: number) => {
+  const removeImage = (index: number) => {
     const removed = imagePreviews[index]
+    if (removed.startsWith('/uploads')) {
+      setImagesToRemove(prev => [...prev, removed])
+    }
+
     setSelectedImages(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setIsDirty(true)
-
-    if (form.id && removed.startsWith('/uploads')) {
-      // Delete from server if already uploaded
-      try {
-        await fetch(`/api/loads/${form.id}/images`, { method: 'DELETE', body: JSON.stringify({ imageUrl: removed }), headers: { 'Content-Type': 'application/json' } })
-        handleChange('images', form.images.filter((img: string) => img !== removed))
-      } catch (err) {
-        console.error(err)
-      }
-    }
   }
 
-  // Dialog close with dirty-warning
+
   const handleClose = useCallback(() => {
     if (isDirty && !showCloseWarning) {
       setShowCloseWarning(true)
@@ -180,14 +172,13 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }, [isDirty, showCloseWarning, onClose])
 
-  // Submit form
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
       const jsonData = { ...form }
-      ;['pickupCountry','pickupState','pickupCity','deliveryCountry','deliveryState','deliveryCity'].forEach(f => {
-        if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value
-      })
+        ;['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
+          if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value
+        })
 
       const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads'
       const method = initialData?.id ? 'PATCH' : 'POST'
@@ -199,10 +190,21 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
 
       if (!res.ok) throw new Error('Failed to save load')
       const result = await res.json()
-      const loadId = result.id || initialData?.id
-
-      // Upload images
+      const loadId = result._id || initialData?.id
       if (selectedImages.length > 0) await uploadImages(loadId, selectedImages)
+
+      for (const imageUrl of imagesToRemove) {
+        try {
+          await fetch(`/api/loads/${loadId}/images`, {
+            method: 'DELETE',
+            body: JSON.stringify({ imageUrl }),
+            headers: { 'Content-Type': 'application/json' }
+          })
+        } catch (err) {
+          console.error('Failed to delete image', imageUrl)
+        }
+      }
+      setImagesToRemove([])
 
       Swal.fire({ icon: 'success', title: 'Uspjeh', text: 'Teret uspješno sačuvan!', timer: 2000, showConfirmButton: false, customClass: { popup: 'pointer-events-auto' } })
       setIsDirty(false)
@@ -216,7 +218,8 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }
 
-  // Upload images function
+
+
   const uploadImages = async (loadId: string, images: File[]) => {
     if (!images.length) return
     const formData = new FormData()
@@ -239,7 +242,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
         <DialogHeader><DialogTitle>{initialData ? 'Uredi teret' : 'Dodaj novi teret'}</DialogTitle></DialogHeader>
 
         <div className="space-y-4">
-          {/* Title & Description */}
           <div>
             <label className="block font-semibold mb-1">Naslov</label>
             <input className="w-full border rounded px-3 py-2" value={form.title} onChange={e => handleChange('title', e.target.value)} />
@@ -249,52 +251,52 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
             <textarea className="w-full border rounded px-3 py-2 min-h-[100px]" value={form.description} onChange={e => handleChange('description', e.target.value)} />
           </div>
 
-          {/* Pickup */}
+
           <div className="border rounded p-4 space-y-3">
             <h6 className="font-semibold text-lg">Lokacija preuzimanja</h6>
             <div className="flex gap-3">
-              <Select options={countries} value={form.pickupCountry} onChange={handlePickupCountryChange} placeholder="Država" className="w-1/3"/>
-              <Select options={pickupStates} value={form.pickupState} onChange={handlePickupStateChange} placeholder="Regija" className="w-1/3"/>
-              <Select options={pickupCities} value={form.pickupCity} onChange={handlePickupCityChange} placeholder="Grad" className="w-1/3"/>
+              <Select options={countries} value={form.pickupCountry} onChange={handlePickupCountryChange} placeholder="Država" className="w-1/3" />
+              <Select options={pickupStates} value={form.pickupState} onChange={handlePickupStateChange} placeholder="Regija" className="w-1/3" />
+              <Select options={pickupCities} value={form.pickupCity} onChange={handlePickupCityChange} placeholder="Grad" className="w-1/3" />
             </div>
-            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa preuzimanja" value={form.pickupAddress} onChange={e => handleChange('pickupAddress', e.target.value)}/>
-            <div className="h-64 mt-2"><LeafletMap lat={form.pickupLatitude} lng={form.pickupLongitude} onChange={(lat,lng)=>{handleChange('pickupLatitude',lat); handleChange('pickupLongitude',lng)}}/></div>
+            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa preuzimanja" value={form.pickupAddress} onChange={e => handleChange('pickupAddress', e.target.value)} />
+            <div className="h-64 mt-2"><LeafletMap lat={form.pickupLatitude} lng={form.pickupLongitude} onChange={(lat, lng) => { handleChange('pickupLatitude', lat); handleChange('pickupLongitude', lng) }} /></div>
           </div>
 
-          {/* Delivery */}
+
           <div className="border rounded p-4 space-y-3">
             <h6 className="font-semibold text-lg">Lokacija isporuke</h6>
             <div className="flex gap-3">
-              <Select options={countries} value={form.deliveryCountry} onChange={handleDeliveryCountryChange} placeholder="Država" className="w-1/3"/>
-              <Select options={deliveryStates} value={form.deliveryState} onChange={handleDeliveryStateChange} placeholder="Regija" className="w-1/3"/>
-              <Select options={deliveryCities} value={form.deliveryCity} onChange={handleDeliveryCityChange} placeholder="Grad" className="w-1/3"/>
+              <Select options={countries} value={form.deliveryCountry} onChange={handleDeliveryCountryChange} placeholder="Država" className="w-1/3" />
+              <Select options={deliveryStates} value={form.deliveryState} onChange={handleDeliveryStateChange} placeholder="Regija" className="w-1/3" />
+              <Select options={deliveryCities} value={form.deliveryCity} onChange={handleDeliveryCityChange} placeholder="Grad" className="w-1/3" />
             </div>
-            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)}/>
-            <div className="h-64 mt-2"><LeafletMap lat={form.deliveryLatitude} lng={form.deliveryLongitude} onChange={(lat,lng)=>{handleChange('deliveryLatitude',lat); handleChange('deliveryLongitude',lng)}}/></div>
+            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)} />
+            <div className="h-64 mt-2"><LeafletMap lat={form.deliveryLatitude} lng={form.deliveryLongitude} onChange={(lat, lng) => { handleChange('deliveryLatitude', lat); handleChange('deliveryLongitude', lng) }} /></div>
           </div>
 
-          {/* Cargo */}
+
           <div className="space-y-3">
             <h6 className="font-semibold text-lg">Detalji o teretu</h6>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <input className="border rounded p-2" placeholder="Težina (kg)" value={form.cargoWeight} onChange={e=>handleChange('cargoWeight', e.target.value)}/>
-              <input className="border rounded p-2" placeholder="Širina (m)" value={form.cargoWidth} onChange={e=>handleChange('cargoWidth', e.target.value)}/>
-              <input className="border rounded p-2" placeholder="Visina (m)" value={form.cargoHeight} onChange={e=>handleChange('cargoHeight', e.target.value)}/>
-              <input className="border rounded p-2" placeholder="Dužina (m)" value={form.cargoLength} onChange={e=>handleChange('cargoLength', e.target.value)}/>
-              <input className="border rounded p-2" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly/>
+              <input className="border rounded p-2" placeholder="Težina (kg)" value={form.cargoWeight} onChange={e => handleChange('cargoWeight', e.target.value)} />
+              <input className="border rounded p-2" placeholder="Širina (m)" value={form.cargoWidth} onChange={e => handleChange('cargoWidth', e.target.value)} />
+              <input className="border rounded p-2" placeholder="Visina (m)" value={form.cargoHeight} onChange={e => handleChange('cargoHeight', e.target.value)} />
+              <input className="border rounded p-2" placeholder="Dužina (m)" value={form.cargoLength} onChange={e => handleChange('cargoLength', e.target.value)} />
+              <input className="border rounded p-2" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
             </div>
-            <input className="border rounded p-2 mt-2" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e=>handleChange('fixedPrice', e.target.value)}/>
+            <input className="border rounded p-2 mt-2" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
           </div>
 
-          {/* Images */}
+
           <div className="space-y-3">
             <label className="font-semibold text-lg">Dodaj slike</label>
-            <input type="file" multiple accept="image/*" onChange={handleImageSelect} className="border rounded p-2 w-full"/>
+            <input type="file" multiple accept="image/*" onChange={handleImageSelect} className="border rounded p-2 w-full" />
             <div className="flex flex-wrap gap-3 mt-3">
-              {imagePreviews.map((src,i)=>(
+              {imagePreviews.map((src, i) => (
                 <div key={i} className="relative">
-                  <img src={src} className="w-24 h-24 object-cover rounded border"/>
-                  <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center" onClick={()=>removeImage(i)}>×</button>
+                  <img src={src} className="w-24 h-24 object-cover rounded border" />
+                  <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center" onClick={() => removeImage(i)}>×</button>
                 </div>
               ))}
             </div>
@@ -303,7 +305,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
 
         <DialogFooter className="mt-6 flex justify-end gap-3">
           <Button variant="outline" onClick={handleClose}>Otkaži</Button>
-          <Button onClick={handleSubmit} disabled={isLoading}>{initialData?'Ažuriraj teret':'Kreiraj teret'}</Button>
+          <Button onClick={handleSubmit} disabled={isLoading}>{initialData ? 'Ažuriraj teret' : 'Kreiraj teret'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

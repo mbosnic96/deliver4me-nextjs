@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   }
 
   const data = await request.json();
-  data.userId = session.user.id; // ensure it's always owned by current user unless admin overrides
+  data.userId = session.user.id; 
 
   const newLoad = await Load.create(data);
   return NextResponse.json(newLoad, { status: 201 });
