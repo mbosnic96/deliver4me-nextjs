@@ -53,7 +53,6 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
           const vehiclesData: Vehicle[] = await vehiclesRes.json();
           setVehicles(vehiclesData);
           
-          // Initialize image indices for each vehicle using id or _id
           const initialIndices: {[key: string]: number} = {};
           vehiclesData.forEach(vehicle => {
             const vehicleId = vehicle.id || vehicle._id || `temp-${Math.random()}`;
@@ -76,7 +75,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
     fetchData();
   }, [id]);
 
-  // Helper function to get vehicle ID safely
+
   const getVehicleId = (vehicle: Vehicle): string => {
     return vehicle.id || vehicle._id || `temp-${vehicles.indexOf(vehicle)}`;
   };
@@ -144,23 +143,9 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <div className="content-bg shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/users" className="flex items-center text-gray-600 hover:text-blue-500">
-              <ArrowLeft size={20} className="mr-2" />
-              Back to Users
-            </Link>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* User Profile Card */}
             <div className="content-bg rounded-xl shadow-sm border p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 <div className="flex justify-center lg:justify-start">
@@ -248,7 +233,6 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
               </div>
             </div>
 
-            {/* Location Map */}
             <div className="content-bg rounded-xl shadow-sm border p-6">
               <h3 className="font-semibold text-white mb-4 flex items-center">
                 <Navigation size={20} className="mr-2 text-blue-600" />
@@ -276,16 +260,16 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
               </div>
             </div>
 
-            {/* Ratings Section */}
+   
             <RatingsCard averageRating={averageRating} totalReviews={totalReviews} />
 
-            {/* Reviews Section */}
+         
             <ReviewsList userId={user.id} />
           </div>
 
-          {/* Sidebar - Vehicles */}
+
           <div className="space-y-6">
-            {/* Vehicles Header */}
+          
             <div className="content-bg rounded-xl shadow-sm border p-6">
               <h3 className="font-semibold text-white mb-4 flex items-center">
                 <Truck size={20} className="mr-2 text-blue-600" />
@@ -298,13 +282,12 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
               )}
             </div>
 
-            {/* Vehicles List */}
+        
             {vehicles.map((vehicle) => {
               const currentIndex = getCurrentImageIndex(vehicle);
               
               return (
                 <div key={getVehicleId(vehicle)} className="content-bg rounded-xl shadow-sm border overflow-hidden">
-                  {/* Vehicle Images */}
                   {vehicle.images.length > 0 && (
                     <div className="relative aspect-video">
                       <Image
@@ -314,14 +297,13 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                         className="object-cover"
                       />
                       
-                      {/* Navigation Arrows */}
                       {vehicle.images.length > 1 && (
                         <>
                           <button
                             onClick={() => prevVehicleImage(vehicle)}
                             className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:content-bg p-1 rounded-full shadow-md transition-colors"
                           >
-                            <ArrowLeft size={16} />
+                            <ArrowLeft size={16} className="text-blue-500"/>
                           </button>
                           <button
                             onClick={() => nextVehicleImage(vehicle)}
@@ -332,14 +314,14 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                         </>
                       )}
                       
-                      {/* Image Counter */}
+                   
                       {vehicle.images.length > 1 && (
                         <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
                           {currentIndex + 1} / {vehicle.images.length}
                         </div>
                       )}
                       
-                      {/* Vehicle Type Badge */}
+                     
                       {vehicle.vehicleType && (
                         <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
                           {vehicle.vehicleType.name}
@@ -348,7 +330,6 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                     </div>
                   )}
 
-                  {/* Vehicle Details */}
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div>
