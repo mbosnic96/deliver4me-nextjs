@@ -1,4 +1,3 @@
-// lib/dbConnect.ts
 import { connect, connection } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/deliver4me';
