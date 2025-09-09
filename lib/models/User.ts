@@ -19,6 +19,9 @@ export interface IUser extends Document {
   deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+    rating: number;
+  reviewsCount: number;
+   
 }
 
 export interface IUserLean extends Omit<IUser, keyof Document> {
@@ -43,6 +46,9 @@ const UserSchema = new Schema<IUser>(
     longitude: Number,
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
+     rating: { type: Number, default: 0 }, // average rating
+    reviewsCount: { type: Number, default: 0 }, // how many reviews
+    
   },
   { timestamps: true }
 );

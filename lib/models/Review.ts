@@ -1,11 +1,24 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-const ReviewSchema = new Schema({
-  fromUserId: { type: Schema.Types.ObjectId, ref: 'User' },
-  toUserId: { type: Schema.Types.ObjectId, ref: 'User' },
-  loadId: { type: Schema.Types.ObjectId, ref: 'Load' },
-  rating: Number,
-  comment: String
-}, { timestamps: { createdAt: true, updatedAt: false } });
+export interface IReview extends Document {
+  fromUserId: mongoose.Types.ObjectId;
+  toUserId: mongoose.Types.ObjectId;
+  loadId: mongoose.Types.ObjectId;
+  rating: number;
+  comment?: string;
+  createdAt: Date;
+}
 
-export default models.Review || model('Review', ReviewSchema);
+const ReviewSchema: Schema<IReview> = new Schema(
+  {
+    fromUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    toUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    loadId: { type: Schema.Types.ObjectId, ref: "Load", required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.Review ||
+  mongoose.model<IReview>("Review", ReviewSchema);

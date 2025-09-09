@@ -3,15 +3,17 @@
 import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { 
-  MapPin, Truck, Package, User, Calendar, AtSign, 
+import {
+  MapPin, Truck, Package, User, Calendar, AtSign,
   Phone, Flag, Eye, Mail, Euro, Clock, Weight, Ruler,
-  ArrowLeft, Share2, Heart, Star, MessageSquare, Loader2,
-  Gavel, Award, Users, X
+  ArrowLeft, Share2, Heart, Star, Loader2,
+  Gavel, Award, X, MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { ReviewDialog } from "@/components/ReviewDialog";
+
 
 interface LoadPageProps {
   params: Promise<{ id: string }>;
@@ -75,6 +77,10 @@ type BidType = {
 };
 
 export default function LoadPage({ params }: LoadPageProps) {
+  const resolvedParams = use(params); 
+  const { id } = resolvedParams;
+  const { data: session, status: sessionStatus } = useSession();
+
   const [loadData, setLoadData] = useState<LoadType | null>(null);
   const [user, setUser] = useState<UserType | null>(null);
   const [bids, setBids] = useState<BidType[]>([]);
@@ -85,48 +91,37 @@ export default function LoadPage({ params }: LoadPageProps) {
   const [bidMessage, setBidMessage] = useState("");
   const [isSubmittingBid, setIsSubmittingBid] = useState(false);
   const [showBidForm, setShowBidForm] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const acceptedBid = bids.find(bid => bid.status === "accepted");
 
-  const { data: session, status: sessionStatus } = useSession();
-  const { id } = use(params);
 
+//fetch load data
   useEffect(() => {
     async function fetchData() {
       try {
         setIsLoading(true);
-        
-        const loadResponse = await fetch(`/api/loads/${id}`);
-        if (!loadResponse.ok) {
-          throw new Error('Failed to fetch load data');
-        }
 
-        const loadData = await loadResponse.json();
-        setLoadData(loadData);
+        const loadRes = await fetch(`/api/loads/${id}`);
+        if (!loadRes.ok) throw new Error("Failed to fetch load data");
+        const load = await loadRes.json();
+        setLoadData(load);
 
-        if (loadData.userId) {
-          try {
-            const userResponse = await fetch(`/api/users/${loadData.userId}`);
-            if (userResponse.ok) {
-              const userData = await userResponse.json();
-              setUser({ ...userData, _id: userData.id ?? userData._id });
-            }
-          } catch (userError) {
-            console.error("Error fetching user data:", userError);
+        if (load.userId) {
+          const userRes = await fetch(`/api/users/${load.userId}`);
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setUser({ ...userData, _id: userData._id ?? userData.id });
           }
         }
 
-        try {
-          const bidsResponse = await fetch(`/api/bids?loadId=${id}`);
-          if (bidsResponse.ok) {
-            const bidsData = await bidsResponse.json();
-              console.log('Bid fetched:', bidsData);
-            setBids(bidsData);
-          }
-        } catch (bidsError) {
-          console.error("Error fetching bids:", bidsError);
+        const bidsRes = await fetch(`/api/bids?loadId=${id}`);
+        if (bidsRes.ok) {
+          const bidsData = await bidsRes.json();
+          setBids(bidsData);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        console.error("Error fetching load data:", err);
+        setError(err instanceof Error ? err.message : "Error fetching data");
       } finally {
         setIsLoading(false);
       }
@@ -134,6 +129,30 @@ export default function LoadPage({ params }: LoadPageProps) {
 
     fetchData();
   }, [id]);
+
+  //  Check if user already reviewed
+  useEffect(() => {
+    const checkReview = async () => {
+      if (session?.user?.id && loadData?._id) {
+        try {
+          const res = await fetch(
+            `/api/reviews/check?loadId=${loadData._id}&userId=${session.user.id}`
+          );
+          const data = await res.json();
+          setHasReviewed(data.hasReviewed);
+        } catch (err) {
+          console.error("Failed to check review:", err);
+        }
+      }
+    };
+    checkReview();
+  }, [session?.user?.id, loadData?._id]);
+
+  useEffect(() => {
+    if (loadData?.status === "Dostavljen" && !hasReviewed) {
+      setIsReviewOpen(true);
+    }
+  }, [loadData?.status, hasReviewed]);
 
   const handleBidAction = async (bidId: string, action: "accepted" | "rejected") => {
     try {
@@ -143,73 +162,48 @@ export default function LoadPage({ params }: LoadPageProps) {
         body: JSON.stringify({ status: action }),
       });
 
-      if (res.ok) {
-        const updatedBid = await res.json();
-        setBids((prev) =>
-          prev.map((b) => (b._id === updatedBid._id ? updatedBid : b))
-        );
-        
-        if (action === "accepted") {
-          const loadRes = await fetch(`/api/loads/${id}`);
-          if (loadRes.ok) {
-            const updatedLoad = await loadRes.json();
-            setLoadData(updatedLoad);
-            toast.success("Ponuda uspješno prihvaćena!");
-          }
-        } else {
-          toast.success("Ponuda uspješno odbijena!");
-        }
+      if (!res.ok) throw new Error("Failed to update bid");
+      const updatedBid = await res.json();
+      setBids((prev) => prev.map((b) => (b._id === updatedBid._id ? updatedBid : b)));
+
+      if (action === "accepted") {
+        const loadRes = await fetch(`/api/loads/${id}`);
+        if (loadRes.ok) setLoadData(await loadRes.json());
+        toast.success("Ponuda uspješno prihvaćena!");
       } else {
-        console.error("Failed to update bid");
-        toast.error("Greška pri ažuriranju ponude!");
+        toast.success("Ponuda uspješno odbijena!");
       }
     } catch (err) {
-      console.error("Error updating bid:", err);
       toast.error("Greška pri ažuriranju ponude!");
     }
   };
 
   const handleCancelAcceptedBid = async (bidId: string) => {
     try {
-      const res = await fetch(`/api/bids/${bidId}/cancel`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await fetch(`/api/bids/${bidId}/cancel`, { method: "PUT" });
+      if (!res.ok) throw new Error("Failed to cancel bid");
 
-      if (res.ok) {
-        const { bid, load } = await res.json();
-        
-       
-        const bidsResponse = await fetch(`/api/bids?loadId=${id}`);
-        if (bidsResponse.ok) {
-          const bidsData = await bidsResponse.json();
-          setBids(bidsData);
-        }
-        
-       
-        setLoadData(load);
-        toast.success("Prihvaćena ponuda uspješno otkazana!");
-      } else {
-        console.error("Failed to cancel bid");
-        toast.error("Greška pri otkazivanju ponude!");
-      }
+      const { bid, load } = await res.json();
+      setLoadData(load);
+
+      const bidsRes = await fetch(`/api/bids?loadId=${id}`);
+      if (bidsRes.ok) setBids(await bidsRes.json());
+
+      toast.success("Prihvaćena ponuda otkazana!");
     } catch (err) {
-      console.error("Error canceling bid:", err);
       toast.error("Greška pri otkazivanju ponude!");
     }
   };
 
   const handleSubmitBid = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session || !bidPrice) return;
-    
+    if (!session?.user?.id || !bidPrice) return;
+
     setIsSubmittingBid(true);
     try {
-      const response = await fetch('/api/bids', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/bids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           loadId: id,
           price: parseFloat(bidPrice),
@@ -217,59 +211,51 @@ export default function LoadPage({ params }: LoadPageProps) {
         }),
       });
 
-      if (response.ok) {
-        const newBid = await response.json();
-        setBids([...bids, newBid]);
-        setBidPrice("");
-        setBidMessage("");
-        setShowBidForm(false);
-        toast.success("Ponuda uspješno poslana!");
-      } else {
-        throw new Error('Failed to submit bid');
-      }
+      if (!res.ok) throw new Error("Failed to submit bid");
+      const newBid = await res.json();
+      setBids((prev) => [...prev, newBid]);
+      setBidPrice("");
+      setBidMessage("");
+      setShowBidForm(false);
+      toast.success("Ponuda poslana!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit bid');
       toast.error("Greška pri slanju ponude!");
     } finally {
       setIsSubmittingBid(false);
     }
   };
 
-  const nextImage = () => {
-    if (loadData?.images && loadData.images.length > 0) {
-      setCurrentImageIndex((prev) => (prev + 1) % loadData.images.length);
-    }
-  };
+  const nextImage = () =>
+    loadData?.images?.length &&
+    setCurrentImageIndex((i) => (i + 1) % loadData.images.length);
 
-  const prevImage = () => {
-    if (loadData?.images && loadData.images.length > 0) {
-      setCurrentImageIndex((prev) => (prev - 1 + loadData.images.length) % loadData.images.length);
-    }
-  };
+  const prevImage = () =>
+    loadData?.images?.length &&
+    setCurrentImageIndex((i) => (i - 1 + loadData.images.length) % loadData.images.length);
 
   const statusColors = {
     Aktivan: "bg-green-100 text-green-800",
     Poslan: "bg-blue-100 text-blue-800",
     Otkazan: "bg-red-100 text-red-800",
-    Dostavljen: "bg-purple-100 text-purple-800"
+    Dostavljen: "bg-purple-100 text-purple-800",
   };
 
-  const bidStatusColors = {
+    const bidStatusColors = {
     pending: "",
     accepted: "bg-green-400 border-green-200",
     rejected: "bg-red-400 border-red-200",
     canceled: "bg-gray-400 border-gray-200"
   };
 
+
   const bidStatusText = {
-    pending: "",
+    pending: "Na čekanju",
     accepted: "Prihvaćeno",
     rejected: "Odbijeno",
-    canceled: "Otkazano"
+    canceled: "Otkazano",
   };
 
   const isOwner = session?.user?.id === loadData?.userId;
-  
   const isDriver = session?.user?.role === "driver";
 
   if (isLoading) {
@@ -283,20 +269,19 @@ export default function LoadPage({ params }: LoadPageProps) {
   if (error || !loadData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md mx-4">
-          <div className="text-2xl font-semibold text-white  mb-4">Error</div>
-          <p className="text-white mb-6">{error || "Load not found"}</p>
-          <Link 
-            href="/loads" 
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            <ArrowLeft size={16} className="mr-2 text-blue-600" />
-            Nazad
+        <div className="text-center">
+          <h2 className="text-2xl text-red-500 mb-2">Greška</h2>
+          <p>{error || "Teret nije pronađen"}</p>
+          <Link href="/loads" className="text-blue-500 underline mt-4 block">
+            ← Nazad
           </Link>
         </div>
       </div>
     );
   }
+
+
+
 
   return (
     <div className="min-h-screen">
@@ -729,6 +714,44 @@ export default function LoadPage({ params }: LoadPageProps) {
           </div>
         </div>
       </div>
+
+{loadData?.userId && (
+  <ReviewDialog
+  isOpen={isReviewOpen}
+  onClose={() => setIsReviewOpen(false)}
+  session={session}
+  loadData={{
+    userId: loadData.userId, 
+    driverId: acceptedBid?.driver?._id ?? null, 
+    alreadyReviewed: hasReviewed,
+  }}
+  onSubmit={async (rating, comment, otherPartyId) => {
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loadId: loadData._id,
+          rating,
+          comment,
+          fromUserId: session?.user.id,
+          toUserId: otherPartyId,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to submit review");
+      toast.success("Recenzija poslana!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Greška pri slanju recenzije!");
+    }
+  }}
+/>
+
+)}
+
+
+
     </div>
   );
 }
