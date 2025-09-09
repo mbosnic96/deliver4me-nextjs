@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { ReviewDialog } from "@/components/ReviewDialog";
+import { Vehicle } from "@/lib/types/vehicle";
 
 
 interface LoadPageProps {
@@ -65,6 +66,13 @@ type UserType = {
   role?: string;
 };
 
+type VehicleType = {
+  _id: string;
+  brand: string;
+  model: string;
+  plateNumber: string;
+};
+
 type BidType = {
   _id: string;
   loadId: string;
@@ -74,6 +82,7 @@ type BidType = {
   status: string;
   createdAt: string;
   driver?: UserType;
+  vehicle?: VehicleType;
 };
 
 export default function LoadPage({ params }: LoadPageProps) {
@@ -94,6 +103,8 @@ export default function LoadPage({ params }: LoadPageProps) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const acceptedBid = bids.find(bid => bid.status === "accepted");
+  const [vehicles, setVehicles] = useState<{ _id: string; brand: string; model: string; plateNumber: string; }[]>([]);
+const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
 
 //fetch load data
@@ -154,6 +165,16 @@ export default function LoadPage({ params }: LoadPageProps) {
     }
   }, [loadData?.status, hasReviewed]);
 
+  // Fetch vehicles if user is driver
+  useEffect(() => {
+  if (session?.user?.id && isDriver) {
+    fetch(`/api/vehicles?userId=${session.user.id}`)
+      .then(res => res.json())
+      .then(data => setVehicles(data))
+      .catch(err => console.error(err));
+  }
+}, [session?.user?.id]);
+
   const handleBidAction = async (bidId: string, action: "accepted" | "rejected") => {
     try {
       const res = await fetch(`/api/bids/${bidId}`, {
@@ -207,7 +228,8 @@ export default function LoadPage({ params }: LoadPageProps) {
         body: JSON.stringify({
           loadId: id,
           price: parseFloat(bidPrice),
-          message: bidMessage,
+          message: bidMessage,  
+          vehicleId: selectedVehicleId
         }),
       });
 
@@ -493,12 +515,31 @@ export default function LoadPage({ params }: LoadPageProps) {
                           )}
                         </div>
                       </div>
+
+                       {bid.vehicle && (
+                  <div className="mt-2 text-sm text-white">
+                    Vozilo: {bid.vehicle.brand} {bid.vehicle.model} ({bid.vehicle.plateNumber})
+                  </div>
+                )}
                       
                       {bid.message && (
                         <div className="mt-2 p-3 content-bg rounded-lg">
                           <p className="text-white">{bid.message}</p>
                         </div>
                       )}
+
+                        {bid.driver && (
+                  <div className="mt-2 flex justify-end">
+                    <Link
+                      href={`/users/${bid.driver._id}`}
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center"
+                    >
+                      <Eye size={14} className="mr-1" />
+                      Vidi profil vozača
+                    </Link>
+                  </div>
+                )}
+
                       
                       {loadData.status === "Aktivan" && bid.status === "pending" && (
                         <div className="mt-3 flex justify-end space-x-2">
@@ -559,6 +600,26 @@ export default function LoadPage({ params }: LoadPageProps) {
                         step="0.01"
                       />
                     </div>
+
+                    {showBidForm && vehicles.length > 0 && (
+  <div className="mb-4">
+    <label className="block text-white mb-2">Odaberite vozilo</label>
+    <select
+      value={selectedVehicleId || ""}
+      onChange={(e) => setSelectedVehicleId(e.target.value)}
+      className="w-full p-3 border rounded-lg"
+      required
+    >
+      <option value="" disabled>Odaberite vozilo</option>
+      {vehicles.map(vehicle => (
+        <option key={vehicle._id} value={vehicle._id}>
+          {vehicle.brand} {vehicle.model} ({vehicle.plateNumber})
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
                     
                     <div className="mb-4">
                       <label className="block text-white  mb-2">

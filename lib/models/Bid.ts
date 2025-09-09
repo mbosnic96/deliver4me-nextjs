@@ -3,6 +3,7 @@ import { Schema, model, models } from 'mongoose';
 const BidSchema = new Schema({
   loadId: { type: Schema.Types.ObjectId, ref: 'Load' },
   driverId: { type: Schema.Types.ObjectId, ref: 'User' },
+  vehicleId: { type: Schema.Types.ObjectId, ref: 'Vehicle' },
   price: Number,
   message: String,
   status: String
