@@ -5,15 +5,18 @@ import Image from "next/image";
 import { format } from "date-fns";
 import {
   MapPin, Truck, Package, User, Calendar, AtSign,
-  Phone, Flag, Eye, Mail, Euro, Clock, Weight, Ruler,
+  Phone, Flag, Eye, Mail, Euro, Weight, Ruler,
   ArrowLeft, Share2, Heart, Star, Loader2,
-  Gavel, Award, X, MessageSquare
+  Gavel, Award, X, MessageSquare, ArrowLeftRight 
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { ReviewDialog } from "@/components/ReviewDialog";
-import { Vehicle } from "@/lib/types/vehicle";
+import { RouteMap } from "@/components/RouteMap";
+import { LatLngTuple } from "leaflet";
+import { parseISO } from "date-fns";
+import { getCountryName, getStateName } from '@/lib/services/CscService';
 
 
 interface LoadPageProps {
@@ -29,13 +32,17 @@ type LoadType = {
   pickupState: string;
   pickupCity: string;
   pickupAddress: string;
-  preferredPickupDate: string | Date;
+   pickupLatitude?: number;         
+  pickupLongitude?: number;  
+  preferredPickupDate: string;
   pickupTime: string;
   deliveryCountry: string;
   deliveryState: string;
   deliveryCity: string;
   deliveryAddress: string;
-  preferredDeliveryDate: string | Date;
+  deliveryLatitude?: number;     
+  deliveryLongitude?: number;    
+  preferredDeliveryDate: string;
   maxDeliveryTime: string;
   cargoWeight: number;
   cargoVolume: number;
@@ -402,39 +409,74 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
               <p className="text-white text-lg mb-6 leading-relaxed">{loadData.description}</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <div className="flex items-center mb-3">
-                    <MapPin className="text-blue-600 mr-2" size={20} />
-                    <h3 className="font-semibold text-white ">Preuzimanje</h3>
-                  </div>
-                  <p className="text-gray-700 mb-2">
-                    {loadData.pickupAddress}, {loadData.pickupCity}
-                    <br />
-                    {loadData.pickupState}, {loadData.pickupCountry}
-                  </p>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar size={14} className="mr-1" />
-                    {format(new Date(loadData.preferredPickupDate), "dd.MM.yyyy")} u {loadData.pickupTime}
-                  </div>
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative mt-4">
+        <div className="bg-blue-50 rounded-lg p-4 relative">
+          <div className="flex items-center mb-3">
+            <MapPin className="text-blue-600 mr-2" size={20} />
+            <h3 className="font-semibold text-blue-800">Preuzimanje</h3>
+          </div>
+          <p className="text-gray-700 mb-2">
+            {loadData.pickupAddress}, {loadData.pickupCity}
+            <br />
+            {getStateName(loadData.pickupCountry, loadData.pickupState)}, {getCountryName(loadData.pickupCountry)}
+          </p>
+          <div className="flex items-center text-sm text-gray-600 mb-2">
+            <Calendar size={14} className="mr-1" />
+            {format(parseISO(loadData.preferredPickupDate), "dd.MM.yyyy HH:mm")}
+          </div>
+          
+        </div>
 
-                <div className="bg-green-50 rounded-lg p-4">
-                  <div className="flex items-center mb-3">
-                    <Truck className="text-green-600 mr-2" size={20} />
-                    <h3 className="font-semibold text-white ">Isporuka</h3>
-                  </div>
-                  <p className="text-gray-700 mb-2">
-                    {loadData.deliveryAddress}, {loadData.deliveryCity}
-                    <br />
-                    {loadData.deliveryState}, {loadData.deliveryCountry}
-                  </p>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Clock size={14} className="mr-1" />
-                    Do {loadData.maxDeliveryTime}
-                  </div>
-                </div>
-              </div>
+        <div className="bg-green-50 rounded-lg p-4 relative">
+          <div className="flex items-center mb-3">
+            <Truck className="text-green-600 mr-2" size={20} />
+            <h3 className="font-semibold text-green-800">Isporuka</h3>
+          </div>
+          {loadData.contactPerson && (
+            <div className="mt-2 text-gray-700 mb-2">
+              <User size={16} className="inline mr-1 text-blue-600" /> {loadData.contactPerson}
+              <br />
+              <Phone size={16} className="inline mr-1 text-blue-600" />{' '}
+              <a href={`tel:${loadData.contactPhone}`}>{loadData.contactPhone}</a>
+            </div>
+          )}
+          <p className="text-gray-700 mb-2">
+            {loadData.deliveryAddress}, {loadData.deliveryCity}
+            <br />
+            {getStateName(loadData.deliveryCountry, loadData.deliveryState)}, {getCountryName(loadData.deliveryCountry)}
+          </p>
+          <div className="flex items-center text-sm text-gray-600 mb-2">
+            <Calendar size={14} className="mr-1" />
+            {format(parseISO(loadData.preferredDeliveryDate), "dd.MM.yyyy HH:mm")}
+          </div>
+        </div>
+
+        <div className="hidden md:flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          <ArrowLeftRight size={40} className="text-blue-500" />
+        </div>
+      </div>
+
+      {loadData.pickupLatitude && loadData.pickupLongitude && loadData.deliveryLatitude && loadData.deliveryLongitude && (
+        <div className="h-96 w-full rounded-lg overflow-hidden mt-2">
+          <RouteMap
+            pickup={{
+              lat: loadData.pickupLatitude,
+              lng: loadData.pickupLongitude,
+              address: `${loadData.pickupAddress}, ${loadData.pickupCity}`
+            }}
+            delivery={{
+              lat: loadData.deliveryLatitude,
+              lng: loadData.deliveryLongitude,
+              address: `${loadData.deliveryAddress}, ${loadData.deliveryCity}`
+            }}
+            className="h-full w-full"
+            zoom={8} 
+          />
+          <div className="mt-2 text-sm text-gray-600 text-center">
+            Ruta od preuzimanja do isporuke
+          </div>
+        </div>
+      )}
 
               <div className="rounded-lg p-4">
                 <h3 className="font-semibold text-white  mb-4 flex items-center">
@@ -469,111 +511,7 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
             </div>
 
          
-            {isOwner && bids.length > 0 && (
-              <div className="content-bg rounded-xl shadow-sm border p-6">
-                <h3 className="font-semibold text-white  mb-4 flex items-center">
-                  <Gavel className="text-blue-600 mr-2" size={20} />
-                  {loadData.status === "Aktivan" ? "Aktivne ponude" : "Sve ponude"} ({bids.length})
-                </h3>
-                
-                <div className="space-y-4">
-                  {bids.map((bid) => (
-                    <div key={bid._id} className={`border rounded-lg p-4 ${bidStatusColors[bid.status as keyof typeof bidStatusColors] || ""}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center">
-                          {bid.driver?.photoUrl ? (
-                            <Image
-                              src={bid.driver.photoUrl}
-                              alt={bid.driver.name}
-                              width={40}
-                              height={40}
-                              className="rounded-full mr-3 object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-200 rounded-full mr-3 flex items-center justify-center">
-                              <User size={20} className="text-gray-400" />
-                            </div>
-                          )}
-                          <div>
-                            <h4 className="font-medium text-white">{bid.driver?.name}</h4>
-                            <p className="text-sm text-white">@{bid.driver?.userName}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xl font-bold text-primary-600">{bid.price.toFixed(2)} BAM</div>
-                          <div className="text-sm text-white">
-                            {format(new Date(bid.createdAt), "dd.MM.yyyy HH:mm")}
-                          </div>
-                          {bid.status !== "pending" && (
-                            <div className={`text-sm font-medium mt-1 ${
-                              bid.status === "accepted" ? "text-green-600" :
-                              bid.status === "rejected" ? "text-red-600" :
-                              bid.status === "canceled" ? "text-gray-600" : ""
-                            }`}>
-                              {bidStatusText[bid.status as keyof typeof bidStatusText]}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                       {bid.vehicle && (
-                  <div className="mt-2 text-sm text-white">
-                    Vozilo: {bid.vehicle.brand} {bid.vehicle.model} ({bid.vehicle.plateNumber})
-                  </div>
-                )}
-                      
-                      {bid.message && (
-                        <div className="mt-2 p-3 content-bg rounded-lg">
-                          <p className="text-white">{bid.message}</p>
-                        </div>
-                      )}
-
-                        {bid.driver && (
-                  <div className="mt-2 flex justify-end">
-                    <Link
-                      href={`/users/${bid.driver._id}`}
-                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center"
-                    >
-                      <Eye size={14} className="mr-1" />
-                      Vidi profil vozača
-                    </Link>
-                  </div>
-                )}
-
-                      
-                      {loadData.status === "Aktivan" && bid.status === "pending" && (
-                        <div className="mt-3 flex justify-end space-x-2">
-                          <button
-                            onClick={() => handleBidAction(bid._id, "rejected")}
-                            className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm"
-                          >
-                            Odbij
-                          </button>
-                          <button
-                            onClick={() => handleBidAction(bid._id, "accepted")}
-                            className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm"
-                          >
-                            Prihvati
-                          </button>
-                        </div>
-                      )}
-                      
-                      {loadData.status === "Poslan" && bid.status === "accepted" && (
-                        <div className="mt-3 flex justify-end space-x-2">
-                          <button
-                            onClick={() => handleCancelAcceptedBid(bid._id)}
-                            className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm flex items-center"
-                          >
-                            <X size={14} className="mr-1" />
-                            Otkaži prihvaćenu ponudu
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+           
 
             
             {isDriver && loadData.status === "Aktivan" && sessionStatus === "authenticated" && (
@@ -730,7 +668,7 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                   </div>
                   <div className="flex items-center text-white">
                     <Flag size={14} className="mr-2 flex-shrink-0 text-blue-600" />
-                    {user.country}
+                    {getCountryName(user.country)}
                   </div>
                   <div className="flex items-center text-white">
                     <Phone size={14} className="mr-2 flex-shrink-0 text-blue-600" />
@@ -770,6 +708,113 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                   <Heart size={16} className="mr-2 text-blue-600" />
                   Sačuvaj
                 </button>
+              </div>
+            )}
+
+
+             {isOwner && bids.length > 0 && (
+              <div className="content-bg rounded-xl shadow-sm border p-6">
+                <h3 className="font-semibold text-white  mb-4 flex items-center">
+                  <Gavel className="text-blue-600 mr-2" size={20} />
+                  {loadData.status === "Aktivan" ? "Aktivne ponude" : "Sve ponude"} ({bids.length})
+                </h3>
+                
+                <div className="space-y-4">
+                  {bids.map((bid) => (
+                    <div key={bid._id} className={`border rounded-lg p-4 ${bidStatusColors[bid.status as keyof typeof bidStatusColors] || ""}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center">
+                          {bid.driver?.photoUrl ? (
+                            <Image
+                              src={bid.driver.photoUrl}
+                              alt={bid.driver.name}
+                              width={40}
+                              height={40}
+                              className="rounded-full mr-3 object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-200 rounded-full mr-3 flex items-center justify-center">
+                              <User size={20} className="text-gray-400" />
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="font-medium text-white">{bid.driver?.name}</h4>
+                            <p className="text-sm text-white">@{bid.driver?.userName}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-bold text-primary-600">{bid.price.toFixed(2)} BAM</div>
+                          <div className="text-sm text-white">
+                            {format(new Date(bid.createdAt), "dd.MM.yyyy HH:mm")}
+                          </div>
+                          {bid.status !== "pending" && (
+                            <div className={`text-sm font-medium mt-1 ${
+                              bid.status === "accepted" ? "text-green-600" :
+                              bid.status === "rejected" ? "text-red-600" :
+                              bid.status === "canceled" ? "text-gray-600" : ""
+                            }`}>
+                              {bidStatusText[bid.status as keyof typeof bidStatusText]}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                       {bid.vehicle && (
+                  <div className="mt-2 text-sm text-white">
+                    Vozilo: {bid.vehicle.brand} {bid.vehicle.model} ({bid.vehicle.plateNumber})
+                  </div>
+                )}
+                      
+                      {bid.message && (
+                        <div className="mt-2 p-3 content-bg rounded-lg">
+                          <p className="text-white">{bid.message}</p>
+                        </div>
+                      )}
+
+                        {bid.driver && (
+                  <div className="mt-2 flex justify-end">
+                    <Link
+                      href={`/users/${bid.driver._id}`}
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center"
+                    >
+                      <Eye size={14} className="mr-1" />
+                      Vidi profil vozača
+                    </Link>
+                  </div>
+                )}
+
+                      
+                      {loadData.status === "Aktivan" && bid.status === "pending" && (
+                        <div className="mt-3 flex justify-end space-x-2">
+                          <button
+                            onClick={() => handleBidAction(bid._id, "rejected")}
+                            className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm"
+                          >
+                            Odbij
+                          </button>
+                          <button
+                            onClick={() => handleBidAction(bid._id, "accepted")}
+                            className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm"
+                          >
+                            Prihvati
+                          </button>
+                        </div>
+                      )}
+                      
+                      {loadData.status === "Poslan" && bid.status === "accepted" && (
+                        <div className="mt-3 flex justify-end space-x-2">
+                          <button
+                            onClick={() => handleCancelAcceptedBid(bid._id)}
+                            className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm flex items-center"
+                          >
+                            <X size={14} className="mr-1" />
+                            Otkaži prihvaćenu ponudu
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

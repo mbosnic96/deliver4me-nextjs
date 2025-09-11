@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import 'leaflet/dist/leaflet.css';
+@import 'react-toastify/dist/ReactToastify.css';
+
 
 
 :root {
@@ -66,4 +68,14 @@ input, select, textarea, option,.basic-single {
 
 .leaflet-container {
   z-index: 0 !important;
+}
+
+/* Add to your global CSS */
+.leaflet-routing-container {
+  display: none; /* Hide the routing instructions panel */
+}
+
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
 }

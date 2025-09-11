@@ -7,15 +7,11 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+import Select from "react-select";
+import { toast } from "react-toastify";
 
 const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
   <div
@@ -37,6 +33,13 @@ interface TableProps<T> {
   toggleActive?: boolean;
 }
 
+const STATUS_OPTIONS = [
+  { value: "Aktivan", label: "Aktivan", color: "#22c55e" },
+  { value: "Poslan", label: "Poslan", color: "#3b82f6" },
+  { value: "Dostavljen", label: "Dostavljen", color: "#6b7280" },
+  { value: "Otkazan", label: "Otkazan", color: "#ef4444" },
+];
+
 export function Table<T extends { id: string; isDeleted?: boolean; status?: string }>({
   title,
   columns,
@@ -46,17 +49,27 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
 }: TableProps<T>) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRow, setEditingRow] = useState<T | undefined>(undefined);
-
-  // Track saving state for status dropdown per row
+  const [userRole, setUserRole] = useState<"driver" | "admin" | "other">("other");
   const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({});
+  const router = useRouter();
+
+  const fetchUserRole = async () => {
+    try {
+      const res = await fetch("/api/users/me");
+      const json = await res.json();
+      setUserRole(json.role);
+    } catch (error) {
+      console.error("Failed to fetch user role", error);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get<T[]>(apiBase);
-      const mapped = res.data.map((item: any) => ({
+      const res = await fetch(apiBase);
+      const json = await res.json();
+      const mapped = json.map((item: any) => ({
         ...item,
         id: item.id || item._id,
       }));
@@ -70,20 +83,19 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
   };
 
   useEffect(() => {
+    fetchUserRole();
     fetchData();
   }, [apiBase]);
 
   const handleToggle = async (row: T) => {
-    const id = row.id;
     if (row.isDeleted === undefined) return;
-
     const action = row.isDeleted ? "activate" : "deactivate";
 
     try {
       if (row.isDeleted) {
-        await axios.patch(`${apiBase}/${id}/restore`);
+        await fetch(`${apiBase}/${row.id}/restore`, { method: "PATCH" });
       } else {
-        await axios.delete(`${apiBase}/${id}`);
+        await fetch(`${apiBase}/${row.id}`, { method: "DELETE" });
       }
       Swal.fire("Success", `Item ${action}d`, "success");
       fetchData();
@@ -108,7 +120,7 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`${apiBase}/${id}`);
+      await fetch(`${apiBase}/${id}`, { method: "DELETE" });
       fetchData();
       Swal.fire("Deleted!", "Item has been deleted.", "success");
     } catch (error) {
@@ -129,13 +141,16 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
       const saving = savingStatus[rowId] || false;
       const value = cell.getValue() as string;
 
-      const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newStatus = e.target.value;
+      const handleChange = async (option: any) => {
         setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
-
         try {
-          await axios.patch(`${apiBase}/${rowId}`, { status: newStatus });
-          cell.row.original.status = newStatus; // update local
+          await fetch(`${apiBase}/${rowId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: option.value }),
+          });
+          toast.success(`Status updated to "${option.value}"`);
+          await fetchData();
         } catch (err) {
           console.error(err);
           Swal.fire("Error", "Failed to update status", "error");
@@ -146,17 +161,27 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
 
       return (
         <div className="flex items-center gap-2">
-          <select
-            value={value || ""}
+          <Select
+            value={STATUS_OPTIONS.find((s) => s.value === value)}
+            options={STATUS_OPTIONS}
             onChange={handleChange}
-            className="border px-2 py-1 rounded"
-            disabled={saving}
-          >
-            <option value="Aktivan">Aktivan</option>
-            <option value="Poslan">Poslan</option>
-            <option value="Dostavljen">Dostavljen</option>
-            <option value="Otkazan">Otkazan</option>
-          </select>
+            isDisabled={saving}
+            className="w-40"
+            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+            styles={{
+              option: (provided, state) => ({
+                ...provided,
+                backgroundColor: state.isSelected ? state.data.color : provided.backgroundColor,
+                color: state.isSelected ? "#fff" : "#000",
+              }),
+              singleValue: (provided, state) => ({
+                ...provided,
+                color: STATUS_OPTIONS.find((s) => s.value === value)?.color,
+                fontWeight: "bold",
+              }),
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+            }}
+          />
           {saving && <Spinner size="sm" />}
         </div>
       );
@@ -165,20 +190,46 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     return flexRender(cell.column.columnDef.cell, cell.getContext());
   };
 
+  const renderActions = (row: T) => {
+    if (userRole === "driver") {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(`/load/${row.id}`)}
+        >
+          View
+        </Button>
+      );
+    }
+
+    return (
+      <>
+        <Button variant="outline" size="sm" onClick={() => setEditingRow(row)}>
+          Uredi
+        </Button>
+        {toggleActive && row.isDeleted !== undefined ? (
+          <Button
+            variant={row.isDeleted ? "default" : "destructive"}
+            size="sm"
+            onClick={() => handleToggle(row)}
+          >
+            {row.isDeleted ? "Aktiviraj" : "Deaktiviraj"}
+          </Button>
+        ) : (
+          <Button variant="destructive" size="sm" onClick={() => handleDelete(row.id)}>
+            Briši
+          </Button>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {title}
-        </h2>
-        <Button
-          onClick={() => {
-            setEditingRow(undefined);
-            setDialogOpen(true);
-          }}
-        >
-          Dodaj
-        </Button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
+        {userRole !== "driver" && <Button onClick={() => setEditingRow(undefined)}>Dodaj</Button>}
       </div>
 
       {loading ? (
@@ -194,12 +245,9 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200"
+                      className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap"
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   ))}
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -212,58 +260,22 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
               {table.getRowModel().rows.map((row, idx) => (
                 <tr
                   key={row.id}
-                  className={
-                    idx % 2 === 0
-                      ? "bg-gray-50 dark:bg-gray-800"
-                      : "bg-white dark:bg-gray-900"
-                  }
+                  className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300"
+                      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap"
                     >
                       {renderCell(cell)}
                     </td>
                   ))}
-                  <td className="px-4 py-3 flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditingRow(row.original);
-                        setDialogOpen(true);
-                      }}
-                    >
-                      Uredi
-                    </Button>
-
-                    {toggleActive && row.original.isDeleted !== undefined ? (
-                      <Button
-                        variant={row.original.isDeleted ? "default" : "destructive"}
-                        size="sm"
-                        onClick={() => handleToggle(row.original)}
-                      >
-                        {row.original.isDeleted ? "Aktiviraj" : "Deaktiviraj"}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(row.original.id)}
-                      >
-                        Briši
-                      </Button>
-                    )}
-                  </td>
+                  <td className="px-4 py-3 flex flex-wrap gap-2">{renderActions(row.original)}</td>
                 </tr>
               ))}
               {data.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={columns.length + 1}
-                    className="px-4 py-6 text-center text-gray-500 dark:text-gray-400"
-                  >
+                  <td colSpan={columns.length + 1} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                     Nema podataka
                   </td>
                 </tr>
@@ -272,22 +284,6 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
           </table>
         </div>
       )}
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
-          </DialogHeader>
-          <FormComponent
-            initialData={editingRow}
-            onClose={() => setDialogOpen(false)}
-            onSaved={() => {
-              setDialogOpen(false);
-              fetchData();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

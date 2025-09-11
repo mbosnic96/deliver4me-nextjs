@@ -117,3 +117,17 @@ export async function getCityLatLng(
     return null;
   }
 }
+
+export const getCountryName = (countryCode: string) => {
+  const country = Country.getCountryByCode(countryCode);
+  return country ? country.name : countryCode;
+};
+
+export const getStateName = (countryCode: string, stateCode: string) => {
+  const state = State.getStateByCodeAndCountry(stateCode, countryCode);
+  return state ? state.name : stateCode;
+};
+
+export const getCityName = (cityName: string) => {
+  return cityName; 
+};
