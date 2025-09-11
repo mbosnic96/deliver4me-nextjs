@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import 'leaflet/dist/leaflet.css';
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -31,7 +32,7 @@ body {
     color: #fff !important;
 }
 
-.content-bg{
+.content-bg, .rdtPicker{
     background-color: #1c2434 !important;
     color: #fff;
 }

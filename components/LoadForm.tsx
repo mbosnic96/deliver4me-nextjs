@@ -7,6 +7,10 @@ import { LeafletMap } from './LeafletMap'
 import { getCountries, getStates, getCities, getCityLatLng } from '../lib/services/CscService'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
+import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
+import moment from 'moment';
+import 'moment/locale/bs';
 
 interface LoadFormProps {
   initialData?: any
@@ -57,35 +61,73 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   const [isLoading, setIsLoading] = useState(false)
   const [showCloseWarning, setShowCloseWarning] = useState(false)
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([])
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
 
   useEffect(() => {
+    fetch('/api/users/me')
+      .then(res => res.json())
+      .then(user => setCurrentUser(user))
+  }, []);
+
+  useEffect(() => {
     setCountries(getCountries().map(c => ({ value: c.value, label: c.label })))
+
+    const mapOption = (val: string, options: any[]) => {
+      if (!val) return null
+      const found = options.find(o => o.value === val)
+      return found || { value: val, label: val }
+    }
+
     if (initialData) {
-      const mapOption = (val: string) => val ? { value: val, label: val } : null
+      // Editing existing load
       setForm((prev: any) => ({
         ...prev,
         ...initialData,
-        pickupCountry: mapOption(initialData.pickupCountry),
-        pickupState: mapOption(initialData.pickupState),
-        pickupCity: mapOption(initialData.pickupCity),
-        deliveryCountry: mapOption(initialData.deliveryCountry),
-        deliveryState: mapOption(initialData.deliveryState),
-        deliveryCity: mapOption(initialData.deliveryCity),
+        pickupCountry: mapOption(initialData.pickupCountry, getCountries()),
+        pickupState: mapOption(initialData.pickupState, getStates(initialData.pickupCountry)),
+        pickupCity: mapOption(initialData.pickupCity, getCities(initialData.pickupCountry, initialData.pickupState)),
+        deliveryCountry: mapOption(initialData.deliveryCountry, getCountries()),
+        deliveryState: mapOption(initialData.deliveryState, getStates(initialData.deliveryCountry)),
+        deliveryCity: mapOption(initialData.deliveryCity, getCities(initialData.deliveryCountry, initialData.deliveryState)),
+        pickupLatitude: initialData.pickupLatitude ?? 0,
+        pickupLongitude: initialData.pickupLongitude ?? 0,
         images: initialData.images || []
       }))
+
       if (initialData.pickupCountry) setPickupStates(getStates(initialData.pickupCountry).map(s => ({ value: s.value, label: s.label })))
       if (initialData.pickupState) setPickupCities(getCities(initialData.pickupCountry, initialData.pickupState).map(c => ({ value: c.value, label: c.label })))
       if (initialData.deliveryCountry) setDeliveryStates(getStates(initialData.deliveryCountry).map(s => ({ value: s.value, label: s.label })))
       if (initialData.deliveryState) setDeliveryCities(getCities(initialData.deliveryCountry, initialData.deliveryState).map(c => ({ value: c.value, label: c.label })))
       if (initialData.images) setImagePreviews(initialData.images)
+    } else if (currentUser) {
+      // New load defaults from user
+      const userCountry = currentUser.country ? mapOption(currentUser.country, getCountries()) : null
+      const userState = currentUser.state && userCountry ? mapOption(currentUser.state, getStates(userCountry.value)) : null
+      const userCity = currentUser.city && userState && userCountry ? mapOption(currentUser.city, getCities(userCountry.value, userState.value)) : null
+
+      setForm((prev: any) => ({
+        ...prev,
+        pickupCountry: userCountry,
+        pickupState: userState,
+        pickupCity: userCity,
+        pickupAddress: currentUser.address ?? '',
+        pickupLatitude: currentUser.latitude ?? 0,
+        pickupLongitude: currentUser.longitude ?? 0
+      }))
+
+      if (userCountry) setPickupStates(getStates(userCountry.value).map(s => ({ value: s.value, label: s.label })))
+      if (userState) setPickupCities(getCities(userCountry.value, userState.value).map(c => ({ value: c.value, label: c.label })))
     }
-  }, [initialData])
+
+  }, [initialData, currentUser])
+
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: typeof form) => ({ ...prev, [field]: value }))
     setIsDirty(true)
   }
+
 
   const handlePickupCountryChange = (option: any) => {
     handleChange('pickupCountry', option)
@@ -105,6 +147,8 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     handleChange('pickupLatitude', coords?.lat ?? 0)
     handleChange('pickupLongitude', coords?.lng ?? 0)
   }
+
+
   const handleDeliveryCountryChange = (option: any) => {
     handleChange('deliveryCountry', option)
     handleChange('deliveryState', null)
@@ -123,6 +167,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     handleChange('deliveryLatitude', coords?.lat ?? 0)
     handleChange('deliveryLongitude', coords?.lng ?? 0)
   }
+
 
   useEffect(() => {
     const width = parseFloat(form.cargoWidth) || 0
@@ -176,9 +221,9 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setIsLoading(true)
     try {
       const jsonData = { ...form }
-        ;['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
-          if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value
-        })
+      ;['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
+        if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value
+      })
 
       const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads'
       const method = initialData?.id ? 'PATCH' : 'POST'
@@ -218,8 +263,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }
 
-
-
   const uploadImages = async (loadId: string, images: File[]) => {
     if (!images.length) return
     const formData = new FormData()
@@ -238,7 +281,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
 
   return (
     <Dialog open={true} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
-      <DialogContent className="overflow-y-auto max-h-[90vh] min-w-[65vw] max-w-[1200px] p-6">
+      <DialogContent className="overflow-y-auto max-h-[90vh] min-w-[65vw] max-w-[1200px] p-6 content-bg">
         <DialogHeader><DialogTitle>{initialData ? 'Uredi teret' : 'Dodaj novi teret'}</DialogTitle></DialogHeader>
 
         <div className="space-y-4">
@@ -251,7 +294,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
             <textarea className="w-full border rounded px-3 py-2 min-h-[100px]" value={form.description} onChange={e => handleChange('description', e.target.value)} />
           </div>
 
-
           <div className="border rounded p-4 space-y-3">
             <h6 className="font-semibold text-lg">Lokacija preuzimanja</h6>
             <div className="flex gap-3">
@@ -259,53 +301,92 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
               <Select options={pickupStates} value={form.pickupState} onChange={handlePickupStateChange} placeholder="Regija" className="w-1/3" />
               <Select options={pickupCities} value={form.pickupCity} onChange={handlePickupCityChange} placeholder="Grad" className="w-1/3" />
             </div>
-            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa preuzimanja" value={form.pickupAddress} onChange={e => handleChange('pickupAddress', e.target.value)} />
-            <div className="h-64 mt-2"><LeafletMap lat={form.pickupLatitude} lng={form.pickupLongitude} onChange={(lat, lng) => { handleChange('pickupLatitude', lat); handleChange('pickupLongitude', lng) }} /></div>
+            <div className="flex flex-col md:flex-row gap-3 mt-2">
+              <div className="flex-1">
+                <label className="block font-semibold mb-1">Adresa preuzimanja</label>
+                <input className="w-full border rounded p-2 h-11" placeholder="Adresa preuzimanja" value={form.pickupAddress} onChange={e => handleChange('pickupAddress', e.target.value)} />
+              </div>
+              <div className="flex-1">
+                <label className="block font-semibold mb-1">Datum i vrijeme preuzimanja</label>
+                <Datetime
+                  value={form.preferredPickupDate ? new Date(form.preferredPickupDate) : undefined}
+                  onChange={(val: any) => handleChange('preferredPickupDate', val instanceof Date ? val.toISOString() : val)}
+                  inputProps={{ className: 'w-full border rounded p-2' }}
+                />
+              </div>
+            </div>
+            <div className="h-64 mt-2">
+              <LeafletMap
+                lat={form.pickupLatitude}
+                lng={form.pickupLongitude}
+                onChange={(lat, lng) => { handleChange('pickupLatitude', lat); handleChange('pickupLongitude', lng) }}
+              />
+            </div>
           </div>
-
 
           <div className="border rounded p-4 space-y-3">
             <h6 className="font-semibold text-lg">Lokacija isporuke</h6>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input className="border rounded p-2" placeholder="Kontakt osoba" value={form.contactPerson} onChange={e => handleChange('contactPerson', e.target.value)} />
+              <input className="border rounded p-2" placeholder="Kontakt telefon" value={form.contactPhone} onChange={e => handleChange('contactPhone', e.target.value)} />
+            </div>
+            <div className="flex gap-3 mt-2">
               <Select options={countries} value={form.deliveryCountry} onChange={handleDeliveryCountryChange} placeholder="Država" className="w-1/3" />
               <Select options={deliveryStates} value={form.deliveryState} onChange={handleDeliveryStateChange} placeholder="Regija" className="w-1/3" />
               <Select options={deliveryCities} value={form.deliveryCity} onChange={handleDeliveryCityChange} placeholder="Grad" className="w-1/3" />
             </div>
-            <input className="w-full border rounded p-2 mt-2" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)} />
-            <div className="h-64 mt-2"><LeafletMap lat={form.deliveryLatitude} lng={form.deliveryLongitude} onChange={(lat, lng) => { handleChange('deliveryLatitude', lat); handleChange('deliveryLongitude', lng) }} /></div>
+            <div className="flex flex-col md:flex-row gap-3 mt-2">
+              <div className="flex-1">
+                <label className="block font-semibold mb-1">Adresa isporuke</label>
+                <input className="w-full border rounded p-2 h-11" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)} />
+              </div>
+              <div className="flex-1">
+                <label className="block font-semibold mb-1">Datum i vrijeme isporuke</label>
+                <Datetime
+                  value={form.preferredDeliveryDate ? new Date(form.preferredDeliveryDate) : undefined}
+                  onChange={(val: any) => handleChange('preferredDeliveryDate', val instanceof Date ? val.toISOString() : val)}
+                  inputProps={{ className: 'w-full border rounded p-2' }}
+                />
+              </div>
+            </div>
+            <div className="h-64 mt-2">
+              <LeafletMap
+                lat={form.deliveryLatitude}
+                lng={form.deliveryLongitude}
+                onChange={(lat, lng) => { handleChange('deliveryLatitude', lat); handleChange('deliveryLongitude', lng) }}
+              />
+            </div>
           </div>
 
-
-          <div className="space-y-3">
-            <h6 className="font-semibold text-lg">Detalji o teretu</h6>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="border rounded p-4 space-y-3">
+            <h6 className="font-semibold text-lg">Detalji tereta</h6>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <input className="border rounded p-2" placeholder="Težina (kg)" value={form.cargoWeight} onChange={e => handleChange('cargoWeight', e.target.value)} />
               <input className="border rounded p-2" placeholder="Širina (m)" value={form.cargoWidth} onChange={e => handleChange('cargoWidth', e.target.value)} />
               <input className="border rounded p-2" placeholder="Visina (m)" value={form.cargoHeight} onChange={e => handleChange('cargoHeight', e.target.value)} />
               <input className="border rounded p-2" placeholder="Dužina (m)" value={form.cargoLength} onChange={e => handleChange('cargoLength', e.target.value)} />
-              <input className="border rounded p-2" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
+              <input className="border rounded p-2 col-span-2" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
+              <input className="border rounded p-2 col-span-2" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
             </div>
-            <input className="border rounded p-2 mt-2" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
           </div>
 
-
-          <div className="space-y-3">
-            <label className="font-semibold text-lg">Dodaj slike</label>
-            <input type="file" multiple accept="image/*" onChange={handleImageSelect} className="border rounded p-2 w-full" />
-            <div className="flex flex-wrap gap-3 mt-3">
-              {imagePreviews.map((src, i) => (
-                <div key={i} className="relative">
-                  <img src={src} className="w-24 h-24 object-cover rounded border" />
-                  <button type="button" className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center" onClick={() => removeImage(i)}>×</button>
+          <div className="border rounded p-4 space-y-3">
+            <h6 className="font-semibold text-lg">Slike tereta</h6>
+            <input type="file" multiple onChange={handleImageSelect} />
+            <div className="flex gap-2 flex-wrap mt-2">
+              {imagePreviews.map((img, idx) => (
+                <div key={idx} className="relative w-24 h-24 border rounded overflow-hidden">
+                  <img src={img} className="w-full h-full object-cover" />
+                  <button type="button" className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs" onClick={() => removeImage(idx)}>×</button>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <DialogFooter className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={handleClose}>Otkaži</Button>
-          <Button onClick={handleSubmit} disabled={isLoading}>{initialData ? 'Ažuriraj teret' : 'Kreiraj teret'}</Button>
+        <DialogFooter>
+          <Button onClick={handleClose} variant="outline">Otkaži</Button>
+          <Button onClick={handleSubmit} disabled={isLoading}>{isLoading ? 'Spremanje...' : 'Spremi'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -86,16 +86,16 @@ const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center ">
       <div className="mb-4">
         {photoUrl ? (
           <img
             src={photoUrl}
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+            className="w-64 h-64 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
           />
         ) : (
-          <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
+          <div className="w-64 h-64 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
             <img
               src="/user.png"
               alt="User"
@@ -478,7 +478,7 @@ const updatePositionOnly = useCallback(async () => {
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Profile</h2>
                 
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex flex-col lg:flex-row gap-6 items-center">
                   <div className="w-full lg:w-1/3">
                   <PhotoUpload 
   photoUrl={photoUrl}

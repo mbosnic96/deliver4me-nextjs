@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import Swal from "sweetalert2";
 
-const Spinner = ({ size = "lg" }) => (
+const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
   <div
     className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${
       size === "lg" ? "h-8 w-8" : "h-4 w-4"
@@ -37,7 +37,7 @@ interface TableProps<T> {
   toggleActive?: boolean;
 }
 
-export function Table<T extends { id: string; isDeleted?: boolean }>({
+export function Table<T extends { id: string; isDeleted?: boolean; status?: string }>({
   title,
   columns,
   apiBase,
@@ -49,32 +49,29 @@ export function Table<T extends { id: string; isDeleted?: boolean }>({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRow, setEditingRow] = useState<T | undefined>(undefined);
 
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const res = await axios.get<T[]>(apiBase);
-    const mapped = res.data.map((item: any) => ({
-      ...item,
-      id: item.id || item._id, 
-    }));
-    setData(mapped);
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Failed to fetch data", "error");
-  } finally {
-    setLoading(false);
-  }
-};
+  // Track saving state for status dropdown per row
+  const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({});
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get<T[]>(apiBase);
+      const mapped = res.data.map((item: any) => ({
+        ...item,
+        id: item.id || item._id,
+      }));
+      setData(mapped);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to fetch data", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
   }, [apiBase]);
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
 
   const handleToggle = async (row: T) => {
     const id = row.id;
@@ -118,6 +115,54 @@ const fetchData = async () => {
       console.error(error);
       Swal.fire("Error", "Failed to delete item", "error");
     }
+  };
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const renderCell = (cell: any) => {
+    if (cell.column.columnDef.accessorKey === "status") {
+      const rowId = cell.row.original.id;
+      const saving = savingStatus[rowId] || false;
+      const value = cell.getValue() as string;
+
+      const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newStatus = e.target.value;
+        setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
+
+        try {
+          await axios.patch(`${apiBase}/${rowId}`, { status: newStatus });
+          cell.row.original.status = newStatus; // update local
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Failed to update status", "error");
+        } finally {
+          setSavingStatus((prev) => ({ ...prev, [rowId]: false }));
+        }
+      };
+
+      return (
+        <div className="flex items-center gap-2">
+          <select
+            value={value || ""}
+            onChange={handleChange}
+            className="border px-2 py-1 rounded"
+            disabled={saving}
+          >
+            <option value="Aktivan">Aktivan</option>
+            <option value="Poslan">Poslan</option>
+            <option value="Dostavljen">Dostavljen</option>
+            <option value="Otkazan">Otkazan</option>
+          </select>
+          {saving && <Spinner size="sm" />}
+        </div>
+      );
+    }
+
+    return flexRender(cell.column.columnDef.cell, cell.getContext());
   };
 
   return (
@@ -178,7 +223,7 @@ const fetchData = async () => {
                       key={cell.id}
                       className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300"
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {renderCell(cell)}
                     </td>
                   ))}
                   <td className="px-4 py-3 flex gap-2">

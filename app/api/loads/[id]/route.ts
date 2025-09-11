@@ -22,11 +22,14 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 */
   return NextResponse.json(load);
 }
-
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.id)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await context.params;
 
@@ -37,27 +40,46 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const existing = await Load.findById(id);
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    if (session.user.role !== "admin" && existing.userId.toString() !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const userRole = session.user.role;
+    const isOwner = existing.userId.toString() === session.user.id;
+
+    
+    if (userRole === "admin" || isOwner) {
+      if (
+        ["Poslan", "Otkazan"].includes(existing.status) &&
+        data.status === "Aktivan"
+      ) {
+        await Bid.updateMany(
+          { loadId: existing._id, status: { $ne: "rejected" } },
+          { status: "pending" }
+        );
+        data.assignedBidId = undefined; 
+      }
+
+      const updated = await Load.findByIdAndUpdate(id, data, { new: true });
+      return NextResponse.json(updated);
     }
 
-    // Reactivate bids if load status changes from Poslan/Otkazan → Aktivan
-    if (
-      ["Poslan", "Otkazan"].includes(existing.status) &&
-      data.status === "Aktivan"
-    ) {
-      // Only reactivate bids that are not rejected
-      await Bid.updateMany(
-        { loadId: existing._id, status: { $ne: "rejected" } },
-        { status: "pending" }
+   
+    if (userRole === "driver") {
+      if (!("status" in data)) {
+        return NextResponse.json(
+          { error: "Drivers can only update status" },
+          { status: 403 }
+        );
+      }
+
+      const updated = await Load.findByIdAndUpdate(
+        id,
+        { status: data.status },
+        { new: true }
       );
-      data.assignedBidId = undefined; // Remove previously assigned bid
+      return NextResponse.json(updated);
     }
 
-    const updated = await Load.findByIdAndUpdate(id, data, { new: true });
-    return NextResponse.json(updated);
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   } catch (error) {
-    console.error('Error in PATCH:', error);
+    console.error("Error in PATCH:", error);
     return NextResponse.json({ error: "Invalid JSON data" }, { status: 400 });
   }
 }
