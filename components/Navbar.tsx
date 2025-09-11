@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Menu, X, LogIn, UserPlus, Home, User } from 'lucide-react';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
+import NotificationsDropdown from './NotificationsDropdown';
 
 const navLinks = [
   { href: '/', label: 'Početna', icon: <Home size={18} /> },
@@ -15,13 +16,13 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
-
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const userId = session?.user?.id;
+
   return (
-    <nav className="w-full content-bg border-b border-gray-200 shadow-md">
+    <nav className="w-full content-bg border-b border-gray-200 shadow-md relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-        
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-light.png" alt="Logo" width={120} height={80} />
@@ -35,8 +36,11 @@ export default function Navbar() {
           </Link>
         </div>
 
-       
         <div className="hidden md:flex items-center gap-6 relative">
+          {session?.user && userId && (
+            <NotificationsDropdown userId={userId} />
+          )}
+
           {status === 'loading' ? null : !session?.user ? (
             <>
               {navLinks.slice(1).map(({ href, label, icon, cta }) => (
@@ -56,7 +60,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-          
+           
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 text-white hover:text-indigo-400 transition"
@@ -101,9 +105,13 @@ export default function Navbar() {
         </button>
       </div>
 
-     
+  
       {isOpen && (
         <div className="md:hidden px-4 pb-4 content-bg border-t border-gray-200 space-y-2">
+          {session?.user && userId && (
+            <NotificationsDropdown userId={userId} />
+          )}
+
           {status === 'loading' ? null : !session?.user ? (
             navLinks.map(({ href, label, icon, cta }) => (
               <Link

@@ -17,6 +17,7 @@ import { RouteMap } from "@/components/RouteMap";
 import { LatLngTuple } from "leaflet";
 import { parseISO } from "date-fns";
 import { getCountryName, getStateName } from '@/lib/services/CscService';
+import { createNotification } from '@/lib/notifications';
 
 
 interface LoadPageProps {
@@ -194,6 +195,16 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
       const updatedBid = await res.json();
       setBids((prev) => prev.map((b) => (b._id === updatedBid._id ? updatedBid : b)));
 
+      if (updatedBid.driverId) {
+        const message = action === "accepted" 
+          ? `Vaša ponuda za teret "${loadData?.title}" je prihvaćena!` 
+          : `Vaša ponuda za teret "${loadData?.title}" je odbijena.`;
+        
+        const link = `/load/${id}`;
+        
+        await createNotification(updatedBid.driverId, message, link);
+      }
+
       if (action === "accepted") {
         const loadRes = await fetch(`/api/loads/${id}`);
         if (loadRes.ok) setLoadData(await loadRes.json());
@@ -216,6 +227,13 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
       const bidsRes = await fetch(`/api/bids?loadId=${id}`);
       if (bidsRes.ok) setBids(await bidsRes.json());
+
+       if (bid.driverId) {
+        const message = `Prihvaćena ponuda za teret "${loadData?.title}" je otkazana.`;
+        const link = `/load/${id}`;
+        
+        await createNotification(bid.driverId, message, link);
+      }
 
       toast.success("Prihvaćena ponuda otkazana!");
     } catch (err) {
@@ -246,6 +264,14 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
       setBidPrice("");
       setBidMessage("");
       setShowBidForm(false);
+
+      if (loadData?.userId) {
+        const message = `Nova ponuda za vaš teret "${loadData.title}" od ${session.user.name}`;
+        const link = `/load/${id}`;
+        
+        await createNotification(loadData.userId, message, link);
+      }
+      
       toast.success("Ponuda poslana!");
     } catch (err) {
       toast.error("Greška pri slanju ponude!");

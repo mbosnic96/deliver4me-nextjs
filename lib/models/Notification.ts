@@ -1,11 +1,20 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-const NotificationSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
-  title: String,
-  message: String,
-  isRead: { type: Boolean, default: false },
-  loadId: { type: Schema.Types.ObjectId, ref: 'Load' }
-}, { timestamps: { createdAt: true, updatedAt: false } });
+export interface INotification extends Document {
+  userId: string;
+  message: string;
+  seen: boolean;
+  link?: string;
+  createdAt: Date;
+}
 
-export default models.Notification || model('Notification', NotificationSchema);
+const NotificationSchema: Schema<INotification> = new Schema({
+  userId: { type: String, required: true },
+  message: { type: String, required: true },
+  seen: { type: Boolean, default: false },
+  link: { type: String },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const Notification: Model<INotification> =
+  mongoose.models.Notification || mongoose.model('Notification', NotificationSchema);
