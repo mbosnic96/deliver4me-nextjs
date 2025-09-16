@@ -8,6 +8,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
@@ -50,6 +56,7 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingRow, setEditingRow] = useState<T | undefined>(undefined);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [userRole, setUserRole] = useState<"driver" | "admin" | "other">("other");
   const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({});
   const router = useRouter();
@@ -64,23 +71,28 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     }
   };
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(apiBase);
-      const json = await res.json();
-      const mapped = json.map((item: any) => ({
-        ...item,
-        id: item.id || item._id,
-      }));
-      setData(mapped);
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Failed to fetch data", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch(apiBase);
+    const json = await res.json();
+
+    const items = Array.isArray(json) ? json : json.data || [];
+
+    const mapped = items.map((item: any) => ({
+      ...item,
+      id: item.id || item._id,
+    }));
+
+    setData(mapped);
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Failed to fetch data", "error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchUserRole();
@@ -205,7 +217,14 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
 
     return (
       <>
-        <Button variant="outline" size="sm" onClick={() => setEditingRow(row)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setEditingRow(row);
+            setDialogOpen(true);
+          }}
+        >
           Uredi
         </Button>
         {toggleActive && row.isDeleted !== undefined ? (
@@ -229,7 +248,16 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     <div className="p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
-        {userRole !== "driver" && <Button onClick={() => setEditingRow(undefined)}>Dodaj</Button>}
+        {userRole !== "driver" && (
+          <Button
+            onClick={() => {
+              setEditingRow(undefined);
+              setDialogOpen(true);
+            }}
+          >
+            Dodaj
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -284,6 +312,22 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
           </table>
         </div>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
+          </DialogHeader>
+          <FormComponent
+            initialData={editingRow}
+            onClose={() => setDialogOpen(false)}
+            onSaved={() => {
+              setDialogOpen(false);
+              fetchData();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
