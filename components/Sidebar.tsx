@@ -8,7 +8,7 @@ import {
   Truck,
   UserCog,
   Settings,
-  User,
+  User, Wallet
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
@@ -73,15 +73,8 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
           <ul className="space-y-2">
           
             <li>
-              {role === 'client' && (
-                <SidebarLink href="/client" icon={<Home size={18} />} label="Dashboard" />
-              )}
-              {role === 'driver' && (
-                <SidebarLink href="/driver" icon={<Home size={18} />} label="Dashboard" />
-              )}
-              {role === 'admin' && (
-                <SidebarLink href="/admin" icon={<Home size={18} />} label="Dashboard" />
-              )}
+                <SidebarLink href="/dashboard" icon={<Home size={18} />} label="Dashboard" />
+            
             </li>
 
         
@@ -91,16 +84,24 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
                   <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="Moja vozila" />
                 </li>
                 <li>
-                  <SidebarLink href="/driver/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
+                  <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
+                </li>
+                <li>
+                  <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
                 </li>
               </>
             )}
 
          
-            {role === 'client' && (
+            {role === 'client' && (<>
               <li>
-                <SidebarLink href="/client/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
+                <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
               </li>
+
+               <li>
+                  <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
+                </li>
+                </>
             )}
 
            
@@ -112,11 +113,7 @@ const Sidebar = ({ role, navbarHeight = 0, collapsed, setCollapsed }: SidebarPro
                 <li>
                   <SidebarLink href="/users" icon={<UserCog size={18} />} label="Korisnici" />
                 </li>
-                  <li>
-                  <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="Moja vozila" />
-                </li>
 
-                
               <li>
                 <SidebarLink href="my-loads" icon={<Truck size={18} />} label="Svi tereti" />
               </li>

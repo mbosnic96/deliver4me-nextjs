@@ -74,6 +74,8 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
   });
   const [totalCount, setTotalCount] = useState(0);
 
+  const shouldShowViewButton = apiBase === "/api/loads" || apiBase === "/api/users";
+
   const fetchUserRole = async () => {
     try {
       const res = await fetch("/api/users/me");
@@ -227,16 +229,27 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     return flexRender(cell.column.columnDef.cell, cell.getContext());
   };
 
+  const getViewRoute = (row: T) => {
+    if (apiBase === "/api/loads") {
+      return `/load/${row.id}`;
+    } else if (apiBase === "/api/users") {
+      return `/users/${row.id}`;
+    }
+    return "#";
+  };
+
   const renderActions = (row: T) => {
     return (
       <>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.push(`/load/${row.id}`)}
-        >
-          View
-        </Button>
+        {shouldShowViewButton && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(getViewRoute(row))}
+          >
+            View
+          </Button>
+        )}
         
         <Button
           variant="outline"
@@ -334,6 +347,7 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
             </table>
           </div>
 
+         
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-700 dark:text-gray-300">

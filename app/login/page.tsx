@@ -36,18 +36,7 @@ export default function LoginPage() {
       const session = await getSession();
 
       if (session?.user?.role) {
-        switch (session.user.role.toLowerCase()) {
-          case 'admin':
-            router.push('/admin/dashboard');
-            break;
-          case 'driver':
-            router.push('/driver/dashboard');
-            break;
-          default:
-            router.push('/profile');
-        }
-      } else {
-        router.push('/profile');
+         router.push('/profile');
       }
     }
   };
