@@ -79,3 +79,10 @@ input, select, textarea, option,.basic-single {
   background: transparent !important;
   border: none !important;
 }
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
