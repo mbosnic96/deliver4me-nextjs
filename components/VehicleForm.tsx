@@ -29,11 +29,24 @@ interface VehicleFormProps {
   onSaved: () => void;
 }
 
+interface VehicleType {
+  _id: string;
+  name: string;
+}
+
+interface VehicleTypesResponse {
+  data: VehicleType[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleFormProps) {
-  const [vehicleTypes, setVehicleTypes] = useState<{ _id: string; name: string }[]>([]);
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingVehicleTypes, setLoadingVehicleTypes] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -49,9 +62,25 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
   });
 
   useEffect(() => {
-    axios.get("/api/vehicle-types").then((res) => setVehicleTypes(res.data));
-  }, []);
+    const fetchVehicleTypes = async () => {
+      setLoadingVehicleTypes(true);
+      try {
+        const response = await axios.get("/api/vehicle-types");
+        // Handle both paginated response and simple array response for backward compatibility
+        const vehicleTypesData = response.data.data || response.data;
+        setVehicleTypes(Array.isArray(vehicleTypesData) ? vehicleTypesData : []);
+      } catch (error) {
+        console.error("Failed to fetch vehicle types:", error);
+        setVehicleTypes([]);
+      } finally {
+        setLoadingVehicleTypes(false);
+      }
+    };
 
+    if (open) {
+      fetchVehicleTypes();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (initialData) {
@@ -140,6 +169,11 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
     }
   };
 
+  // Get the current selected value for the Select component
+  const selectedVehicleType = vehicleTypes
+    .map(vt => ({ value: vt._id, label: vt.name }))
+    .find(option => option.value === form.watch("vehicleTypeId"));
+
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl">
@@ -202,21 +236,20 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
           </div>
 
           <div>
-           
-<Select
-  options={vehicleTypes.map(vt => ({ value: vt._id, label: vt.name }))}
-  value={vehicleTypes
-    .map(vt => ({ value: vt._id, label: vt.name }))
-    .find(option => option.value === form.getValues("vehicleTypeId"))}
-  onChange={(selected) =>
-    form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
-  }
-  placeholder="Odaberite tip vozila"
-  className="react-select-container"
-  classNamePrefix="react-select"
-  instanceId="vehicle-type-select"
-  isLoading={!vehicleTypes.length}
-/>
+            <label className="block text-sm font-medium mb-1">Tip vozila</label>
+            <Select
+              options={vehicleTypes.map(vt => ({ value: vt._id, label: vt.name }))}
+              value={selectedVehicleType}
+              onChange={(selected) =>
+                form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
+              }
+              placeholder="Odaberite tip vozila"
+              className="react-select-container"
+              classNamePrefix="react-select"
+              instanceId="vehicle-type-select"
+              isLoading={loadingVehicleTypes}
+              isDisabled={loadingVehicleTypes}
+            />
             {form.formState.errors.vehicleTypeId && (
               <p className="text-red-500 text-xs">{form.formState.errors.vehicleTypeId.message}</p>
             )}

@@ -180,23 +180,32 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
       const saving = savingStatus[rowId] || false;
       const value = cell.getValue() as string;
 
-      const handleChange = async (option: any) => {
-        setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
-        try {
-          await fetch(`${apiBase}/${rowId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: option.value }),
-          });
-          toast.success(`Status updated to "${option.value}"`);
-          await fetchData();
-        } catch (err) {
-          console.error(err);
-          Swal.fire("Error", "Failed to update status", "error");
-        } finally {
-          setSavingStatus((prev) => ({ ...prev, [rowId]: false }));
-        }
-      };
+     const handleChange = async (option: any) => {
+  setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
+  try {
+    const res = await fetch(`${apiBase}/${rowId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: option.value }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      toast.error(json.error || "Failed to update status");
+      return;
+    }
+
+    toast.success(`Status updated to "${option.value}"`);
+    await fetchData();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  } finally {
+    setSavingStatus((prev) => ({ ...prev, [rowId]: false }));
+  }
+};
+
 
       return (
         <div className="flex items-center gap-2">

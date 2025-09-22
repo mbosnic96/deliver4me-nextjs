@@ -42,10 +42,22 @@ export async function PATCH(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+
+      if (["Dostavljen", "Otkazan", "delivered", "canceled"].includes(existing.status)) {
+      return NextResponse.json({ error: `Nemoguće ažurirati status tereta koji je već ${existing.status}` }, { status: 400 });
+    }
+
     const userRole = authSession.user.role;
     const isOwner = existing.userId.toString() === authSession.user.id;
 
     if (userRole === "admin" || isOwner) {
+       if ("fixedPrice" in data) {
+        const wallet = await Wallet.findOne({ userId: existing.userId });
+        if (!wallet || wallet.balance < data.fixedPrice) {
+          return NextResponse.json({ error: "Nemate dovoljno novca na računu za objavu ovog tereta." }, { status: 400 });
+        }
+      }
+
       try {
         if (existing.assignedBidId && data.status === "Otkazan") {
           const winningBid = await Bid.findById(existing.assignedBidId);

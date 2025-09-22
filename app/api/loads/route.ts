@@ -3,7 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { dbConnect } from "@/lib/db/db";
 import Load from "@/lib/models/Load";
+import User from "@/lib/models/User";
 import Bid from "@/lib/models/Bid";
+import Wallet from "@/lib/models/Wallet";
 
 export async function GET(request: Request) {
   await dbConnect();
@@ -30,7 +32,7 @@ export async function GET(request: Request) {
       status: "accepted",
     }).select("loadId");
 
-    const loadIds = acceptedBids.map(bid => bid.loadId);
+    const loadIds = acceptedBids.map((bid) => bid.loadId);
     query = { _id: { $in: loadIds } };
   } else {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -45,7 +47,6 @@ export async function GET(request: Request) {
   return NextResponse.json({ data: loads, total, page, limit });
 }
 
-
 export async function POST(request: Request) {
   await dbConnect();
   const session = await getServerSession(authOptions);
@@ -55,8 +56,39 @@ export async function POST(request: Request) {
   }
 
   const data = await request.json();
-  data.userId = session.user.id;
 
+  // Validate required fields
+  const requiredFields = [
+    "title", "description",
+    "pickupCountry", "pickupState", "pickupCity", "pickupAddress",
+    "deliveryCountry", "deliveryState", "deliveryCity", "deliveryAddress",
+    "contactPerson", "contactPhone", 
+    "cargoWeight", "cargoWidth", "cargoHeight", "cargoLength", "fixedPrice"
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      return NextResponse.json({ error: `Sva polja su obavezna!` }, { status: 400 });
+    }
+  }
+
+  const fixedPrice = parseFloat(data.fixedPrice);
+
+  
+  let wallet = await Wallet.findOne({ userId: session.user.id });
+  if (!wallet) {
+    wallet = await Wallet.create({ userId: session.user.id, balance: 0, cards: [], transactions: [], escrow: 0 });
+  }
+
+  if ((wallet.balance || 0) < fixedPrice) {
+    return NextResponse.json({
+      error: "Nedovoljno novca na računu. Uplatite sredstva na račun, a zatim dodajte teret."
+    }, { status: 400 });
+  }
+
+ 
+  data.userId = session.user.id;
   const newLoad = await Load.create(data);
+
   return NextResponse.json(newLoad, { status: 201 });
 }

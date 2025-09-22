@@ -11,6 +11,7 @@ import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import moment from 'moment';
 import 'moment/locale/bs';
+import { toast } from "react-toastify";
 
 interface LoadFormProps {
   initialData?: any
@@ -217,51 +218,78 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }, [isDirty, showCloseWarning, onClose])
 
-  const handleSubmit = async () => {
-    setIsLoading(true)
-    try {
-      const jsonData = { ...form }
-      ;['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
-        if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value
-      })
+const handleSubmit = async () => {
+  setIsLoading(true);
 
-      const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads'
-      const method = initialData?.id ? 'PATCH' : 'POST'
-      const res = await fetch(url, {
-        method,
-        body: JSON.stringify(jsonData),
-        headers: { 'Content-Type': 'application/json' }
-      })
+  const requiredFields = [
+    "title", "description",
+    "pickupCountry", "pickupState", "pickupCity", "pickupAddress",
+    "deliveryCountry", "deliveryState", "deliveryCity", "deliveryAddress",
+    "contactPerson", "contactPhone",
+    "cargoWeight", "cargoWidth", "cargoHeight", "cargoLength", "fixedPrice"
+  ];
 
-      if (!res.ok) throw new Error('Failed to save load')
-      const result = await res.json()
-      const loadId = result._id || initialData?.id
-      if (selectedImages.length > 0) await uploadImages(loadId, selectedImages)
-
-      for (const imageUrl of imagesToRemove) {
-        try {
-          await fetch(`/api/loads/${loadId}/images`, {
-            method: 'DELETE',
-            body: JSON.stringify({ imageUrl }),
-            headers: { 'Content-Type': 'application/json' }
-          })
-        } catch (err) {
-          console.error('Failed to delete image', imageUrl)
-        }
-      }
-      setImagesToRemove([])
-
-      Swal.fire({ icon: 'success', title: 'Uspjeh', text: 'Teret uspješno sačuvan!', timer: 2000, showConfirmButton: false, customClass: { popup: 'pointer-events-auto' } })
-      setIsDirty(false)
-      onSaved()
-      onClose()
-    } catch (err) {
-      console.error(err)
-      Swal.fire({ icon: 'error', title: 'Greška', text: 'Došlo je do greške prilikom spremanja tereta.', customClass: { popup: 'pointer-events-auto' } })
-    } finally {
-      setIsLoading(false)
+  for (const field of requiredFields) {
+    const val = form[field];
+    if (!val || (typeof val === "object" && !val.value)) {
+      toast.warning(`Molimo Vas, ispunite sva polja.`);
+      setIsLoading(false);
+      return;
     }
   }
+
+  // Check wallet balance before posting
+  const fixedPrice = parseFloat(form.fixedPrice);
+  if (currentUser.balance < fixedPrice) {
+    toast.error("Nemate dovoljno novca na računu za objavu ovog tereta.");
+    setIsLoading(false);
+    return;
+  }
+
+  try {
+    const jsonData = { ...form };
+    ['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
+      if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value;
+    });
+
+    const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads';
+    const method = initialData?.id ? 'PATCH' : 'POST';
+    const res = await fetch(url, {
+      method,
+      body: JSON.stringify(jsonData),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to save load');
+    }
+
+    const result = await res.json();
+    const loadId = result._id || initialData?.id;
+
+    if (selectedImages.length > 0) await uploadImages(loadId, selectedImages);
+
+    for (const imageUrl of imagesToRemove) {
+      await fetch(`/api/loads/${loadId}/images`, {
+        method: 'DELETE',
+        body: JSON.stringify({ imageUrl }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    setImagesToRemove([]);
+    toast.success('Teret uspješno sačuvan!');
+    setIsDirty(false);
+    onSaved();
+    onClose();
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err.message || 'Došlo je do greške prilikom spremanja tereta.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const uploadImages = async (loadId: string, images: File[]) => {
     if (!images.length) return
