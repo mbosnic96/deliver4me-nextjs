@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
+import { AddFundsDialog } from "@/components/AddFundsDialog";
+import { RequestPayoutDialog } from "@/components/ReqestPayoutDialog";
+
 type Wallet = {
   _id: string;
   balance: number;
@@ -43,6 +46,7 @@ export default function MyWallet() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [addingFunds, setAddingFunds] = useState(false);
   const [deletingCard, setDeletingCard] = useState<number | null>(null);
+  
 
   const fetchWallet = async () => {
     try {
@@ -61,33 +65,32 @@ export default function MyWallet() {
     fetchWallet();
   }, []);
 
-  const handleAddFunds = async (amount: number) => {
-    setAddingFunds(true);
-    try {
-      const res = await fetch("/api/wallet", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          action: "addFunds", 
-          data: { amount: parseFloat(amount.toString()) } 
-        }),
-      });
-      
-      if (res.ok) {
-        toast.success("Funds added successfully!");
-        fetchWallet();
-      } else {
-        throw new Error("Failed to add funds");
-      }
-    } catch (error) {
-      console.error("Error adding funds:", error);
-      toast.error("Failed to add funds");
-    } finally {
-      setAddingFunds(false);
+const handleAddFunds = async (amount: number, cardIndex?: number) => {
+  setAddingFunds(true);
+  try {
+    const res = await fetch("/api/wallet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        action: "addFunds", 
+        data: { amount, cardIndex } 
+      }),
+    });
+
+    if (res.ok) {
+      toast.success("Funds added successfully!");
+      fetchWallet();
+    } else {
+      throw new Error("Failed to add funds");
     }
-  };
+  } catch (error) {
+    console.error("Error adding funds:", error);
+    toast.error("Failed to add funds");
+  } finally {
+    setAddingFunds(false);
+  }
+};
+
 
   const handleAddCard = async (cardData: any) => {
     try {
@@ -143,7 +146,31 @@ export default function MyWallet() {
     }
   };
 
-  const QuickAddAmounts = [10, 25, 50, 100, 200];
+  const handlePayout = async (amount: number, cardIndex: number) => {
+  try {
+    const res = await fetch("/api/wallet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        action: "payout", 
+        data: { amount, cardIndex } 
+      }),
+    });
+
+    if (res.ok) {
+      toast.success("Payout successful!");
+      fetchWallet();
+    } else {
+      const error = await res.json();
+      toast.error(error.error || "Failed to process payout");
+    }
+  } catch (error) {
+    console.error("Error during payout:", error);
+    toast.error("Failed to process payout");
+  }
+};
+
+
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800">
@@ -169,6 +196,8 @@ export default function MyWallet() {
 
           {wallet ? (
             <div className="space-y-8">
+              <RequestPayoutDialog cards={wallet.cards} onPayout={handlePayout} />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                   <CardContent className="p-6">
@@ -181,18 +210,7 @@ export default function MyWallet() {
                       </div>
                       <DollarSign className="h-12 w-12 opacity-90" />
                     </div>
-                    <Button 
-                      onClick={() => {
-                        const amount = prompt("Enter amount to add:");
-                        if (amount && !isNaN(parseFloat(amount))) {
-                          handleAddFunds(parseFloat(amount));
-                        }
-                      }}
-                      className="mt-4 bg-white text-blue-600 hover:bg-blue-50"
-                      disabled={addingFunds}
-                    >
-                      {addingFunds ? "Adding..." : "Add Funds"}
-                    </Button>
+                    <AddFundsDialog cards={wallet.cards} onAddFunds={handleAddFunds} />
                   </CardContent>
                 </Card>
 
@@ -214,27 +232,7 @@ export default function MyWallet() {
                 </Card>
               </div>
 
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
-                    Quick Add Funds
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {QuickAddAmounts.map((amount) => (
-                      <Button
-                        key={amount}
-                        variant="outline"
-                        onClick={() => handleAddFunds(amount)}
-                        disabled={addingFunds}
-                        className="flex-1 min-w-[80px]"
-                      >
-                        ${amount}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+             
 
               <Card>
                 <CardContent className="p-6">

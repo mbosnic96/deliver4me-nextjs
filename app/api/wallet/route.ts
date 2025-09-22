@@ -6,7 +6,7 @@ import { dbConnect } from "@/lib/db/db";
 
 import CryptoJS from "crypto-js";
 
-const ENCRYPTION_KEY = process.env.CARD_ENCRYPTION_KEY || '6a5c18293a1c4efd3f0f23168dc5ef606002398634945beb99bbbcaede0e07f8'; // 32 chars for AES-256
+const ENCRYPTION_KEY = process.env.CARD_ENCRYPTION_KEY || '6a5c18293a1c4efd3f0f23168dc5ef606002398634945beb99bbbcaede0e07f8'; //hardcod da ne morate sve buildati
 
 function encryptCardData(data: string): string {
     return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     const displaySafeCards = wallet.cards.map((card: any) => ({
         brand: card.brand,
-        last4: decryptCardData(card.cardNumber).slice(-4),
+        last4: card.last4,
         holderName: card.holderName ? decryptCardData(card.holderName) : card.displayName,
         expiry: card.expiry ? decryptCardData(card.expiry) : card.displayExpiry,
     }));
@@ -68,35 +68,85 @@ export async function POST(req: NextRequest) {
 
 
     if (action === "addCard") {
+        const rawNumber = data.cardNumber.replace(/\s/g, '');
         const encryptedCard = {
-            cardNumber: encryptCardData(data.cardNumber),
+            cardNumber: encryptCardData(rawNumber),
             holderName: encryptCardData(data.holderName),
             expiry: encryptCardData(data.expiry),
             cvv: encryptCardData(data.cvv),
             brand: data.brand,
-            last4: data.cardNumber.slice(-4),
-            displayName: data.holderName.split(' ').map((name: string, i: number, arr: string[]) =>
-                i === 0 || i === arr.length - 1 ? name : name[0] + '.'
-            ).join(' ')
+            last4: rawNumber.slice(-4),
+            displayName: data.holderName
+                .split(" ")
+                .map((name: string, i: number, arr: string[]) =>
+                    i === 0 || i === arr.length - 1 ? name : name[0] + "."
+                )
+                .join(" "),
         };
         wallet.cards.push(encryptedCard);
-
     }
-    /*
-    // Add delete card action
-    if (action === "deleteCard") {
-      wallet.cards = wallet.cards.filter((_, index) => index !== data.cardIndex);
-    }*/
+
 
     if (action === "addFunds") {
-        wallet.balance += data.amount;
+        const { amount, cardIndex } = data;
+
+        if (amount <= 0) {
+            return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+        }
+
+        let cardLast4: string | undefined;
+
+        if (typeof cardIndex === "number") {
+            const selectedCard = wallet.cards[cardIndex];
+            if (!selectedCard) {
+                return NextResponse.json({ error: "Selected card not found" }, { status: 404 });
+            }
+
+            cardLast4 = selectedCard.last4 || decryptCardData(selectedCard.cardNumber).slice(-4);
+
+            //ovdje se poziva api za uplate, za dev samo simulacija
+        }
+
+        wallet.balance += amount;
         wallet.transactions.push({
-            amount: data.amount,
+            amount,
             type: "credit",
-            description: "Funds added",
+            description: cardLast4
+                ? `Funds added from card ending ${cardLast4}`
+                : "Funds added",
             createdAt: new Date(),
         });
     }
+
+
+    if (action === "deleteCard") {
+        wallet.cards = wallet.cards.filter((_: any, index: number) => index !== data.cardIndex);
+    }
+
+    if (action === "payout") {
+        const { amount, cardIndex } = data;
+
+        const selectedCard = wallet.cards[cardIndex];
+        if (!selectedCard) {
+            return NextResponse.json({ error: "Selected card not found" }, { status: 404 });
+        }
+
+        const cardLast4 =
+            selectedCard.last4 ||
+            decryptCardData(selectedCard.cardNumber).slice(-4);
+
+        //ovdje se poziva api za isplate, za dev samo simulacija
+
+        wallet.balance -= amount;
+        wallet.transactions.push({
+            amount: -amount,
+            type: "debit",
+            description: `Payout of $${amount} to card ending ${cardLast4}`,
+            createdAt: new Date(),
+        });
+    }
+
+
 
     await wallet.save();
 

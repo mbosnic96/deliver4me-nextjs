@@ -5,7 +5,7 @@ import { dbConnect } from "@/lib/db/db";
 import Load from "@/lib/models/Load";
 import Bid from "@/lib/models/Bid";
 
-export async function GET() {
+export async function GET(request: Request) {
   await dbConnect();
   const session = await getServerSession(authOptions);
 
@@ -13,29 +13,38 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let loads;
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+  const skip = (page - 1) * limit;
+
+  let query = {};
 
   if (session.user.role === "admin") {
-    // Admin sees all
-    loads = await Load.find().sort({ createdAt: -1 });
+    query = {};
   } else if (session.user.role === "client") {
-    // Client sees only their own loads
-    loads = await Load.find({ userId: session.user.id }).sort({ createdAt: -1 });
+    query = { userId: session.user.id };
   } else if (session.user.role === "driver") {
-    // Driver sees only loads where he has an accepted bid
     const acceptedBids = await Bid.find({
       driverId: session.user.id,
       status: "accepted",
     }).select("loadId");
 
     const loadIds = acceptedBids.map(bid => bid.loadId);
-    loads = await Load.find({ _id: { $in: loadIds } }).sort({ createdAt: -1 });
+    query = { _id: { $in: loadIds } };
   } else {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return NextResponse.json(loads);
+  const total = await Load.countDocuments(query);
+  const loads = await Load.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  return NextResponse.json({ data: loads, total, page, limit });
 }
+
 
 export async function POST(request: Request) {
   await dbConnect();

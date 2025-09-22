@@ -90,6 +90,7 @@ export async function PATCH(
       if (!("status" in data)) {
         return NextResponse.json({ error: "Drivers can only update status" }, { status: 403 });
       }
+      
       if (data.status === "delivered"|| data.status === "Dostavljen") {
         const clientWallet = await Wallet.findOne({ userId: existing.userId });
         const driverWallet = await Wallet.findOne({ userId: authSession.user.id });
@@ -128,10 +129,10 @@ export async function PATCH(
           }, { new: true });
 
           const driverUpdate = await Wallet.findByIdAndUpdate(driverWallet._id, {
-            $inc: { balance: amount },
+            $inc: {balance:+amount, escrow: -amount },
             $push: {
               transactions: {
-                amount: amount,
+                amount: -amount,
                 type: "credit",
                 description: `Payment received for load ${existing._id} (bid ${winningBid._id})`,
                 createdAt: new Date(),

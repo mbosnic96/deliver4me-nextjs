@@ -46,6 +46,13 @@ const STATUS_OPTIONS = [
   { value: "Otkazan", label: "Otkazan", color: "#ef4444" },
 ];
 
+interface ApiResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export function Table<T extends { id: string; isDeleted?: boolean; status?: string }>({
   title,
   columns,
@@ -61,6 +68,12 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
   const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({});
   const router = useRouter();
 
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [totalCount, setTotalCount] = useState(0);
+
   const fetchUserRole = async () => {
     try {
       const res = await fetch("/api/users/me");
@@ -71,33 +84,39 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     }
   };
 
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch(apiBase);
-    const json = await res.json();
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const url = new URL(apiBase, window.location.origin);
+      url.searchParams.set("page", (pagination.pageIndex + 1).toString());
+      url.searchParams.set("limit", pagination.pageSize.toString());
 
-    const items = Array.isArray(json) ? json : json.data || [];
+      const res = await fetch(url.toString());
+      const json: ApiResponse<T> = await res.json();
 
-    const mapped = items.map((item: any) => ({
-      ...item,
-      id: item.id || item._id,
-    }));
+      const items = json.data || [];
+      const mapped = items.map((item: any) => ({
+        ...item,
+        id: item.id || item._id,
+      }));
 
-    setData(mapped);
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Failed to fetch data", "error");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setData(mapped);
+      setTotalCount(json.total || 0);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to fetch data", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchUserRole();
+  }, []);
+
+  useEffect(() => {
     fetchData();
-  }, [apiBase]);
+  }, [apiBase, pagination.pageIndex, pagination.pageSize]);
 
   const handleToggle = async (row: T) => {
     if (row.isDeleted === undefined) return;
@@ -145,6 +164,12 @@ const fetchData = async () => {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    pageCount: Math.ceil(totalCount / pagination.pageSize),
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
   });
 
   const renderCell = (cell: any) => {
@@ -203,8 +228,8 @@ const fetchData = async () => {
   };
 
   const renderActions = (row: T) => {
-    if (userRole === "driver") {
-      return (
+    return (
+      <>
         <Button
           variant="outline"
           size="sm"
@@ -212,11 +237,7 @@ const fetchData = async () => {
         >
           View
         </Button>
-      );
-    }
-
-    return (
-      <>
+        
         <Button
           variant="outline"
           size="sm"
@@ -265,52 +286,118 @@ const fetchData = async () => {
           <Spinner size="lg" />
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap"
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+        <>
+          <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-4">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap"
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </th>
+                    ))}
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Akcije
                     </th>
-                  ))}
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    Akcije
-                  </th>
-                </tr>
-              ))}
-            </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-              {table.getRowModel().rows.map((row, idx) => (
-                <tr
-                  key={row.id}
-                  className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap"
-                    >
-                      {renderCell(cell)}
+                  </tr>
+                ))}
+              </thead>
+              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                {table.getRowModel().rows.map((row, idx) => (
+                  <tr
+                    key={row.id}
+                    className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                      >
+                        {renderCell(cell)}
+                      </td>
+                    ))}
+                    <td className="px-4 py-3 flex flex-wrap gap-2">{renderActions(row.original)}</td>
+                  </tr>
+                ))}
+                {data.length === 0 && (
+                  <tr>
+                    <td colSpan={columns.length + 1} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                      Nema podataka
                     </td>
-                  ))}
-                  <td className="px-4 py-3 flex flex-wrap gap-2">{renderActions(row.original)}</td>
-                </tr>
-              ))}
-              {data.length === 0 && (
-                <tr>
-                  <td colSpan={columns.length + 1} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
-                    Nema podataka
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Page {pagination.pageIndex + 1} of {table.getPageCount()}
+              </span>
+              <select
+                className="border rounded p-1 text-sm dark:bg-gray-800 dark:text-gray-200"
+                value={pagination.pageSize}
+                onChange={(e) => {
+                  setPagination(prev => ({
+                    ...prev,
+                    pageSize: Number(e.target.value),
+                    pageIndex: 0 
+                  }));
+                }}
+              >
+                {[10, 20, 30, 40, 50].map((pageSize) => (
+                  <option key={pageSize} value={pageSize}>
+                    Show {pageSize}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+              >
+                First
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                Last
+              </Button>
+            </div>
+
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Total: {totalCount} items
+            </span>
+          </div>
+        </>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
