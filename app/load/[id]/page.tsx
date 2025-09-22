@@ -334,7 +334,7 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
         <div className="text-center">
           <h2 className="text-2xl text-red-500 mb-2">Greška</h2>
           <p>{error || "Teret nije pronađen"}</p>
-          <Link href="/loads" className="text-blue-500 underline mt-4 block">
+          <Link href="/load" className="text-blue-500 underline mt-4 block">
             ← Nazad
           </Link>
         </div>
@@ -351,7 +351,7 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link 
-              href="/loads" 
+              href="/load" 
               className="flex items-center text-white hover:text-blue-600  transition-colors"
             >
               <ArrowLeft size={20} className="mr-2 text-blue-600" />
