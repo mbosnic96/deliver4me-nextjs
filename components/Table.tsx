@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import { createNotification } from '@/lib/notifications';
 
 const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
   <div
@@ -180,7 +181,7 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
       const saving = savingStatus[rowId] || false;
       const value = cell.getValue() as string;
 
-     const handleChange = async (option: any) => {
+const handleChange = async (option: any) => {
   setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
   try {
     const res = await fetch(`${apiBase}/${rowId}`, {
@@ -197,12 +198,40 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     }
 
     toast.success(`Status updated to "${option.value}"`);
+    
+    // Send notification for status changes
+    if (option.value === "Otkazan" || option.value === "Dostavljen") {
+      await sendStatusChangeNotification(rowId, option.value, cell.row.original);
+    }
+    
     await fetchData();
   } catch (err) {
     console.error(err);
     toast.error("Failed to update status");
   } finally {
     setSavingStatus((prev) => ({ ...prev, [rowId]: false }));
+  }
+};
+
+const sendStatusChangeNotification = async (loadId: string, newStatus: string, loadData: any) => {
+  try {
+      
+    if (loadData.userId) {
+      let message = "";
+      let link = `/load/${loadId}`;
+      
+      if (newStatus === "Otkazan") {
+        message = `Vaš teret "${loadData.title}" je označen kao otkazan.`;
+      } else if (newStatus === "Dostavljen") {
+        message = `Vaš teret "${loadData.title}" je dostavljen!`;
+      }
+      
+      if (message) {
+        await createNotification(loadData.userId, message, link);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to send status change notification:", error);
   }
 };
 
