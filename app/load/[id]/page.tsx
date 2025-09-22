@@ -351,12 +351,30 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                Nazad
             </Link>
             <div className="flex items-center space-x-2">
-              <button className="p-2 text-blue-600 hover:text-blue-600 transition-colors">
-                <Heart size={20} />
-              </button>
-              <button className="p-2 text-blue-600 hover:text-blue-600 transition-colors">
-                <Share2 size={20} />
-              </button>
+              <button
+                  onClick={async () => {
+                    const url = window.location.href;
+                    try {
+                      if (navigator.share) {
+                        await navigator.share({
+                          title: loadData?.title || "Teret",
+                          url,
+                        });
+                        toast.success("Link podijeljen!");
+                      } else {
+                        await navigator.clipboard.writeText(url);
+                        toast.success("Link kopiran u clipboard!");
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Greška pri dijeljenju linka");
+                    }
+                  }}
+                  className="p-2 text-blue-600 hover:text-blue-600 transition-colors"
+                >
+                  <Share2 size={20} />
+                </button>
+
             </div>
           </div>
         </div>
@@ -720,20 +738,6 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                     Kontakt
                   </a>
                 </div>
-              </div>
-            )}
-
-            {!isDriver && loadData.status === "Aktivan" && (
-              <div className="content-bg rounded-xl shadow-sm border p-6">
-                <h3 className="font-semibold text-white  mb-4">Interesuje vas teret?</h3>
-                <button className="w-full btn btn-primary mb-3 py-2">
-                  <MessageSquare size={16} className="mr-2 text-blue-600" />
-                  Pošalji poruku
-                </button>
-                <button className="w-full btn btn-outline py-2">
-                  <Heart size={16} className="mr-2 text-blue-600" />
-                  Sačuvaj
-                </button>
               </div>
             )}
 
