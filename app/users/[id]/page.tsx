@@ -15,6 +15,7 @@ import RatingsCard from "@/components/RatingsCard";
 import ReviewsList from "@/components/ReviewsList";
 import { LeafletMap } from "@/components/LeafletMap";
 import { LatLngTuple } from "leaflet";
+import { toast } from "react-toastify";
 
 interface UserProfilePageProps {
   params: Promise<{ id: string }>;
@@ -212,23 +213,51 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                   )}
 
                   <div className="flex space-x-3 pt-4">
-                    <a
-                      href={`tel:${user.phone}`}
-                      className="btn btn-primary flex items-center"
-                    >
-                      <Phone size={16} className="mr-2 text-blue-600" />
-                      Pozovi
-                    </a>
-                    {user.email && (
-                      <a
-                        href={`mailto:${user.email}`}
-                        className="btn btn-outline flex items-center"
-                      >
-                        <Mail size={16} className="mr-2 text-blue-600" />
-                        Email
-                      </a>
-                    )}
-                  </div>
+  <a
+    href={`tel:${user.phone}`}
+    className="btn btn-primary flex items-center"
+  >
+    <Phone size={16} className="mr-2 text-blue-600" />
+    Pozovi
+  </a>
+
+  {user.email && (
+    <a
+      href={`mailto:${user.email}`}
+      className="btn btn-outline flex items-center"
+    >
+      <Mail size={16} className="mr-2 text-blue-600" />
+      Email
+    </a>
+  )}
+
+  {/* Share button */}
+  <button
+    onClick={async () => {
+      const url = window.location.href;
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: user.name,
+            url,
+          });
+          toast.success("Link podijeljen!");
+        } else {
+          await navigator.clipboard.writeText(url);
+          toast.success("Link kopiran u clipboard!");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Greška pri dijeljenju linka");
+      }
+    }}
+    className="btn btn-outline flex items-center"
+  >
+    <Navigation size={16} className="mr-2 text-blue-600" />
+    Podijeli
+  </button>
+</div>
+
                 </div>
               </div>
             </div>

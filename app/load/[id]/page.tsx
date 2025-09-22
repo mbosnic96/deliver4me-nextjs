@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
+import {toast} from "react-toastify";
 import { ReviewDialog } from "@/components/ReviewDialog";
 import { RouteMap } from "@/components/RouteMap";
 import { LatLngTuple } from "leaflet";
@@ -241,44 +241,51 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
     }
   };
 
-  const handleSubmitBid = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!session?.user?.id || !bidPrice) return;
+ const handleSubmitBid = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!session?.user?.id || !bidPrice) return;
 
-    setIsSubmittingBid(true);
-    try {
-      const res = await fetch("/api/bids", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          loadId: id,
-          price: parseFloat(bidPrice),
-          message: bidMessage,  
-          vehicleId: selectedVehicleId
-        }),
-      });
+  const numericBid = parseFloat(bidPrice);
 
-      if (!res.ok) throw new Error("Failed to submit bid");
-      const newBid = await res.json();
-      setBids((prev) => [...prev, newBid]);
-      setBidPrice("");
-      setBidMessage("");
-      setShowBidForm(false);
+  if (numericBid > (loadData?.fixedPrice ?? Infinity)) {
+    toast.error(`Ponuda ne može biti veća od ${loadData?.fixedPrice.toFixed(2)} BAM`);
+    return;
+  }
 
-      if (loadData?.userId) {
-        const message = `Nova ponuda za vaš teret "${loadData.title}" od ${session.user.name}`;
-        const link = `/load/${id}`;
-        
-        await createNotification(loadData.userId, message, link);
-      }
-      
-      toast.success("Ponuda poslana!");
-    } catch (err) {
-      toast.error("Greška pri slanju ponude!");
-    } finally {
-      setIsSubmittingBid(false);
+  setIsSubmittingBid(true);
+  try {
+    const res = await fetch("/api/bids", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        loadId: id,
+        price: numericBid,
+        message: bidMessage,  
+        vehicleId: selectedVehicleId
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to submit bid");
+    const newBid = await res.json();
+    setBids((prev) => [...prev, newBid]);
+    setBidPrice("");
+    setBidMessage("");
+    setShowBidForm(false);
+
+    if (loadData?.userId) {
+      const message = `Nova ponuda za vaš teret "${loadData.title}" od ${session.user.name}`;
+      const link = `/load/${id}`;
+      await createNotification(loadData.userId, message, link);
     }
-  };
+    
+    toast.success("Ponuda poslana!");
+  } catch (err) {
+    toast.error("Greška pri slanju ponude!");
+  } finally {
+    setIsSubmittingBid(false);
+  }
+};
+
 
   const nextImage = () =>
     loadData?.images?.length &&
