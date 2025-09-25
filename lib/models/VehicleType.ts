@@ -1,8 +1,17 @@
 import { Schema, model, models } from 'mongoose';
 
 const VehicleTypeSchema = new Schema({
-  name: String,
-  description: String
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String
+  }
+}, {
+  timestamps: true
 });
 
-export default models.VehicleType || model('VehicleType', VehicleTypeSchema);
+const VehicleType = models.VehicleType || model('VehicleType', VehicleTypeSchema);
+
+export default VehicleType;

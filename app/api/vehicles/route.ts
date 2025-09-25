@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+import VehicleType from "@/lib/models/VehicleType";
 import Vehicle from "@/lib/models/Vehicle";
 import { dbConnect } from "@/lib/db/db";
 
@@ -12,40 +13,61 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") || "1", 10);
-  const limit = parseInt(url.searchParams.get("limit") || "10", 10);
-  const skip = (page - 1) * limit;
+  const pageParam = url.searchParams.get("page");
+  const limitParam = url.searchParams.get("limit");
+  const search = url.searchParams.get("search")?.trim().toLowerCase(); 
+
+  const page = pageParam ? parseInt(pageParam, 10) : null;
+  const limit = limitParam ? parseInt(limitParam, 10) : null;
+  const skip = page && limit ? (page - 1) * limit : 0;
 
   const query: any = { userId: session.user.id };
 
+
+  if (search) {
+    query.$or = [
+      { brand: { $regex: search, $options: "i" } },
+      { model: { $regex: search, $options: "i" } },
+      { plateNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
   const total = await Vehicle.countDocuments(query);
 
-  const vehicles = await Vehicle.find(query)
+  let vehiclesQuery = Vehicle.find(query)
     .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .populate("vehicleTypeId", "name") 
+    .populate("vehicleTypeId", "name")
     .lean();
 
-const mappedVehicles = vehicles.map((v: any) => ({
-  ...v,
-  vehicleType: v.vehicleTypeId
-    ? { name: (v.vehicleTypeId as { name: string }).name }
-    : null,
-  _id: (v._id as any).toString(),
-  id: (v._id as any).toString(),
-  createdAt: v.createdAt ? new Date(v.createdAt).toISOString() : null,
-}));
+  if (page && limit) {
+    vehiclesQuery = vehiclesQuery.skip(skip).limit(limit);
+  }
 
+  const vehicles = await vehiclesQuery;
 
-  return NextResponse.json({
-    data: mappedVehicles,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit),
-  });
+  const mappedVehicles = vehicles.map((v: any) => ({
+    ...v,
+    vehicleType: v.vehicleTypeId
+      ? { name: (v.vehicleTypeId as { name: string }).name }
+      : null,
+    _id: (v._id as any).toString(),
+    id: (v._id as any).toString(),
+    createdAt: v.createdAt ? new Date(v.createdAt).toISOString() : null,
+  }));
+
+  if (page && limit) {
+    return NextResponse.json({
+      data: mappedVehicles,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
+  }
+
+  return NextResponse.json({ data: mappedVehicles, total });
 }
+
 
 export async function POST(request: Request) {
   try {

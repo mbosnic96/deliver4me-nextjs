@@ -115,6 +115,9 @@ export default function LoadPage({ params }: LoadPageProps) {
   const [vehicles, setVehicles] = useState<{ _id: string; brand: string; model: string; plateNumber: string; }[]>([]);
 const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
+  const isOwner = session?.user?.id === loadData?.userId;
+  const isDriver = session?.user?.role === "driver";
+
 
 //fetch load data
   useEffect(() => {
@@ -150,23 +153,34 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
     fetchData();
   }, [id]);
 
-  //  Check if user already reviewed
   useEffect(() => {
-    const checkReview = async () => {
-      if (session?.user?.id && loadData?._id) {
-        try {
-          const res = await fetch(
-            `/api/reviews/check?loadId=${loadData._id}&userId=${session.user.id}`
-          );
-          const data = await res.json();
-          setHasReviewed(data.hasReviewed);
-        } catch (err) {
-          console.error("Failed to check review:", err);
+  const checkReview = async () => {
+    if (session?.user?.id && loadData?._id) {
+      try {
+        const res = await fetch(
+          `/api/reviews/check?loadId=${loadData._id}&userId=${session.user.id}`
+        )
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`)
         }
+        
+        const text = await res.text()
+        if (!text) {
+          console.warn('Empty response from review check API')
+          return
+        }
+        
+        const data = JSON.parse(text)
+        setHasReviewed(data.hasReviewed)
+      } catch (err) {
+        console.error("Failed to check review:", err)
       }
-    };
-    checkReview();
-  }, [session?.user?.id, loadData?._id]);
+    }
+  }
+  
+  checkReview()
+}, [session?.user?.id, loadData?._id])
 
   useEffect(() => {
     if (loadData?.status === "Dostavljen" && !hasReviewed) {
@@ -174,15 +188,26 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
     }
   }, [loadData?.status, hasReviewed]);
 
-  // Fetch vehicles if user is driver
-  useEffect(() => {
-  if (session?.user?.id && isDriver) {
-    fetch(`/api/vehicles?userId=${session.user.id}`)
-      .then(res => res.json())
-      .then(data => setVehicles(data))
-      .catch(err => console.error(err));
+
+useEffect(() => {
+  const fetchVehicles = async () => {
+    if (session?.user?.id && isDriver) {
+      try {
+        const res = await fetch(`/api/vehicles`)
+        if (res.ok) {
+          const responseData = await res.json()
+          setVehicles(responseData.data || [])
+        } else {
+          console.error('Failed to fetch vehicles')
+        }
+      } catch (err) {
+        console.error('Failed to fetch vehicles:', err)
+      }
+    }
   }
-}, [session?.user?.id]);
+  
+  fetchVehicles()
+}, [session?.user?.id, isDriver])
 
   const handleBidAction = async (bidId: string, action: "accepted" | "rejected") => {
     try {
@@ -318,8 +343,6 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
     canceled: "Otkazano",
   };
 
-  const isOwner = session?.user?.id === loadData?.userId;
-  const isDriver = session?.user?.role === "driver";
 
   if (isLoading) {
     return (
@@ -523,27 +546,27 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
         </div>
       </div>
 
-      {loadData.pickupLatitude && loadData.pickupLongitude && loadData.deliveryLatitude && loadData.deliveryLongitude && (
-        <div className="h-96 w-full rounded-lg overflow-hidden mt-2">
-          <RouteMap
-            pickup={{
-              lat: loadData.pickupLatitude,
-              lng: loadData.pickupLongitude,
-              address: `${loadData.pickupAddress}, ${loadData.pickupCity}`
-            }}
-            delivery={{
-              lat: loadData.deliveryLatitude,
-              lng: loadData.deliveryLongitude,
-              address: `${loadData.deliveryAddress}, ${loadData.deliveryCity}`
-            }}
-            className="h-full w-full"
-            zoom={8} 
-          />
-          <div className="mt-2 text-sm text-gray-600 text-center">
-            Ruta od preuzimanja do isporuke
-          </div>
-        </div>
-      )}
+     {loadData.pickupLatitude && loadData.pickupLongitude && loadData.deliveryLatitude && loadData.deliveryLongitude && (
+  <div className="h-96 w-full rounded-lg overflow-hidden mt-2">
+    <RouteMap
+      pickup={{
+        lat: loadData.pickupLatitude,
+        lng: loadData.pickupLongitude,
+        address: `${loadData.pickupAddress}, ${loadData.pickupCity}`
+      }}
+      delivery={{
+        lat: loadData.deliveryLatitude,
+        lng: loadData.deliveryLongitude,
+        address: `${loadData.deliveryAddress}, ${loadData.deliveryCity}`
+      }}
+      className="h-full w-full"
+      zoom={8} 
+    />
+    <div className="mt-2 text-sm text-gray-600 text-center">
+      Ruta od preuzimanja do isporuke
+    </div>
+  </div>
+)}
 
               <div className="rounded-lg p-4">
                 <h3 className="font-semibold text-white  mb-4 flex items-center">
@@ -606,25 +629,30 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                       />
                     </div>
 
-                    {showBidForm && vehicles.length > 0 && (
+                   {showBidForm && (
   <div className="mb-4">
     <label className="block text-white mb-2">Odaberite vozilo</label>
-    <select
-      value={selectedVehicleId || ""}
-      onChange={(e) => setSelectedVehicleId(e.target.value)}
-      className="w-full p-3 border rounded-lg"
-      required
-    >
-      <option value="" disabled>Odaberite vozilo</option>
-      {vehicles.map(vehicle => (
-        <option key={vehicle._id} value={vehicle._id}>
-          {vehicle.brand} {vehicle.model} ({vehicle.plateNumber})
-        </option>
-      ))}
-    </select>
+    {vehicles.length > 0 ? (
+      <select
+        value={selectedVehicleId || ""}
+        onChange={(e) => setSelectedVehicleId(e.target.value)}
+        className="w-full p-3 border rounded-lg"
+        required
+      >
+        <option value="" disabled>Odaberite vozilo</option>
+        {vehicles.map(vehicle => (
+          <option key={vehicle._id} value={vehicle._id}>
+            {vehicle.brand} {vehicle.model} ({vehicle.plateNumber})
+          </option>
+        ))}
+      </select>
+    ) : (
+      <div className="p-3 border rounded-lg text-center text-gray-500">
+        {isDriver ? "Nema dostupnih vozila. Dodajte vozilo u svom profilu." : "Niste vozač"}
+      </div>
+    )}
   </div>
 )}
-
                     
                     <div className="mb-4">
                       <label className="block text-white  mb-2">

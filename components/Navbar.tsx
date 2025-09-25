@@ -72,29 +72,32 @@ export default function Navbar() {
     <>
       <nav className="w-full content-bg border-b border-gray-200 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+         
+          <div className="md:flex items-center gap-4">
+             <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-light.png" alt="Logo" width={120} height={80} />
           </Link>
 
-          <div className="hidden md:flex items-center gap-4">
             <Link
               href="/"
-              className={`flex items-center gap-1 font-medium transition ${
+              className={`hidden md:flex items-center gap-1 font-medium transition ${
                 pathname === '/' ? 'text-indigo-400' : 'text-white hover:text-indigo-400'
               }`}
             >
               <Home size={18} />
               Početna
             </Link>
+            {session && (
             <Link
               href="/load"
-              className={`flex items-center gap-1 font-medium transition ${
+              className={`hidden md:flex items-center gap-1 font-medium transition ${
                 pathname === '/load' ? 'text-indigo-400' : 'text-white hover:text-indigo-400'
               }`}
             >
               <Truck size={18} />
               Tereti
             </Link>
+            )}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
