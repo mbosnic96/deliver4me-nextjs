@@ -97,13 +97,6 @@ export default function VehiclesPage() {
       ),
     },
     {
-      accessorKey: "vehicleType",
-      header: "Tip",
-      cell: ({ row }) => (
-        <div>{row.original.vehicleType?.name ?? "-"}</div>
-      ),
-    },
-    {
       accessorKey: "active",
       header: "Status",
       cell: ({ row }) => (

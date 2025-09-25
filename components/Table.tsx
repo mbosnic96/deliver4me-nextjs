@@ -185,16 +185,17 @@ const handleFilterChange = (key: string, value: string) => {
           )}
         </div>
 
-        {FormComponent && (
-          <Button
-            onClick={() => {
-              setEditingRow(undefined);
-              setDialogOpen(true);
-            }}
-          >
-            Dodaj
-          </Button>
-        )}
+        {FormComponent ? (
+  <Button
+    onClick={() => {
+      setEditingRow(undefined);
+      setDialogOpen(true);
+    }}
+  >
+    Dodaj
+  </Button>
+) : null}
+
       </div>
 
       {(showSearch || additionalFilters.length > 0) && (
@@ -341,23 +342,24 @@ const handleFilterChange = (key: string, value: string) => {
         </>
       )}
   
-      {FormComponent && (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
-            </DialogHeader>
-            <FormComponent
-              initialData={editingRow}
-              onClose={() => setDialogOpen(false)}
-              onSaved={() => {
-                setDialogOpen(false);
-                fetchData();
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+  <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
+    </DialogHeader>
+    {FormComponent ? (
+      <FormComponent
+        initialData={editingRow}
+        onClose={() => setDialogOpen(false)}
+        onSaved={() => {
+          setDialogOpen(false);
+          fetchData();
+        }}
+      />
+    ) : null}
+  </DialogContent>
+</Dialog>
+
     </div>
   );
 }

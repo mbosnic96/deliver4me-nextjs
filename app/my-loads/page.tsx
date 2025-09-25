@@ -177,24 +177,33 @@ export default function MyLoadsPage() {
 
 
     return (
-      <div className="flex gap-2 items-center">
-         <Button size="sm" onClick={() => router.push(`/load/${row.id}`)}>
-          <Eye className="h-4 w-4 mr-1" />
-          Vidi
-        </Button>
+  <div className="flex gap-2 items-center">
+    <Button size="sm" onClick={() => router.push(`/load/${row.id}`)}>
+      <Eye className="h-4 w-4 mr-1" />
+      Vidi
+    </Button>
 
+    {role !== "driver" && (
+      <>
         <Button size="sm" onClick={() => edit(row)}>
           <Edit className="h-4 w-4 mr-1" />
           Uredi
         </Button>
 
-        <Button size="sm" variant="destructive" onClick={() => handleDelete(row.id)}>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => handleDelete(row.id)}
+        >
           <Trash2 className="h-4 w-4 mr-1" />
           Briši
         </Button>
-      </div>
-    );
-  };
+      </>
+    )}
+  </div>
+);
+  }
+
 
   return (
   <div className="min-h-screen">

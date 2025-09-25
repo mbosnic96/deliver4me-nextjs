@@ -13,10 +13,8 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1", 10);
-    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
-    const skip = (page - 1) * limit;
-
+    const pageParam = url.searchParams.get("page");
+    const limitParam = url.searchParams.get("limit");
     const search = url.searchParams.get("search")?.trim() || "";
 
     const filters: any = {};
@@ -29,19 +27,37 @@ export async function GET(request: Request) {
 
     const total = await VehicleType.countDocuments(filters);
 
-    const types = await VehicleType.find(filters)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    
+    let query = VehicleType.find(filters).sort({ createdAt: -1 });
 
-    return NextResponse.json({
-      data: types,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    });
+    if (pageParam || limitParam) {
+      const page = parseInt(pageParam || "1", 10);
+      const limit = parseInt(limitParam || "10", 10);
+      const skip = (page - 1) * limit;
+      
+      query = query.skip(skip).limit(limit);
+    }
+
+    const types = await query.lean();
+
+    // Return appropriate response format
+    if (pageParam || limitParam) {
+      const page = parseInt(pageParam || "1", 10);
+      const limit = parseInt(limitParam || "10", 10);
+      
+      return NextResponse.json({
+        data: types,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      });
+    } else {
+      return NextResponse.json({
+        data: types,
+        total: types.length
+      });
+    }
   } catch (error: any) {
     console.error("Failed to fetch vehicle types:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

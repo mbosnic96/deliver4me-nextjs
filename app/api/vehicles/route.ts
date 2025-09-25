@@ -36,7 +36,6 @@ export async function GET(request: Request) {
 
   let vehiclesQuery = Vehicle.find(query)
     .sort({ createdAt: -1 })
-    .populate("vehicleTypeId", "name")
     .lean();
 
   if (page && limit) {
@@ -47,9 +46,6 @@ export async function GET(request: Request) {
 
   const mappedVehicles = vehicles.map((v: any) => ({
     ...v,
-    vehicleType: v.vehicleTypeId
-      ? { name: (v.vehicleTypeId as { name: string }).name }
-      : null,
     _id: (v._id as any).toString(),
     id: (v._id as any).toString(),
     createdAt: v.createdAt ? new Date(v.createdAt).toISOString() : null,
