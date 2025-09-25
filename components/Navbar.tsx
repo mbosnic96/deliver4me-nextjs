@@ -68,12 +68,6 @@ export default function Navbar() {
   const roleLinks = getRoleLinks();
   const showCreateButton = role === 'client' || role === 'admin';
 
-  const mobileNavItems = [
-    { href: '/', label: 'Početna', icon: Home },
-    { href: '/load', label: 'Tereti', icon: Truck },
-    { href: session ? '/my-loads' : '', label: 'Moji', icon: User },
-  ];
-
   return (
     <>
       <nav className="w-full content-bg border-b border-gray-200 shadow-md sticky top-0 z-50">
@@ -101,8 +95,6 @@ export default function Navbar() {
               <Truck size={18} />
               Tereti
             </Link>
-
-           
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -173,80 +165,105 @@ export default function Navbar() {
         </div>
       </nav>
 
-
       <div className="md:hidden fixed bottom-0 left-0 right-0 content-bg border-t border-gray-200 z-50 shadow-lg">
-        <div className="flex items-center justify-around py-2">
-          {mobileNavItems.map((item, index) =>
-            index === 1 && showCreateButton ? (
-              <button
-                key="create-load"
-                onClick={() => setShowLoadModal(true)}
-                className="flex flex-col items-center p-2 -mt-4 transition text-green-600 hover:text-green-700"
-              >
-                <div className="bg-white p-3 rounded-full shadow-md">
-                  <Plus size={24} />
-                </div>
-                <span className="text-xs mt-1">Novi</span>
-              </button>
-            ) : (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center p-2 rounded-lg transition ${
-                  pathname === item.href ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
-                }`}
-              >
-                <item.icon size={20} />
-                <span className="text-xs mt-1">{item.label}</span>
-              </Link>
-            )
+        <div className={`flex items-center justify-around py-2 ${showCreateButton ? 'px-2' : 'px-4'}`}>
+          <Link
+            href="/"
+            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
+              pathname === '/' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+            }`}
+          >
+            <Home size={20} />
+            <span className="text-xs mt-1">Početna</span>
+          </Link>
+            {session && (
+          <Link
+            href="/load"
+            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
+              pathname === '/load' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+            }`}
+          >
+            <Truck size={20} />
+            <span className="text-xs mt-1">Tereti</span>
+          </Link>
+           )}
+
+          {showCreateButton && (
+            <button
+              onClick={() => setShowLoadModal(true)}
+              className="flex flex-col items-center p-2 rounded-lg transition text-green-600 hover:text-green-700 flex-1 max-w-[80px] -mt-4"
+            >
+              <div className="bg-white p-3 rounded-full shadow-lg border-2 border-green-600">
+                <Plus size={24} />
+              </div>
+              <span className="text-xs mt-1">Novi</span>
+            </button>
           )}
-
-          {session?.user && (
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className={`flex flex-col items-center p-2 rounded-lg transition ${
-                  userMenuOpen ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+          {session ? (
+            <>
+              <Link
+                href="/my-loads"
+                className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
+                  pathname === '/my-loads' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
                 }`}
               >
-                <Settings size={20} />
-                <span className="text-xs mt-1">Više</span>
-              </button>
+                <User size={20} />
+                <span className="text-xs mt-1">Moji</span>
+              </Link>
 
-              {userMenuOpen && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                  {roleLinks.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        <Icon size={16} />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                  <button
-                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      signOut({ callbackUrl: '/' });
-                    }}
-                  >
-                    <LogOut size={16} />
-                    Odjava
-                  </button>
-                </div>
-              )}
-            </div>
+              <div className="relative flex-1 max-w-[80px]" ref={menuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className={`flex flex-col items-center p-2 rounded-lg transition w-full ${
+                    userMenuOpen ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+                  }`}
+                >
+                  <Settings size={20} />
+                  <span className="text-xs mt-1">Više</span>
+                </button>
+
+                {userMenuOpen && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    {roleLinks.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Icon size={16} />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                    <button
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                    >
+                      <LogOut size={16} />
+                      Odjava
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="flex flex-col items-center p-2 rounded-lg transition text-gray-600 hover:text-indigo-600 flex-1 max-w-[80px]"
+            >
+              <User size={20} />
+              <span className="text-xs mt-1">Prijava</span>
+            </Link>
           )}
         </div>
       </div>
-      
+
       {showLoadModal && (
         <LoadForm
           onClose={() => setShowLoadModal(false)}
