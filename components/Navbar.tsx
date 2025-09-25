@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, LogIn, UserPlus, Home, User } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, Home, User, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import NotificationsDropdown from './NotificationsDropdown';
+import LoadsPage from '@/app/load/page';
 
 const navLinks = [
   { href: '/', label: 'Početna', icon: <Home size={18} /> },
+  { href: 'load', label: 'Tereti', icon: <Truck size={18} /> },
   { href: '/login', label: 'Prijava', icon: <LogIn size={18} /> },
   { href: '/register', label: 'Registracija', icon: <UserPlus size={18} />, cta: true },
 ];
@@ -34,6 +36,14 @@ export default function Navbar() {
             <Home size={18} />
             Početna
           </Link>
+
+          <Link
+            href=""
+            className="hidden md:flex text-white hover:text-indigo-400 font-medium items-center gap-1"
+          >
+            <Truck size={18} />
+            Tereti
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-6 relative">
@@ -43,7 +53,7 @@ export default function Navbar() {
 
           {status === 'loading' ? null : !session?.user ? (
             <>
-              {navLinks.slice(1).map(({ href, label, icon, cta }) => (
+              {navLinks.slice(2).map(({ href, label, icon, cta }) => (
                 <Link
                   key={label}
                   href={href}

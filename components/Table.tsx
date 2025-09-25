@@ -6,6 +6,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,11 +15,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
-import Select from "react-select";
-import { toast } from "react-toastify";
-import { createNotification } from '@/lib/notifications';
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Filter } from "lucide-react";
+import { Pagination } from "./Pagination";
 
 const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
   <div
@@ -30,22 +30,27 @@ const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
 
 interface TableProps<T> {
   title: string;
+  description?: string;
   columns: ColumnDef<T, any>[];
   apiBase: string;
-  FormComponent: React.ComponentType<{
+  FormComponent?: React.ComponentType<{
     initialData?: T;
     onClose: () => void;
     onSaved: () => void;
   }>;
-  toggleActive?: boolean;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+  additionalFilters?: Array<{
+    key: string;
+    label: string;
+    options: Array<{ value: string; label: string }>;
+  }>;
+  renderActions?: (
+    row: T,
+    edit: (row: T) => void,
+    remove: (id: string) => void
+  ) => React.ReactNode;
 }
-
-const STATUS_OPTIONS = [
-  { value: "Aktivan", label: "Aktivan", color: "#22c55e" },
-  { value: "Poslan", label: "Poslan", color: "#3b82f6" },
-  { value: "Dostavljen", label: "Dostavljen", color: "#6b7280" },
-  { value: "Otkazan", label: "Otkazan", color: "#ef4444" },
-];
 
 interface ApiResponse<T> {
   data: T[];
@@ -54,28 +59,30 @@ interface ApiResponse<T> {
   limit: number;
 }
 
-export function Table<T extends { id: string; isDeleted?: boolean; status?: string }>({
+export function Table<T extends { id: string }>({
   title,
+  description,
   columns,
   apiBase,
   FormComponent,
-  toggleActive = false,
+  showSearch = false,
+  searchPlaceholder = "Search...",
+  additionalFilters = [],
+  renderActions,
 }: TableProps<T>) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingRow, setEditingRow] = useState<T | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [userRole, setUserRole] = useState<"driver" | "admin" | "other">("other");
-  const [savingStatus, setSavingStatus] = useState<Record<string, boolean>>({});
-  const router = useRouter();
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
-
-  const shouldShowViewButton = apiBase === "/api/loads" || apiBase === "/api/users";
 
   const fetchUserRole = async () => {
     try {
@@ -94,20 +101,28 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
       url.searchParams.set("page", (pagination.pageIndex + 1).toString());
       url.searchParams.set("limit", pagination.pageSize.toString());
 
+      if (searchTerm) {
+        url.searchParams.set("search", searchTerm);
+      }
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          url.searchParams.set(key, value);
+        }
+      });
+
       const res = await fetch(url.toString());
       const json: ApiResponse<T> = await res.json();
 
-      const items = json.data || [];
-      const mapped = items.map((item: any) => ({
+      const items = (json.data || []).map((item: any) => ({
         ...item,
         id: item.id || item._id,
       }));
 
-      setData(mapped);
+      setData(items);
       setTotalCount(json.total || 0);
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "Failed to fetch data", "error");
     } finally {
       setLoading(false);
     }
@@ -119,54 +134,22 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
 
   useEffect(() => {
     fetchData();
-  }, [apiBase, pagination.pageIndex, pagination.pageSize]);
+  }, [apiBase, pagination.pageIndex, pagination.pageSize, searchTerm, filters]);
 
-  const handleToggle = async (row: T) => {
-    if (row.isDeleted === undefined) return;
-    const action = row.isDeleted ? "activate" : "deactivate";
-
-    try {
-      if (row.isDeleted) {
-        await fetch(`${apiBase}/${row.id}/restore`, { method: "PATCH" });
-      } else {
-        await fetch(`${apiBase}/${row.id}`, { method: "DELETE" });
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm !== "") {
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
       }
-      Swal.fire("Success", `Item ${action}d`, "success");
-      fetchData();
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", `Failed to ${action} item`, "error");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      await fetch(`${apiBase}/${id}`, { method: "DELETE" });
-      fetchData();
-      Swal.fire("Deleted!", "Item has been deleted.", "success");
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Failed to delete item", "error");
-    }
-  };
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
     pageCount: Math.ceil(totalCount / pagination.pageSize),
     state: {
@@ -175,152 +158,35 @@ export function Table<T extends { id: string; isDeleted?: boolean; status?: stri
     onPaginationChange: setPagination,
   });
 
-  const renderCell = (cell: any) => {
-    if (cell.column.columnDef.accessorKey === "status") {
-      const rowId = cell.row.original.id;
-      const saving = savingStatus[rowId] || false;
-      const value = cell.getValue() as string;
-
-const handleChange = async (option: any) => {
-  setSavingStatus((prev) => ({ ...prev, [rowId]: true }));
-  try {
-    const res = await fetch(`${apiBase}/${rowId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: option.value }),
-    });
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      toast.error(json.error || "Failed to update status");
-      return;
-    }
-
-    toast.success(`Status updated to "${option.value}"`);
-    
-    // Send notification for status changes
-    if (option.value === "Otkazan" || option.value === "Dostavljen") {
-      await sendStatusChangeNotification(rowId, option.value, cell.row.original);
-    }
-    
-    await fetchData();
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update status");
-  } finally {
-    setSavingStatus((prev) => ({ ...prev, [rowId]: false }));
-  }
-};
-
-const sendStatusChangeNotification = async (loadId: string, newStatus: string, loadData: any) => {
-  try {
-      
-    if (loadData.userId) {
-      let message = "";
-      let link = `/load/${loadId}`;
-      
-      if (newStatus === "Otkazan") {
-        message = `Vaš teret "${loadData.title}" je označen kao otkazan.`;
-      } else if (newStatus === "Dostavljen") {
-        message = `Vaš teret "${loadData.title}" je dostavljen!`;
-      }
-      
-      if (message) {
-        await createNotification(loadData.userId, message, link);
-      }
-    }
-  } catch (error) {
-    console.error("Failed to send status change notification:", error);
-  }
+const handleFilterChange = (key: string, value: string) => {
+  setFilters((prev) => ({
+    ...prev,
+    [key]: value === "all" ? "" : value,  
+  }));
+  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 };
 
 
-      return (
-        <div className="flex items-center gap-2">
-          <Select
-            value={STATUS_OPTIONS.find((s) => s.value === value)}
-            options={STATUS_OPTIONS}
-            onChange={handleChange}
-            isDisabled={saving}
-            className="w-40"
-            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-            styles={{
-              option: (provided, state) => ({
-                ...provided,
-                backgroundColor: state.isSelected ? state.data.color : provided.backgroundColor,
-                color: state.isSelected ? "#fff" : "#000",
-              }),
-              singleValue: (provided, state) => ({
-                ...provided,
-                color: STATUS_OPTIONS.find((s) => s.value === value)?.color,
-                fontWeight: "bold",
-              }),
-              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-            }}
-          />
-          {saving && <Spinner size="sm" />}
-        </div>
-      );
-    }
-
-    return flexRender(cell.column.columnDef.cell, cell.getContext());
-  };
-
-  const getViewRoute = (row: T) => {
-    if (apiBase === "/api/loads") {
-      return `/load/${row.id}`;
-    } else if (apiBase === "/api/users") {
-      return `/users/${row.id}`;
-    }
-    return "#";
-  };
-
-  const renderActions = (row: T) => {
-    return (
-      <>
-        {shouldShowViewButton && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(getViewRoute(row))}
-          >
-            View
-          </Button>
-        )}
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setEditingRow(row);
-            setDialogOpen(true);
-          }}
-        >
-          Uredi
-        </Button>
-        {toggleActive && row.isDeleted !== undefined ? (
-          <Button
-            variant={row.isDeleted ? "default" : "destructive"}
-            size="sm"
-            onClick={() => handleToggle(row)}
-          >
-            {row.isDeleted ? "Aktiviraj" : "Deaktiviraj"}
-          </Button>
-        ) : (
-          <Button variant="destructive" size="sm" onClick={() => handleDelete(row.id)}>
-            Briši
-          </Button>
-        )}
-      </>
-    );
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilters({});
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
   return (
     <div className="p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
-        {userRole !== "driver" && (
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            {title}
+          </h2>
+          {description && (
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{description}</p>
+          )}
+        </div>
+
+        {FormComponent && userRole !== "driver" && (
           <Button
             onClick={() => {
               setEditingRow(undefined);
@@ -331,6 +197,58 @@ const sendStatusChangeNotification = async (loadId: string, newStatus: string, l
           </Button>
         )}
       </div>
+
+      {(showSearch || additionalFilters.length > 0) && (
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {showSearch && (
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
+
+            {(searchTerm || Object.values(filters).some((v) => v)) && (
+              <Button variant="outline" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+            )}
+          </div>
+
+          {additionalFilters.length > 0 && (
+            <div className="flex flex-wrap gap-4">
+              {additionalFilters.map((filter) => (
+                <div key={filter.key} className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-gray-400" />
+                  <Select
+                    value={filters[filter.key] || ""}
+                    onValueChange={(value) => handleFilterChange(filter.key, value)}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder={filter.label} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filter.options.map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value || "all"}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -348,12 +266,17 @@ const sendStatusChangeNotification = async (loadId: string, newStatus: string, l
                         key={header.id}
                         className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap"
                       >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      Akcije
-                    </th>
+                    {renderActions && (
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                        Akcije
+                      </th>
+                    )}
                   </tr>
                 ))}
               </thead>
@@ -361,22 +284,42 @@ const sendStatusChangeNotification = async (loadId: string, newStatus: string, l
                 {table.getRowModel().rows.map((row, idx) => (
                   <tr
                     key={row.id}
-                    className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800" : "bg-white dark:bg-gray-900"}
+                    className={
+                      idx % 2 === 0
+                        ? "bg-gray-50 dark:bg-gray-800"
+                        : "bg-white dark:bg-gray-900"
+                    }
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
                         className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap"
                       >
-                        {renderCell(cell)}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
-                    <td className="px-4 py-3 flex flex-wrap gap-2">{renderActions(row.original)}</td>
+                    {renderActions && (
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                        {renderActions(
+                          row.original,
+                          (rowData) => {
+                            setEditingRow(rowData);
+                            setDialogOpen(true);
+                          },
+                          (id) => {
+                            setData((prev) => prev.filter((item) => item.id !== id));
+                          }
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {data.length === 0 && (
                   <tr>
-                    <td colSpan={columns.length + 1} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={columns.length + (renderActions ? 1 : 0)}
+                      className="px-4 py-6 text-center text-gray-500 dark:text-gray-400"
+                    >
                       Nema podataka
                     </td>
                   </tr>
@@ -385,88 +328,38 @@ const sendStatusChangeNotification = async (loadId: string, newStatus: string, l
             </table>
           </div>
 
-         
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Page {pagination.pageIndex + 1} of {table.getPageCount()}
-              </span>
-              <select
-                className="border rounded p-1 text-sm dark:bg-gray-800 dark:text-gray-200"
-                value={pagination.pageSize}
-                onChange={(e) => {
-                  setPagination(prev => ({
-                    ...prev,
-                    pageSize: Number(e.target.value),
-                    pageIndex: 0 
-                  }));
-                }}
-              >
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select>
-            </div>
+         <Pagination
+  currentPage={pagination.pageIndex + 1}
+  totalPages={table.getPageCount()}
+  onPageChange={(page) =>
+    setPagination((prev) => ({
+      ...prev,
+      pageIndex: page - 1, 
+    }))
+  }
+/>
 
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                First
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                Last
-              </Button>
-            </div>
-
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              Total: {totalCount} items
-            </span>
-          </div>
         </>
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
-          </DialogHeader>
-          <FormComponent
-            initialData={editingRow}
-            onClose={() => setDialogOpen(false)}
-            onSaved={() => {
-              setDialogOpen(false);
-              fetchData();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Edit Dialog */}
+      {FormComponent && (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingRow ? "Uredi" : "Dodaj"}</DialogTitle>
+            </DialogHeader>
+            <FormComponent
+              initialData={editingRow}
+              onClose={() => setDialogOpen(false)}
+              onSaved={() => {
+                setDialogOpen(false);
+                fetchData();
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

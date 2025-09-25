@@ -463,7 +463,7 @@ const updatePositionOnly = useCallback(async () => {
 }, [setValue])
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+ <div className="flex min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
@@ -471,9 +471,13 @@ const updatePositionOnly = useCallback(async () => {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <div className="p-4 md:p-6">
-          <div className="container mx-auto">
+      <main 
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        }`}
+      >
+        <div className="p-4 md:p-6 h-full flex flex-col">
+          <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
             <form onSubmit={handleSubmit(onSubmit)}>
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Profile</h2>

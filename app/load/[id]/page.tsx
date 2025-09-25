@@ -18,6 +18,7 @@ import { LatLngTuple } from "leaflet";
 import { parseISO } from "date-fns";
 import { getCountryName, getStateName } from '@/lib/services/CscService';
 import { createNotification } from '@/lib/notifications';
+import { ReportDialog } from "@/components/ReportDialog";
 
 
 interface LoadPageProps {
@@ -358,6 +359,21 @@ const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
                Nazad
             </Link>
             <div className="flex items-center space-x-2">
+              {session?.user?.id && user && session.user.id !== user._id && (
+                <ReportDialog
+                  reportedUserId={user._id}
+                  reportedUserName={user.name}
+                  loadId={loadData?._id}
+                  loadTitle={loadData?.title}
+                  trigger={
+                    <button className="p-2 text-red-600 hover:text-red-700 transition-colors">
+                      <Flag size={20} />
+                    </button>
+                  }
+                />
+              )}
+
+              
               <button
                   onClick={async () => {
                     const url = window.location.href;

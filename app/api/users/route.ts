@@ -20,13 +20,31 @@ export async function GET(request: Request) {
     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
     const skip = (page - 1) * limit;
 
-    const total = await User.countDocuments();
 
-    const users = await User.find()
+    const query: any = {};
+
+    
+    const search = url.searchParams.get("search");
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { userName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const role = url.searchParams.get("role");
+    if (role) query.role = role;
+
+    
+
+    const total = await User.countDocuments(query);
+
+    const users = await User.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select('-password') 
+      .select("-password")
       .lean();
 
     return NextResponse.json({ 

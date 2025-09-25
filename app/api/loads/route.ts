@@ -20,7 +20,11 @@ export async function GET(request: Request) {
   const limit = parseInt(url.searchParams.get("limit") || "10", 10);
   const skip = (page - 1) * limit;
 
-  let query = {};
+  const search = url.searchParams.get("search")?.trim() || "";
+  const statusFilter = url.searchParams.get("status") || "all";
+  const deliveryCityFilter = url.searchParams.get("deliveryCity") || "all";
+
+  let query: any = {};
 
   if (session.user.role === "admin") {
     query = {};
@@ -37,6 +41,20 @@ export async function GET(request: Request) {
   } else {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { pickupCity: { $regex: search, $options: "i" } },
+      { deliveryCity: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (statusFilter && statusFilter !== "all") {
+    query.status = { $regex: new RegExp(`^${statusFilter}$`, "i") }; 
+  }
+
 
   const total = await Load.countDocuments(query);
   const loads = await Load.find(query)

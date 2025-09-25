@@ -8,7 +8,7 @@ import {
   MapPin, Phone, Mail, Truck, Ruler, 
   Calendar, Star, Award, Clock, User,
   ArrowLeft, Shield, BadgeCheck, Navigation,
-  AtSign
+  AtSign, Flag
 } from "lucide-react";
 import Link from "next/link";
 import RatingsCard from "@/components/RatingsCard";
@@ -16,6 +16,9 @@ import ReviewsList from "@/components/ReviewsList";
 import { LeafletMap } from "@/components/LeafletMap";
 import { LatLngTuple } from "leaflet";
 import { toast } from "react-toastify";
+import { ReportDialog } from "@/components/ReportDialog";
+
+import { useSession } from "next-auth/react";
 
 interface UserProfilePageProps {
   params: Promise<{ id: string }>;
@@ -29,6 +32,8 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
   const [currentVehicleImageIndex, setCurrentVehicleImageIndex] = useState<{[key: string]: number}>({});
+  
+  const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -256,6 +261,19 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
     <Navigation size={16} className="mr-2 text-blue-600" />
     Podijeli
   </button>
+
+  {session?.user?.id && user && session.user.id !== user.id && (
+  <ReportDialog
+    reportedUserId={user.id}
+    reportedUserName={user.name}
+    trigger={
+      <button className="btn btn-outline flex items-center text-red-600 border-red-200 hover:bg-red-50">
+        <Flag size={16} className="mr-2" />
+        Prijavi
+      </button>
+    }
+  />
+)}
 </div>
 
                 </div>

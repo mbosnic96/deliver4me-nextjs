@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 export function VehicleTypeForm({
   initialData,
@@ -18,53 +20,92 @@ export function VehicleTypeForm({
   const [description, setDescription] = useState(initialData?.description || "");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || "");
+      setDescription(initialData.description || "");
+    }
+  }, [initialData]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name.trim()) {
+      toast.error("Naziv je obavezan");
+      return;
+    }
+
     setLoading(true);
+    
     try {
-      if (initialData?._id) {
-        await axios.patch(`/api/vehicle-types/${initialData._id}`, { name, description });
-      } else {
-        await axios.post("/api/vehicle-types", { name, description });
+      const url = initialData?._id 
+        ? `/api/vehicle-types/${initialData._id}`
+        : "/api/vehicle-types";
+      
+      const method = initialData?._id ? "PATCH" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, description }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save vehicle type");
       }
+
+      toast.success(initialData?._id ? "Tip vozila ažuriran!" : "Tip vozila kreiran!");
       onSaved();
       onClose();
+    } catch (error: any) {
+      console.error("Error saving vehicle type:", error);
+      toast.error(error.message || "Greška pri spremanju tipa vozila");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-white dark:bg-gray-800 rounded-lg shadow">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Naziv
-        </label>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Naziv</Label>
         <Input
+          id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Naziv tipa vozila"
+          disabled={loading}
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Opis
-        </label>
+      <div className="space-y-2">
+        <Label htmlFor="description">Opis</Label>
         <Input
+          id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Opis vozila"
+          disabled={loading}
         />
       </div>
 
-      <div className="flex justify-end space-x-2 pt-2">
-        <Button type="button" variant="outline" onClick={onClose}>
+      <div className="flex justify-end space-x-2 pt-4">
+        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
           Otkaži
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Spremanje..." : "Sačuvaj"}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Spremanje...
+            </>
+          ) : (
+            initialData?._id ? "Ažuriraj" : "Kreiraj"
+          )}
         </Button>
       </div>
     </form>
