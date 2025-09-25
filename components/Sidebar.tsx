@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   ChevronLeft,
@@ -12,7 +13,6 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
 interface SidebarProps {
   role: 'client' | 'driver' | 'admin' | undefined
@@ -24,10 +24,21 @@ interface SidebarProps {
 const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarProps) => {
   const pathname = usePathname()
   const [calculatedHeight, setCalculatedHeight] = useState('100vh')
-  
+  const [isMobile, setIsMobile] = useState(false)
+
   useEffect(() => {
     setCalculatedHeight(`calc(100vh - ${navbarHeight}px)`)
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024) 
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [navbarHeight])
+
+  if (isMobile) return null
 
   const toggleSidebar = () => setCollapsed(!collapsed)
 
@@ -63,9 +74,9 @@ const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarPr
       className={`fixed left-0 top-0 bg-white dark:bg-gray-900 shadow-lg transition-all duration-300 z-30 border-r border-gray-200 dark:border-gray-800 ${
         collapsed ? 'w-16' : 'w-64'
       }`}
-      style={{ 
+      style={{
         height: calculatedHeight,
-        top: navbarHeight 
+        top: navbarHeight,
       }}
     >
       <button
@@ -88,23 +99,19 @@ const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarPr
         <nav className="flex-1 overflow-y-auto p-3">
           <div className="space-y-1">
             <SidebarLink href="/dashboard" icon={<Home size={18} />} label="Dashboard" />
-                        {role === 'driver' && (
+            {role === 'driver' && (
               <>
                 <SidebarLink href="/vehicles" icon={<Truck size={18} />} label="Moja vozila" />
                 <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
                 <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
               </>
             )}
-
-            
             {role === 'client' && (
               <>
                 <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Moji tereti" />
                 <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
               </>
             )}
-
-           
             {role === 'admin' && (
               <>
                 <SidebarLink href="/vehicle-types" icon={<UserCog size={18} />} label="Tipovi vozila" />
@@ -113,19 +120,9 @@ const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarPr
                 <SidebarLink href="/reports" icon={<AlertTriangle size={18} />} label="Prijave korisnika" />
               </>
             )}
-
-          
             <SidebarLink href="/profile" icon={<Settings size={18} />} label="Profil" />
           </div>
         </nav>
-
-        {collapsed && (
-          <div className="p-2 border-t border-gray-100 dark:border-gray-800 text-center">
-            <div className="text-xs text-gray-500 rotate-90 whitespace-nowrap mt-2">
-              Menu
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

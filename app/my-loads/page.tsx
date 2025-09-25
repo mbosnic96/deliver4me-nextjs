@@ -7,10 +7,11 @@ import Sidebar from "@/components/Sidebar";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 type Load = {
   id: string;
@@ -172,8 +173,16 @@ export default function MyLoadsPage() {
       }
     };
 
+    const router = useRouter();
+
+
     return (
       <div className="flex gap-2 items-center">
+         <Button size="sm" onClick={() => router.push(`/load/${row.id}`)}>
+          <Eye className="h-4 w-4 mr-1" />
+          Vidi
+        </Button>
+
         <Button size="sm" onClick={() => edit(row)}>
           <Edit className="h-4 w-4 mr-1" />
           Uredi
@@ -188,20 +197,20 @@ export default function MyLoadsPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar
-        role={role}
-        navbarHeight={84}
-        collapsed={sidebarCollapsed}
-        setCollapsed={setSidebarCollapsed}
-      />
+  <div className="min-h-screen">
+    <Sidebar
+      role={role}
+      navbarHeight={84}
+      collapsed={sidebarCollapsed}
+      setCollapsed={setSidebarCollapsed}
+    />
 
-      <main 
+ <main 
         className={`flex-1 transition-all duration-300 min-h-screen ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
         }`}
       >
-        <div className="p-4 md:p-6 h-full flex flex-col">
+      <div className="p-4 md:p-6 h-full flex flex-col">
           <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
             <Table<Load>
               title="Moji tereti"

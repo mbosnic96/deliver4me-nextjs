@@ -187,7 +187,7 @@ export default function ReportDetailsPage() {
   const statusConfig = getStatusConfig(report.status);
 
   return (
-    <div className="flex min-h-screen container mx-auto">
+<div className="flex min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
@@ -195,9 +195,13 @@ export default function ReportDetailsPage() {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} p-4 md:p-6`}>
-        <div className="mb-6">
-          <Link href="/admin/reports" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+      <main 
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
+        }`}
+      >
+        <div className="p-4 md:p-6 h-full flex flex-col">
+          <Link href="/reports" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Nazad na listu prijava
           </Link>

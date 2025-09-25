@@ -1,166 +1,266 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X, LogIn, UserPlus, Home, User, Truck } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Home, User, Truck, Bell, LogOut, Plus, Wallet, UserCog, Settings, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import NotificationsDropdown from './NotificationsDropdown';
-import LoadsPage from '@/app/load/page';
-
-const navLinks = [
-  { href: '/', label: 'Početna', icon: <Home size={18} /> },
-  { href: 'load', label: 'Tereti', icon: <Truck size={18} /> },
-  { href: '/login', label: 'Prijava', icon: <LogIn size={18} /> },
-  { href: '/register', label: 'Registracija', icon: <UserPlus size={18} />, cta: true },
-];
+import { useState, useRef, useEffect } from 'react';
+import { LoadForm } from './LoadForm';
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
   const { data: session, status } = useSession();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-
   const userId = session?.user?.id;
+  const role = session?.user?.role as 'client' | 'driver' | 'admin' | undefined;
+
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const getRoleLinks = () => {
+    const baseLinks = [
+      { href: '/dashboard', label: 'Dashboard', icon: Home },
+      { href: '/profile', label: 'Profil', icon: Settings },
+    ];
+
+    if (role === 'driver') {
+      return [
+        ...baseLinks,
+        { href: '/vehicles', label: 'Moja vozila', icon: Truck },
+        { href: '/my-loads', label: 'Moji tereti', icon: Truck },
+        { href: '/my-wallet', label: 'Novčanik', icon: Wallet },
+      ];
+    }
+
+    if (role === 'client') {
+      return [
+        ...baseLinks,
+        { href: '/my-loads', label: 'Moji tereti', icon: Truck },
+        { href: '/my-wallet', label: 'Novčanik', icon: Wallet },
+      ];
+    }
+
+    if (role === 'admin') {
+      return [
+        ...baseLinks,
+        { href: '/vehicle-types', label: 'Tipovi vozila', icon: UserCog },
+        { href: '/users', label: 'Korisnici', icon: UserCog },
+        { href: '/my-loads', label: 'Svi tereti', icon: Truck },
+        { href: '/reports', label: 'Prijave korisnika', icon: AlertTriangle },
+      ];
+    }
+
+    return baseLinks;
+  };
+
+  const roleLinks = getRoleLinks();
+  const showCreateButton = role === 'client' || role === 'admin';
+
+  const mobileNavItems = [
+    { href: '/', label: 'Početna', icon: Home },
+    { href: '/load', label: 'Tereti', icon: Truck },
+    { href: session ? '/my-loads' : '', label: 'Moji', icon: User },
+  ];
 
   return (
-    <nav className="w-full content-bg border-b border-gray-200 shadow-md relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
+    <>
+      <nav className="w-full content-bg border-b border-gray-200 shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-light.png" alt="Logo" width={120} height={80} />
           </Link>
-          <Link
-            href="/"
-            className="hidden md:flex text-white hover:text-indigo-400 font-medium items-center gap-1"
-          >
-            <Home size={18} />
-            Početna
-          </Link>
 
-          <Link
-            href=""
-            className="hidden md:flex text-white hover:text-indigo-400 font-medium items-center gap-1"
-          >
-            <Truck size={18} />
-            Tereti
-          </Link>
+          <div className="hidden md:flex items-center gap-4">
+            <Link
+              href="/"
+              className={`flex items-center gap-1 font-medium transition ${
+                pathname === '/' ? 'text-indigo-400' : 'text-white hover:text-indigo-400'
+              }`}
+            >
+              <Home size={18} />
+              Početna
+            </Link>
+            <Link
+              href="/load"
+              className={`flex items-center gap-1 font-medium transition ${
+                pathname === '/load' ? 'text-indigo-400' : 'text-white hover:text-indigo-400'
+              }`}
+            >
+              <Truck size={18} />
+              Tereti
+            </Link>
+
+           
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            {session?.user && userId && <NotificationsDropdown userId={userId} />}
+
+            {status === 'loading' ? null : !session?.user ? (
+              <div className="flex items-center gap-4">
+                <Link href="/login" className="text-white hover:text-indigo-400">
+                  Prijava
+                </Link>
+                <Link href="/register" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+                  Registracija
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 relative">
+                {showCreateButton && (
+                  <button
+                    onClick={() => setShowLoadModal(true)}
+                    className="flex items-center gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                  >
+                    <Plus size={16} />
+                    Novi teret
+                  </button>
+                )}
+
+                <div className="relative" ref={menuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 text-white hover:text-indigo-400 transition"
+                  >
+                    <User size={18} />
+                    <span className="max-w-[120px] truncate">{session.user.name}</span>
+                  </button>
+
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                      {roleLinks.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Icon size={16} />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                      <button
+                        className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          signOut({ callbackUrl: '/' });
+                        }}
+                      >
+                        <LogOut size={16} />
+                        Odjava
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+      </nav>
 
-        <div className="hidden md:flex items-center gap-6 relative">
-          {session?.user && userId && (
-            <NotificationsDropdown userId={userId} />
+
+      <div className="md:hidden fixed bottom-0 left-0 right-0 content-bg border-t border-gray-200 z-50 shadow-lg">
+        <div className="flex items-center justify-around py-2">
+          {mobileNavItems.map((item, index) =>
+            index === 1 && showCreateButton ? (
+              <button
+                key="create-load"
+                onClick={() => setShowLoadModal(true)}
+                className="flex flex-col items-center p-2 -mt-4 transition text-green-600 hover:text-green-700"
+              >
+                <div className="bg-white p-3 rounded-full shadow-md">
+                  <Plus size={24} />
+                </div>
+                <span className="text-xs mt-1">Novi</span>
+              </button>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center p-2 rounded-lg transition ${
+                  pathname === item.href ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+                }`}
+              >
+                <item.icon size={20} />
+                <span className="text-xs mt-1">{item.label}</span>
+              </Link>
+            )
           )}
 
-          {status === 'loading' ? null : !session?.user ? (
-            <>
-              {navLinks.slice(2).map(({ href, label, icon, cta }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className={
-                    cta
-                      ? 'flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition'
-                      : 'text-white hover:text-indigo-400 flex items-center gap-1'
-                  }
-                >
-                  {icon}
-                  {label}
-                </Link>
-              ))}
-            </>
-          ) : (
-            <>
-           
+          {session?.user && (
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 text-white hover:text-indigo-400 transition"
-                aria-haspopup="true"
-                aria-expanded={userMenuOpen}
+                className={`flex flex-col items-center p-2 rounded-lg transition ${
+                  userMenuOpen ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+                }`}
               >
-                <User size={18} />
-                <span>{session.user.name}</span>
+                <Settings size={20} />
+                <span className="text-xs mt-1">Više</span>
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-10 w-40 bg-white rounded-md shadow-lg py-2 z-50 text-gray-800">
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 hover:bg-indigo-100 transition"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    Profil
-                  </Link>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  {roleLinks.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Icon size={16} />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                   <button
-                    className="w-full text-left px-4 py-2 hover:bg-indigo-100 transition"
+                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
                     onClick={() => {
                       setUserMenuOpen(false);
                       signOut({ callbackUrl: '/' });
                     }}
                   >
+                    <LogOut size={16} />
                     Odjava
                   </button>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
-
-        {/* Mobile menu toggle */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-indigo-400 hover:text-indigo-600"
-          aria-label="Toggle Menu"
-        >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
       </div>
-
-  
-      {isOpen && (
-        <div className="md:hidden px-4 pb-4 content-bg border-t border-gray-200 space-y-2">
-          {session?.user && userId && (
-            <NotificationsDropdown userId={userId} />
-          )}
-
-          {status === 'loading' ? null : !session?.user ? (
-            navLinks.map(({ href, label, icon, cta }) => (
-              <Link
-                key={label}
-                href={href}
-                className={`block py-2 ${
-                  cta
-                    ? 'text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg flex items-center gap-2 justify-center'
-                    : 'text-white hover:text-indigo-400 flex items-center gap-2'
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {icon}
-                {label}
-              </Link>
-            ))
-          ) : (
-            <>
-              <Link
-                href="/profile"
-                className="block py-2 text-white hover:text-indigo-400 flex items-center gap-2"
-                onClick={() => setIsOpen(false)}
-              >
-                <User size={18} />
-                Profil
-              </Link>
-              <button
-                className="w-full text-left py-2 text-white hover:text-indigo-400 flex items-center gap-2"
-                onClick={() => {
-                  setIsOpen(false);
-                  signOut({ callbackUrl: '/' });
-                }}
-              >
-                Odjava
-              </button>
-            </>
-          )}
-        </div>
+      
+      {showLoadModal && (
+        <LoadForm
+          onClose={() => setShowLoadModal(false)}
+          onSaved={() => setShowLoadModal(false)}
+        />
       )}
-    </nav>
+
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          body {
+            padding-bottom: 70px;
+          }
+        }
+      `}</style>
+    </>
   );
 }

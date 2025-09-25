@@ -7,9 +7,10 @@ import Sidebar from "@/components/Sidebar";
 import { Table } from "@/components/Table";
 import { AddUserForm } from "@/components/AddUserForm";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, RefreshCcw } from "lucide-react";
+import { Edit, Trash2, RefreshCcw, Eye } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type UserRow = {
   id: string;
@@ -27,6 +28,7 @@ export default function UsersPage() {
   const { data: session } = useSession();
   const role = session?.user?.role as "client" | "driver" | "admin" | undefined;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
@@ -114,7 +116,7 @@ export default function UsersPage() {
 
       <main 
         className={`flex-1 transition-all duration-300 min-h-screen ${
-          sidebarCollapsed ? "ml-16" : "ml-64"
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
         }`}
       >
         <div className="p-4 md:p-6 h-full flex flex-col">
@@ -139,8 +141,18 @@ export default function UsersPage() {
                 ],
               },
             ]}
+
          renderActions={(row, edit, remove) => (
+          
   <div className="flex space-x-2">
+      <Button
+      size="sm"
+      onClick={() => router.push(`/users/${row._id}`)} 
+    >
+      <Eye className="h-4 w-4 mr-1" />
+      Vidi
+    </Button>
+
     <Button variant="outline" size="sm" onClick={() => edit(row)}>
       <Edit className="h-4 w-4 mr-1" />
       Uredi

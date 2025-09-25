@@ -82,8 +82,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     if (notificationPermission !== 'granted') return;
     const browserNotification = new Notification('New Notification', {
       body: notification.message,
-      icon: '/icon-192x192.png',
-      badge: '/icon-72x72.png',
+      icon: '/logo.png',
+      badge: '/logo.png',
       tag: notification._id,
       data: { url: notification.link }
     });

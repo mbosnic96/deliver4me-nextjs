@@ -175,7 +175,6 @@ const handleFilterChange = (key: string, value: string) => {
 
   return (
     <div className="p-4">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -186,7 +185,7 @@ const handleFilterChange = (key: string, value: string) => {
           )}
         </div>
 
-        {FormComponent && userRole !== "driver" && (
+        {FormComponent && (
           <Button
             onClick={() => {
               setEditingRow(undefined);
@@ -341,8 +340,7 @@ const handleFilterChange = (key: string, value: string) => {
 
         </>
       )}
-
-      {/* Edit Dialog */}
+  
       {FormComponent && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-2xl">

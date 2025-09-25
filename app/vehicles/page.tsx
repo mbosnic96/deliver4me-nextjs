@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { Table } from "@/components/Table";
 import { VehicleForm } from "@/components/VehicleForm";
+import { ColumnDef } from "@tanstack/react-table";
 import Sidebar from "@/components/Sidebar";
-import Swal from "sweetalert2";
 import { useSession } from "next-auth/react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
-interface Vehicle {
+type Vehicle = {
+  id: string;
   _id: string;
   brand: string;
   model: string;
@@ -20,79 +22,106 @@ interface Vehicle {
   height: number;
   volume: number;
   vehicleType?: { name: string };
-  images: string[];
   createdAt: string;
   active: boolean;
-}
+};
 
 export default function VehiclesPage() {
-  const { data: session, status } = useSession();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState<Vehicle | undefined>(undefined);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { data: session } = useSession();
   const role = session?.user?.role as "client" | "driver" | "admin" | undefined;
-
-  const fetchVehicles = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get<Vehicle[]>("/api/vehicles");
-      setVehicles(res.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchVehicles();
-    }
-  }, [status]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
+      title: "Jeste li sigurni?",
+      text: "Ova radnja se ne može poništiti!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Obriši",
+      cancelButtonText: "Otkaži",
     });
 
     if (!result.isConfirmed) return;
 
-    await axios.delete(`/api/vehicles/${id}`);
-    fetchVehicles();
-    Swal.fire("Deleted!", "Vehicle has been deleted.", "success");
+    try {
+      const response = await fetch(`/api/vehicles/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete vehicle");
+
+      toast.success("Vozilo uspješno obrisano!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Greška pri brisanju vozila");
+    }
   };
 
-  const carouselSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-    adaptiveHeight: true,
-  };
-
-  if (status === "loading") {
-    return <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center">Loading...</div>;
-  }
-
-  if (status === "unauthenticated" || !session) {
-    return <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center">Please sign in</div>;
-  }
-
-  const Spinner = ({ size = "lg" }) => (
-  <div className={`animate-spin rounded-full border-4 border-t-transparent border-gray-400 ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}></div>
-);
+  const columns: ColumnDef<Vehicle>[] = [
+    {
+      accessorKey: "model",
+      header: "Model",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.model}</div>
+      ),
+    },
+    {
+      accessorKey: "brand",
+      header: "Marka",
+      cell: ({ row }) => <div>{row.original.brand}</div>,
+    },
+    {
+      accessorKey: "plateNumber",
+      header: "Registracija",
+      cell: ({ row }) => <div>{row.original.plateNumber}</div>,
+    },
+    {
+      accessorKey: "dimensions",
+      header: "Dimenzije (m)",
+      cell: ({ row }) => {
+        const v = row.original;
+        return (
+          <div>
+            {v.width} x {v.length} x {v.height}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "volume",
+      header: "Zapremina (m³)",
+      cell: ({ row }) => (
+        <div>{row.original.volume.toFixed(2)}</div>
+      ),
+    },
+    {
+      accessorKey: "vehicleType",
+      header: "Tip",
+      cell: ({ row }) => (
+        <div>{row.original.vehicleType?.name ?? "-"}</div>
+      ),
+    },
+    {
+      accessorKey: "active",
+      header: "Status",
+      cell: ({ row }) => (
+        <div
+          className={`px-2 py-1 rounded text-xs font-medium inline-block ${
+            row.original.active
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-200 text-gray-600"
+          }`}
+        >
+          {row.original.active ? "Aktivno" : "Neaktivno"}
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="flex min-h-screen container mx-auto">
+    <div className="min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
@@ -100,120 +129,43 @@ export default function VehiclesPage() {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <div className="p-4 md:p-6">
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors mb-5"
-            onClick={() => { setEditingVehicle(undefined); setDialogOpen(true); }}
-          >
-            <i className="fas fa-plus text-lg"></i>
-            <span>Dodaj Vozilo</span>
-          </button>
-
-          {loading ? (
-  <div className="flex justify-center items-center h-64">
-    <Spinner size="lg" />
-  </div>
-) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {vehicles.map((vehicle) => (
-                <div key={vehicle._id} className="group">
-                  <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-lg border-0 shadow-sm hover:shadow-xl transition-all duration-300 group-hover:shadow-lg">
-                    <div className="relative h-56 overflow-hidden rounded-t-lg">
-                      {vehicle.images.length > 0 ? (
-                        <Slider {...carouselSettings}>
-                          {vehicle.images.map((img, i) => (
-                            <div key={i} className="h-56">
-                              <img
-                                src={img || "/assets/default-vehicle.jpg"}
-                                className="w-full h-56 object-cover"
-                                alt={`Vehicle ${i + 1}`}
-                              />
-                            </div>
-                          ))}
-                        </Slider>
-                      ) : (
-                        <img
-                          src="/assets/default-vehicle.jpg"
-                          className="w-full h-56 object-cover"
-                          alt="Default vehicle"
-                        />
-                      )}
-                      <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg">
-                        {vehicle.vehicleType?.name}
-                      </div>
-                    </div>
-
-                    <div className="flex-1 p-4 pb-2">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-0 text-gray-900 dark:text-white">
-                            {vehicle.model}
-                          </h3>
-                          <small className="text-gray-600 dark:text-gray-400">{vehicle.brand}</small>
-                        </div>
-                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm font-medium">
-                          {vehicle.volume.toFixed(2)} m³
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Registracija</div>
-                          <div className="font-semibold text-gray-900 dark:text-white">{vehicle.plateNumber}</div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Dimenzije</div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
-                            {vehicle.width}x{vehicle.length}x{vehicle.height}m
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center text-sm border-t pt-3">
-                        <div className="flex items-center text-gray-600 dark:text-gray-400">
-                          <i className="fas fa-calendar-alt mr-2"></i>
-                          {new Date(vehicle.createdAt).toLocaleDateString()}
-                        </div>
-                        <div className={`px-2 py-1 rounded text-xs font-medium ${
-                          vehicle.active 
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200" 
-                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                        }`}>
-                          <i className={`fas ${vehicle.active ? "fa-check-circle" : "fa-times-circle"} mr-1`}></i>
-                          {vehicle.active ? "Aktivno" : "Neaktivno"}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 pt-0 flex gap-2">
-                      <button
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition-colors text-sm"
-                        onClick={() => { setEditingVehicle(vehicle); setDialogOpen(true); }}
-                      >
-                        <i className="fas fa-edit"></i>
-                        <span>Uredi</span>
-                      </button>
-                      <button
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-600 hover:text-white transition-colors text-sm"
-                        onClick={() => handleDelete(vehicle._id)}
-                      >
-                        <i className="fas fa-trash"></i>
-                        <span>Obriši</span>
-                      </button>
-                    </div>
-                  </div>
+      <main 
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
+        }`}
+      >
+        <div className="p-4 md:p-6 h-full flex flex-col">
+          <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
+            <Table<Vehicle>
+              title="Moja vozila"
+              description="Pregled i upravljanje vašim vozilima"
+              columns={columns}
+              apiBase="/api/vehicles"
+              FormComponent={VehicleForm}
+              showSearch={true}
+              searchPlaceholder="Pretraži vozila..."
+              renderActions={(row, edit, remove) => (
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => edit(row)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Uredi
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(row._id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Briši
+                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
-
-          <VehicleForm
-            open={dialogOpen}
-            onClose={() => setDialogOpen(false)}
-            onSaved={() => { setDialogOpen(false); fetchVehicles(); }}
-            initialData={editingVehicle}
-          />
+              )}
+            />
+          </div>
         </div>
       </main>
     </div>

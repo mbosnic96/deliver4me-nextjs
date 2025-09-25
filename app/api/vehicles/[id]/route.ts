@@ -4,7 +4,7 @@ import { authOptions } from '../../auth/[...nextauth]/route'
 import Vehicle from '@/lib/models/Vehicle'
 import { dbConnect } from '@/lib/db/db'
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   await dbConnect()
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

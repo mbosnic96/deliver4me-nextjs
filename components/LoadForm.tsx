@@ -64,7 +64,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-
   useEffect(() => {
     fetch('/api/users/me')
       .then(res => res.json())
@@ -81,7 +80,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
 
     if (initialData) {
-      // Editing existing load
       setForm((prev: any) => ({
         ...prev,
         ...initialData,
@@ -102,7 +100,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
       if (initialData.deliveryState) setDeliveryCities(getCities(initialData.deliveryCountry, initialData.deliveryState).map(c => ({ value: c.value, label: c.label })))
       if (initialData.images) setImagePreviews(initialData.images)
     } else if (currentUser) {
-      // New load defaults from user
       const userCountry = currentUser.country ? mapOption(currentUser.country, getCountries()) : null
       const userState = currentUser.state && userCountry ? mapOption(currentUser.state, getStates(userCountry.value)) : null
       const userCity = currentUser.city && userState && userCountry ? mapOption(currentUser.city, getCities(userCountry.value, userState.value)) : null
@@ -120,15 +117,12 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
       if (userCountry) setPickupStates(getStates(userCountry.value).map(s => ({ value: s.value, label: s.label })))
       if (userState) setPickupCities(getCities(userCountry.value, userState.value).map(c => ({ value: c.value, label: c.label })))
     }
-
   }, [initialData, currentUser])
-
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: typeof form) => ({ ...prev, [field]: value }))
     setIsDirty(true)
   }
-
 
   const handlePickupCountryChange = (option: any) => {
     handleChange('pickupCountry', option)
@@ -137,18 +131,19 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setPickupStates(option ? getStates(option.value).map(s => ({ value: s.value, label: s.label })) : [])
     setPickupCities([])
   }
+
   const handlePickupStateChange = (option: any) => {
     handleChange('pickupState', option)
     handleChange('pickupCity', null)
     setPickupCities(option ? getCities(form.pickupCountry.value, option.value).map(c => ({ value: c.value, label: c.label })) : [])
   }
+
   const handlePickupCityChange = async (option: any) => {
     const coords = await getCityLatLng(option.value, form.pickupCountry.value, form.pickupState.value)
     handleChange('pickupCity', option)
     handleChange('pickupLatitude', coords?.lat ?? 0)
     handleChange('pickupLongitude', coords?.lng ?? 0)
   }
-
 
   const handleDeliveryCountryChange = (option: any) => {
     handleChange('deliveryCountry', option)
@@ -157,11 +152,13 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setDeliveryStates(option ? getStates(option.value).map(s => ({ value: s.value, label: s.label })) : [])
     setDeliveryCities([])
   }
+
   const handleDeliveryStateChange = (option: any) => {
     handleChange('deliveryState', option)
     handleChange('deliveryCity', null)
     setDeliveryCities(option ? getCities(form.deliveryCountry.value, option.value).map(c => ({ value: c.value, label: c.label })) : [])
   }
+
   const handleDeliveryCityChange = async (option: any) => {
     const coords = await getCityLatLng(option.value, form.deliveryCountry.value, form.deliveryState.value)
     handleChange('deliveryCity', option)
@@ -169,14 +166,12 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     handleChange('deliveryLongitude', coords?.lng ?? 0)
   }
 
-
   useEffect(() => {
     const width = parseFloat(form.cargoWidth) || 0
     const height = parseFloat(form.cargoHeight) || 0
     const length = parseFloat(form.cargoLength) || 0
     handleChange('cargoVolume', (width * height * length).toFixed(2))
   }, [form.cargoWidth, form.cargoHeight, form.cargoLength])
-
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -196,7 +191,6 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setIsDirty(true)
   }
-
 
   const handleClose = useCallback(() => {
     if (isDirty && !showCloseWarning) {
@@ -218,78 +212,77 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     }
   }, [isDirty, showCloseWarning, onClose])
 
-const handleSubmit = async () => {
-  setIsLoading(true);
+  const handleSubmit = async () => {
+    setIsLoading(true);
 
-  const requiredFields = [
-    "title", "description",
-    "pickupCountry", "pickupState", "pickupCity", "pickupAddress",
-    "deliveryCountry", "deliveryState", "deliveryCity", "deliveryAddress",
-    "contactPerson", "contactPhone",
-    "cargoWeight", "cargoWidth", "cargoHeight", "cargoLength", "fixedPrice"
-  ];
+    const requiredFields = [
+      "title", "description",
+      "pickupCountry", "pickupState", "pickupCity", "pickupAddress",
+      "deliveryCountry", "deliveryState", "deliveryCity", "deliveryAddress",
+      "contactPerson", "contactPhone",
+      "cargoWeight", "cargoWidth", "cargoHeight", "cargoLength", "fixedPrice"
+    ];
 
-  for (const field of requiredFields) {
-    const val = form[field];
-    if (!val || (typeof val === "object" && !val.value)) {
-      toast.warning(`Molimo Vas, ispunite sva polja.`);
+    for (const field of requiredFields) {
+      const val = form[field];
+      if (!val || (typeof val === "object" && !val.value)) {
+        toast.warning(`Molimo Vas, ispunite sva polja.`);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    const fixedPrice = parseFloat(form.fixedPrice);
+    if (currentUser.balance < fixedPrice) {
+      toast.error("Nemate dovoljno novca na računu za objavu ovog tereta.");
       setIsLoading(false);
       return;
     }
-  }
 
-  // Check wallet balance before posting
-  const fixedPrice = parseFloat(form.fixedPrice);
-  if (currentUser.balance < fixedPrice) {
-    toast.error("Nemate dovoljno novca na računu za objavu ovog tereta.");
-    setIsLoading(false);
-    return;
-  }
+    try {
+      const jsonData = { ...form };
+      ['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
+        if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value;
+      });
 
-  try {
-    const jsonData = { ...form };
-    ['pickupCountry', 'pickupState', 'pickupCity', 'deliveryCountry', 'deliveryState', 'deliveryCity'].forEach(f => {
-      if (jsonData[f] && typeof jsonData[f] === 'object') jsonData[f] = jsonData[f].value;
-    });
-
-    const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads';
-    const method = initialData?.id ? 'PATCH' : 'POST';
-    const res = await fetch(url, {
-      method,
-      body: JSON.stringify(jsonData),
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to save load');
-    }
-
-    const result = await res.json();
-    const loadId = result._id || initialData?.id;
-
-    if (selectedImages.length > 0) await uploadImages(loadId, selectedImages);
-
-    for (const imageUrl of imagesToRemove) {
-      await fetch(`/api/loads/${loadId}/images`, {
-        method: 'DELETE',
-        body: JSON.stringify({ imageUrl }),
+      const url = initialData?.id ? `/api/loads/${initialData.id}` : '/api/loads';
+      const method = initialData?.id ? 'PATCH' : 'POST';
+      const res = await fetch(url, {
+        method,
+        body: JSON.stringify(jsonData),
         headers: { 'Content-Type': 'application/json' }
       });
-    }
 
-    setImagesToRemove([]);
-    toast.success('Teret uspješno sačuvan!');
-    setIsDirty(false);
-    onSaved();
-    onClose();
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err.message || 'Došlo je do greške prilikom spremanja tereta.');
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to save load');
+      }
+
+      const result = await res.json();
+      const loadId = result._id || initialData?.id;
+
+      if (selectedImages.length > 0) await uploadImages(loadId, selectedImages);
+
+      for (const imageUrl of imagesToRemove) {
+        await fetch(`/api/loads/${loadId}/images`, {
+          method: 'DELETE',
+          body: JSON.stringify({ imageUrl }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      setImagesToRemove([]);
+      toast.success('Teret uspješno sačuvan!');
+      setIsDirty(false);
+      onSaved();
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Došlo je do greške prilikom spremanja tereta.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const uploadImages = async (loadId: string, images: File[]) => {
     if (!images.length) return
@@ -309,41 +302,88 @@ const handleSubmit = async () => {
 
   return (
     <Dialog open={true} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
-      <DialogContent className="overflow-y-auto max-h-[90vh] min-w-[65vw] max-w-[1200px] p-6 content-bg">
-        <DialogHeader><DialogTitle>{initialData ? 'Uredi teret' : 'Dodaj novi teret'}</DialogTitle></DialogHeader>
+      <DialogContent className="overflow-y-auto max-h-[90vh] w-[95vw] max-w-[1200px] p-4 md:p-6 content-bg">
+        <DialogHeader>
+          <DialogTitle className="text-lg md:text-xl">{initialData ? 'Uredi teret' : 'Dodaj novi teret'}</DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block font-semibold mb-1">Naslov</label>
-            <input className="w-full border rounded px-3 py-2" value={form.title} onChange={e => handleChange('title', e.target.value)} />
-          </div>
-          <div>
-            <label className="block font-semibold mb-1">Opis</label>
-            <textarea className="w-full border rounded px-3 py-2 min-h-[100px]" value={form.description} onChange={e => handleChange('description', e.target.value)} />
-          </div>
-
-          <div className="border rounded p-4 space-y-3">
-            <h6 className="font-semibold text-lg">Lokacija preuzimanja</h6>
-            <div className="flex gap-3">
-              <Select options={countries} value={form.pickupCountry} onChange={handlePickupCountryChange} placeholder="Država" className="w-1/3" />
-              <Select options={pickupStates} value={form.pickupState} onChange={handlePickupStateChange} placeholder="Regija" className="w-1/3" />
-              <Select options={pickupCities} value={form.pickupCity} onChange={handlePickupCityChange} placeholder="Grad" className="w-1/3" />
+        <div className="space-y-4 md:space-y-6 overflow-y-auto max-h-[60vh] md:max-h-[70vh]">
+          <div className="space-y-3">
+            <div>
+              <label className="block font-semibold mb-1 text-sm md:text-base">Naslov</label>
+              <input 
+                className="w-full border rounded px-3 py-2 text-sm md:text-base" 
+                value={form.title} 
+                onChange={e => handleChange('title', e.target.value)} 
+              />
             </div>
-            <div className="flex flex-col md:flex-row gap-3 mt-2">
-              <div className="flex-1">
-                <label className="block font-semibold mb-1">Adresa preuzimanja</label>
-                <input className="w-full border rounded p-2 h-11" placeholder="Adresa preuzimanja" value={form.pickupAddress} onChange={e => handleChange('pickupAddress', e.target.value)} />
+            <div>
+              <label className="block font-semibold mb-1 text-sm md:text-base">Opis</label>
+              <textarea 
+                className="w-full border rounded px-3 py-2 min-h-[100px] text-sm md:text-base" 
+                value={form.description} 
+                onChange={e => handleChange('description', e.target.value)} 
+              />
+            </div>
+          </div>
+
+          <div className="border rounded p-3 md:p-4 space-y-3">
+            <h6 className="font-semibold text-base md:text-lg">Lokacija preuzimanja</h6>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Država</label>
+                <Select 
+                  options={countries} 
+                  value={form.pickupCountry} 
+                  onChange={handlePickupCountryChange} 
+                  placeholder="Država"
+                  className="text-sm text-gray-900"
+                />
               </div>
-              <div className="flex-1">
-                <label className="block font-semibold mb-1">Datum i vrijeme preuzimanja</label>
-                <Datetime
-                  value={form.preferredPickupDate ? new Date(form.preferredPickupDate) : undefined}
-                  onChange={(val: any) => handleChange('preferredPickupDate', val instanceof Date ? val.toISOString() : val)}
-                  inputProps={{ className: 'w-full border rounded p-2' }}
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Regija</label>
+                <Select 
+                  options={pickupStates} 
+                  value={form.pickupState} 
+                  onChange={handlePickupStateChange} 
+                  placeholder="Regija"
+                  className="text-sm text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Grad</label>
+                <Select 
+                  options={pickupCities} 
+                  value={form.pickupCity} 
+                  onChange={handlePickupCityChange} 
+                  placeholder="Grad"
+                  className="text-sm text-gray-900"
                 />
               </div>
             </div>
-            <div className="h-64 mt-2">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-semibold mb-1 text-sm md:text-base">Adresa preuzimanja</label>
+                <input 
+                  className="w-full border rounded p-2 text-sm md:text-base" 
+                  placeholder="Adresa preuzimanja" 
+                  value={form.pickupAddress} 
+                  onChange={e => handleChange('pickupAddress', e.target.value)} 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm md:text-base">Datum i vrijeme preuzimanja</label>
+                <Datetime
+                  value={form.preferredPickupDate ? new Date(form.preferredPickupDate) : undefined}
+                  onChange={(val: any) => handleChange('preferredPickupDate', val instanceof Date ? val.toISOString() : val)}
+                  inputProps={{ className: 'w-full border rounded p-2 text-sm md:text-base' }}
+                />
+              </div>
+            </div>
+            
+            <div className="h-48 md:h-64">
               <LeafletMap
                 lat={form.pickupLatitude}
                 lng={form.pickupLongitude}
@@ -352,32 +392,45 @@ const handleSubmit = async () => {
             </div>
           </div>
 
-          <div className="border rounded p-4 space-y-3">
-            <h6 className="font-semibold text-lg">Lokacija isporuke</h6>
+          <div className="border rounded p-3 md:p-4 space-y-3">
+            <h6 className="font-semibold text-base md:text-lg">Lokacija isporuke</h6>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <input className="border rounded p-2" placeholder="Kontakt osoba" value={form.contactPerson} onChange={e => handleChange('contactPerson', e.target.value)} />
-              <input className="border rounded p-2" placeholder="Kontakt telefon" value={form.contactPhone} onChange={e => handleChange('contactPhone', e.target.value)} />
+              <input className="border rounded p-2 text-sm md:text-base" placeholder="Kontakt osoba" value={form.contactPerson} onChange={e => handleChange('contactPerson', e.target.value)} />
+              <input className="border rounded p-2 text-sm md:text-base" placeholder="Kontakt telefon" value={form.contactPhone} onChange={e => handleChange('contactPhone', e.target.value)} />
             </div>
-            <div className="flex gap-3 mt-2">
-              <Select options={countries} value={form.deliveryCountry} onChange={handleDeliveryCountryChange} placeholder="Država" className="w-1/3" />
-              <Select options={deliveryStates} value={form.deliveryState} onChange={handleDeliveryStateChange} placeholder="Regija" className="w-1/3" />
-              <Select options={deliveryCities} value={form.deliveryCity} onChange={handleDeliveryCityChange} placeholder="Grad" className="w-1/3" />
-            </div>
-            <div className="flex flex-col md:flex-row gap-3 mt-2">
-              <div className="flex-1">
-                <label className="block font-semibold mb-1">Adresa isporuke</label>
-                <input className="w-full border rounded p-2 h-11" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Država</label>
+                <Select options={countries} value={form.deliveryCountry} onChange={handleDeliveryCountryChange} placeholder="Država" className="text-sm  text-gray-900" />
               </div>
-              <div className="flex-1">
-                <label className="block font-semibold mb-1">Datum i vrijeme isporuke</label>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Regija</label>
+                <Select options={deliveryStates} value={form.deliveryState} onChange={handleDeliveryStateChange} placeholder="Regija" className="text-sm text-gray-900" />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Grad</label>
+                <Select options={deliveryCities} value={form.deliveryCity} onChange={handleDeliveryCityChange} placeholder="Grad" className="text-sm text-gray-900" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-semibold mb-1 text-sm md:text-base">Adresa isporuke</label>
+                <input className="w-full border rounded p-2 text-sm md:text-base" placeholder="Adresa isporuke" value={form.deliveryAddress} onChange={e => handleChange('deliveryAddress', e.target.value)} />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm md:text-base">Datum i vrijeme isporuke</label>
                 <Datetime
                   value={form.preferredDeliveryDate ? new Date(form.preferredDeliveryDate) : undefined}
                   onChange={(val: any) => handleChange('preferredDeliveryDate', val instanceof Date ? val.toISOString() : val)}
-                  inputProps={{ className: 'w-full border rounded p-2' }}
+                  inputProps={{ className: 'w-full border rounded p-2 text-sm md:text-base' }}
                 />
               </div>
             </div>
-            <div className="h-64 mt-2">
+            
+            <div className="h-48 md:h-64">
               <LeafletMap
                 lat={form.deliveryLatitude}
                 lng={form.deliveryLongitude}
@@ -386,35 +439,55 @@ const handleSubmit = async () => {
             </div>
           </div>
 
-          <div className="border rounded p-4 space-y-3">
-            <h6 className="font-semibold text-lg">Detalji tereta</h6>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <input className="border rounded p-2" placeholder="Težina (kg)" value={form.cargoWeight} onChange={e => handleChange('cargoWeight', e.target.value)} />
-              <input className="border rounded p-2" placeholder="Širina (m)" value={form.cargoWidth} onChange={e => handleChange('cargoWidth', e.target.value)} />
-              <input className="border rounded p-2" placeholder="Visina (m)" value={form.cargoHeight} onChange={e => handleChange('cargoHeight', e.target.value)} />
-              <input className="border rounded p-2" placeholder="Dužina (m)" value={form.cargoLength} onChange={e => handleChange('cargoLength', e.target.value)} />
-              <input className="border rounded p-2 col-span-2" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
-              <input className="border rounded p-2 col-span-2" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
+          <div className="border rounded p-3 md:p-4 space-y-3">
+            <h6 className="font-semibold text-base md:text-lg">Detalji tereta</h6>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Težina (kg)</label>
+                <input className="w-full border rounded p-2 text-sm" value={form.cargoWeight} onChange={e => handleChange('cargoWeight', e.target.value)} />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Širina (m)</label>
+                <input className="w-full border rounded p-2 text-sm" value={form.cargoWidth} onChange={e => handleChange('cargoWidth', e.target.value)} />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Visina (m)</label>
+                <input className="w-full border rounded p-2 text-sm" value={form.cargoHeight} onChange={e => handleChange('cargoHeight', e.target.value)} />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1 text-sm">Dužina (m)</label>
+                <input className="w-full border rounded p-2 text-sm" value={form.cargoLength} onChange={e => handleChange('cargoLength', e.target.value)} />
+              </div>
+              <div className="col-span-2">
+                <label className="block font-semibold mb-1 text-sm">Volumen (m³)</label>
+                <input className="w-full border rounded p-2 text-sm" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
+              </div>
+              <div className="col-span-2">
+                <label className="block font-semibold mb-1 text-sm">Fiksna cijena</label>
+                <input className="w-full border rounded p-2 text-sm" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
+              </div>
             </div>
           </div>
 
-          <div className="border rounded p-4 space-y-3">
-            <h6 className="font-semibold text-lg">Slike tereta</h6>
-            <input type="file" multiple onChange={handleImageSelect} />
+          <div className="border rounded p-3 md:p-4 space-y-3">
+            <h6 className="font-semibold text-base md:text-lg">Slike tereta</h6>
+            <input type="file" multiple onChange={handleImageSelect} className="w-full text-sm" />
             <div className="flex gap-2 flex-wrap mt-2">
               {imagePreviews.map((img, idx) => (
-                <div key={idx} className="relative w-24 h-24 border rounded overflow-hidden">
+                <div key={idx} className="relative w-16 h-16 md:w-24 md:h-24 border rounded overflow-hidden">
                   <img src={img} className="w-full h-full object-cover" />
-                  <button type="button" className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs" onClick={() => removeImage(idx)}>×</button>
+                  <button type="button" className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs" onClick={() => removeImage(idx)}>×</button>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button onClick={handleClose} variant="outline">Otkaži</Button>
-          <Button onClick={handleSubmit} disabled={isLoading}>{isLoading ? 'Spremanje...' : 'Spremi'}</Button>
+        <DialogFooter className="flex flex-col-reverse md:flex-row gap-2 md:gap-0 pt-4 border-t mt-4">
+          <Button onClick={handleClose} variant="outline" className="w-full md:w-auto text-sm md:text-base">Otkaži</Button>
+          <Button onClick={handleSubmit} disabled={isLoading} className="w-full md:w-auto text-sm md:text-base">
+            {isLoading ? 'Spremanje...' : 'Spremi'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table } from "@/components/Table";
 import { AddCardDialog } from "@/components/AddCardDialog";
 import { CardItem } from "@/components/CardItem";
+import { useSession } from "next-auth/react";
 import { 
   CreditCard, 
   DollarSign, 
@@ -20,7 +21,7 @@ import { toast } from "react-toastify";
 
 import { AddFundsDialog } from "@/components/AddFundsDialog";
 import { RequestPayoutDialog } from "@/components/ReqestPayoutDialog";
-
+type Role = 'client' | 'driver' | 'admin' | undefined
 type Wallet = {
   _id: string;
   balance: number;
@@ -46,8 +47,8 @@ export default function MyWallet() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [addingFunds, setAddingFunds] = useState(false);
   const [deletingCard, setDeletingCard] = useState<number | null>(null);
-  
-
+    const { data: session } = useSession()
+  const role = session?.user?.role as Role
   const fetchWallet = async () => {
     try {
       const res = await fetch("/api/wallet");
@@ -173,16 +174,20 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
 
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="min-h-screen">
       <Sidebar
-        role="client"
+        role={role}
         navbarHeight={84}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"} p-6`}>
-        <div className="max-w-6xl mx-auto">
+  <main 
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
+        }`}
+      >
+      <div className="p-4 md:p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-800 dark:text-white">

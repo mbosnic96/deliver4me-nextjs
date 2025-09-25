@@ -4,11 +4,15 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import Select from "react-select";
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 const schema = z.object({
   brand: z.string().min(1, "Obavezno polje"),
@@ -24,7 +28,6 @@ type FormValues = z.infer<typeof schema>;
 
 interface VehicleFormProps {
   initialData?: any;
-  open: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -34,14 +37,7 @@ interface VehicleType {
   name: string;
 }
 
-interface VehicleTypesResponse {
-  data: VehicleType[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleFormProps) {
+export function VehicleForm({ initialData, onClose, onSaved }: VehicleFormProps) {
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -65,9 +61,10 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
     const fetchVehicleTypes = async () => {
       setLoadingVehicleTypes(true);
       try {
-        const response = await axios.get("/api/vehicle-types");
-        // Handle both paginated response and simple array response for backward compatibility
-        const vehicleTypesData = response.data.data || response.data;
+        const res = await fetch("/api/vehicle-types");
+        if (!res.ok) throw new Error("Greška pri dohvaćanju tipova vozila");
+        const data = await res.json();
+        const vehicleTypesData = data.data || data;
         setVehicleTypes(Array.isArray(vehicleTypesData) ? vehicleTypesData : []);
       } catch (error) {
         console.error("Failed to fetch vehicle types:", error);
@@ -76,11 +73,8 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
         setLoadingVehicleTypes(false);
       }
     };
-
-    if (open) {
-      fetchVehicleTypes();
-    }
-  }, [open]);
+    fetchVehicleTypes();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -91,7 +85,7 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
         width: initialData.width,
         length: initialData.length,
         height: initialData.height,
-        vehicleTypeId: initialData.vehicleTypeId || "",
+         vehicleTypeId: initialData.vehicleTypeId?._id || initialData.vehicleTypeId || "",
       });
       setImagePreviews(initialData.images || []);
     } else {
@@ -107,12 +101,13 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
       setImagePreviews([]);
     }
     setFiles([]);
-  }, [initialData, form, open]); 
+  }, [initialData, form]);
 
   const width = form.watch("width");
   const length = form.watch("length");
   const height = form.watch("height");
   const volume = (width || 0) * (length || 0) * (height || 0);
+
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -150,63 +145,90 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
         )
       );
 
-      const existingImages = initialData?.images?.filter((img: string, index: number) => 
-        imagePreviews.includes(img)
-      ) || [];
-      
+      const existingImages =
+        initialData?.images?.filter((img: string) =>
+          imagePreviews.includes(img)
+        ) || [];
+
       const allImages = [...existingImages, ...newImagesBase64];
       const payload = { ...values, volume, images: allImages };
 
+      let res: Response;
+
       if (initialData) {
-        await axios.put(`/api/vehicles/${initialData._id}`, payload);
+        res = await fetch(`/api/vehicles/${initialData._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       } else {
-        await axios.post("/api/vehicles", payload);
+        res = await fetch("/api/vehicles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Greška pri spremanju vozila");
       }
 
       onSaved();
+      onClose();
+    } catch (error) {
+      console.error("Error saving vehicle:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Get the current selected value for the Select component
+
   const selectedVehicleType = vehicleTypes
-    .map(vt => ({ value: vt._id, label: vt.name }))
-    .find(option => option.value === form.watch("vehicleTypeId"));
+    .map((vt) => ({ value: vt._id, label: vt.name }))
+    .find((option) => option.value === form.watch("vehicleTypeId"));
 
   return (
-    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <i className="fas fa-car"></i>
-            {initialData ? "Uredi vozilo" : "Dodaj vozilo"}
-          </DialogTitle>
-        </DialogHeader>
+    <DialogContent className="max-w-3xl">
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2">
+          <i className="fas fa-car"></i>
+          {initialData ? "Uredi vozilo" : "Dodaj vozilo"}
+        </DialogTitle>
+      </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {(["brand", "model", "plateNumber"] as Array<keyof FormValues>).map((field) => (
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(["brand", "model", "plateNumber"] as Array<keyof FormValues>).map(
+            (field) => (
               <div key={field}>
                 <label className="block text-sm font-medium mb-1">
-                  {field === "brand" ? "Marka" : field === "model" ? "Model" : "Registracija"}
+                  {field === "brand"
+                    ? "Marka"
+                    : field === "model"
+                    ? "Model"
+                    : "Registracija"}
                 </label>
                 <Input
                   type="text"
                   {...form.register(field)}
-                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full px-4 py-2 border rounded-lg"
                 />
                 {form.formState.errors[field] && (
-                  <p className="text-red-500 text-xs">{form.formState.errors[field]?.message}</p>
+                  <p className="text-red-500 text-xs">
+                    {form.formState.errors[field]?.message}
+                  </p>
                 )}
               </div>
-            ))}
-          </div>
+            )
+          )}
+        </div>
 
-          <div>
-            <small>Unesite dimenzije tovarnog prostora.</small>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
-              {(["width", "length", "height"] as Array<keyof FormValues>).map((dim) => (
+        <div>
+          <small>Unesite dimenzije tovarnog prostora.</small>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+            {(["width", "length", "height"] as Array<keyof FormValues>).map(
+              (dim) => (
                 <div key={dim}>
                   <label className="block text-sm font-medium mb-1">
                     {dim === "width"
@@ -219,77 +241,81 @@ export function VehicleForm({ initialData, open, onClose, onSaved }: VehicleForm
                     type="number"
                     step="0.01"
                     {...form.register(dim, { valueAsNumber: true })}
-                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full px-4 py-2 border rounded-lg"
                   />
                 </div>
-              ))}
-              <div>
-                <label className="block text-sm font-medium mb-1">Volumen (m³)</label>
-                <Input
-                  type="text"
-                  value={volume.toFixed(2)}
-                  readOnly
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Tip vozila</label>
-            <Select
-              options={vehicleTypes.map(vt => ({ value: vt._id, label: vt.name }))}
-              value={selectedVehicleType}
-              onChange={(selected) =>
-                form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
-              }
-              placeholder="Odaberite tip vozila"
-              className="react-select-container"
-              classNamePrefix="react-select"
-              instanceId="vehicle-type-select"
-              isLoading={loadingVehicleTypes}
-              isDisabled={loadingVehicleTypes}
-            />
-            {form.formState.errors.vehicleTypeId && (
-              <p className="text-red-500 text-xs">{form.formState.errors.vehicleTypeId.message}</p>
+              )
             )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Slike vozila</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="w-full file-input px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <div className="flex flex-wrap gap-2 mt-3">
-              {imagePreviews.map((img, i) => (
-                <div key={i} className="relative">
-                  <img src={img} className="w-24 h-24 object-cover rounded" alt={`Vehicle image ${i + 1}`} />
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-circle absolute -top-2 -right-2"
-                    onClick={() => removeImage(i)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Volumen (m³)
+              </label>
+              <Input
+                type="text"
+                value={volume.toFixed(2)}
+                readOnly
+                className="w-full px-4 py-2 border rounded-lg"
+              />
             </div>
           </div>
+        </div>
 
-          <DialogFooter className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Otkaži
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Spremanje..." : initialData ? "Uredi" : "Sačuvaj"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <label className="block text-sm font-medium mb-1">Tip vozila</label>
+          <Select
+            options={vehicleTypes.map((vt) => ({ value: vt._id, label: vt.name }))}
+            value={selectedVehicleType}
+            onChange={(selected) =>
+              form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
+            }
+            placeholder="Odaberite tip vozila"
+            isLoading={loadingVehicleTypes}
+          />
+          {form.formState.errors.vehicleTypeId && (
+            <p className="text-red-500 text-xs">
+              {form.formState.errors.vehicleTypeId.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Slike vozila</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="w-full"
+          />
+          <div className="flex flex-wrap gap-2 mt-3">
+            {imagePreviews.map((img, i) => (
+              <div key={i} className="relative">
+                <img
+                  src={img}
+                  className="w-24 h-24 object-cover rounded"
+                  alt={`Vehicle image ${i + 1}`}
+                />
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                  onClick={() => removeImage(i)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <DialogFooter className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Otkaži
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Spremanje..." : initialData ? "Uredi" : "Sačuvaj"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
   );
 }
