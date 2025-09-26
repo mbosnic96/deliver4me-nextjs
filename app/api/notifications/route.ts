@@ -34,13 +34,52 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const subs = await PushSubscription.find({ userId: body.userId });
-      for (const sub of subs) {
+      const subscriptions = await PushSubscription.find({ userId: body.userId });
+      
+      console.log(`Found ${subscriptions.length} subscriptions for user ${body.userId}`);
+      
+      const validSubscriptions = [];
+      const expiredSubscriptions: string[] = [];
+
+      const notificationPromises = subscriptions.map(async (sub) => {
         try {
-          await webpush.sendNotification(sub.subscription, JSON.stringify(notification));
-        } catch {}
+          await webpush.sendNotification(
+            sub.subscription,
+            JSON.stringify({
+              _id: notification._id,
+              message: notification.message,
+              link: notification.link || '/notifications',
+              createdAt: notification.createdAt,
+            })
+          );
+          validSubscriptions.push(sub);
+          console.log(`Push notification sent successfully to ${sub.subscription.endpoint}`);
+        } catch (err: any) {
+          console.error("Error sending to subscription:", err);
+         
+          if (err.statusCode === 410 || err.statusCode === 404 || err.statusCode === 400) {
+            expiredSubscriptions.push(String(sub._id));
+            console.log(`Subscription expired/invalid, marking for deletion: ${sub.subscription.endpoint}`);
+          } else {
+            console.warn(`Other error (${err.statusCode}) for subscription: ${sub.subscription.endpoint}`);
+          }
+        }
+      });
+
+      await Promise.allSettled(notificationPromises);
+
+      if (expiredSubscriptions.length > 0) {
+        await PushSubscription.deleteMany({ 
+          _id: { $in: expiredSubscriptions } 
+        });
+        console.log(`Removed ${expiredSubscriptions.length} expired subscriptions`);
       }
-    } catch {}
+
+      console.log(`Push notifications: ${validSubscriptions.length} successful, ${expiredSubscriptions.length} expired`);
+
+    } catch (err) {
+      console.error("Error processing push subscriptions:", err);
+    }
 
     return NextResponse.json(notification);
   } catch (err) {
@@ -50,11 +89,16 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-  const url = new URL(req.url);
-  const userId = url.searchParams.get("userId");
-  if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 });
+  try {
+    await dbConnect();
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 });
 
-  const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }).lean();
-  return NextResponse.json(notifications);
+    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }).lean();
+    return NextResponse.json(notifications);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

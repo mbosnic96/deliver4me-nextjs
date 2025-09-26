@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Bell, X, CheckCircle, AlertCircle, Info, Truck,
-  Package, MessageSquare, Clock, Settings, Trash2, ChevronDown
+  Package, MessageSquare, Clock, Trash2, ChevronDown
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { initSocket } from "../socket";
@@ -25,52 +25,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<any>(null);
   const router = useRouter();
-   const socketRef = useRef<any>(null);
-
-
-  const requestNotificationPermission = async () => {
-    if (!('Notification' in window)) return;
-    const permission = await Notification.requestPermission();
-    setNotificationPermission(permission);
-    if (permission === 'granted') await registerServiceWorker();
-  };
-
-  const registerServiceWorker = async () => {
-    if (!('serviceWorker' in navigator)) return;
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered:', registration);
-      await subscribeToPush(registration);
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-    }
-  };
-
-  const subscribeToPush = async (registration: ServiceWorkerRegistration) => {
-    try {
-      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-      const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
-
-      const existing = await registration.pushManager.getSubscription();
-      if (existing) return existing;
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedKey
-      });
-
-      await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription, userId })
-      });
-
-      return subscription;
-    } catch (err) {
-      console.error('Push subscription failed:', err);
-    }
-  };
 
   const urlBase64ToUint8Array = (base64String: string) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -79,31 +35,133 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
   };
 
+  const initNotifications = async () => {
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      console.log('Notification permission:', permission);
+
+      if (permission !== "granted") {
+        console.log('Notification permission not granted');
+        return;
+      }
+
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          console.log("Service Worker is ready");
+          await subscribeToPush(registration);
+        } catch (err) {
+          console.error("Service Worker not ready:", err);
+          
+          try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log("Service Worker registered:", registration);
+            await subscribeToPush(registration);
+          } catch (regErr) {
+            console.error("Service Worker registration failed:", regErr);
+          }
+        }
+      } else {
+        console.log('Service Worker not supported');
+      }
+    } catch (err) {
+      console.error("Error initializing notifications:", err);
+    }
+  };
+
+  const subscribeToPush = async (registration: ServiceWorkerRegistration) => {
+    try {
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        console.error("VAPID public key not found");
+        return;
+      }
+
+      const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+
+      let subscription = await registration.pushManager.getSubscription();
+      
+      if (subscription) {
+        console.log("Existing push subscription found");
+        try {
+          await fetch('/api/push/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subscription })
+          });
+        } catch (err) {
+          console.log("Subscription validation failed, creating new one");
+          await subscription.unsubscribe();
+          subscription = null;
+        }
+      }
+
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey
+        });
+        console.log("New push subscription created");
+      }
+
+      // Send subscription to server
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription, userId })
+      });
+
+      console.log("Push subscription saved to server");
+      return subscription;
+    } catch (err) {
+      console.error("Push subscription failed:", err);
+    }
+  };
+
   const showBrowserNotification = (notification: Notification) => {
-    if (notificationPermission !== 'granted') return;
-    const browserNotification = new Notification('New Notification', {
-      body: notification.message,
-      icon: '/logo.png',
-      badge: '/logo.png',
-      tag: notification._id,
-      data: { url: notification.link }
-    });
-    browserNotification.onclick = () => {
-      if (notification.link) router.push(notification.link);
-      browserNotification.close();
-    };
+    if (notificationPermission !== "granted") return;
+
+    try {
+      const n = new Notification("Nova obavijest!", {
+        body: notification.message,
+        icon: "/logo.png",
+        badge: "/logo.png",
+        tag: notification._id,
+        data: { url: notification.link || '/notifications' }
+      });
+
+      n.onclick = () => {
+        if (notification.link) {
+          router.push(notification.link);
+        }
+        n.close();
+      };
+
+      // Auto-close after 5 seconds
+      setTimeout(() => n.close(), 5000);
+    } catch (err) {
+      console.error("Error showing browser notification:", err);
+    }
   };
 
   const fetchNotifications = async () => {
+    if (!userId) return;
+    
     try {
       setIsLoading(true);
       const res = await fetch(`/api/notifications?userId=${userId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setNotifications(data);
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-      toast.error("Failed to load notifications");
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      toast.error("Failed to fetch notifications");
     } finally {
       setIsLoading(false);
     }
@@ -113,8 +171,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     try {
       await fetch(`/api/notifications/${id}/seen`, { method: "PATCH" });
       setNotifications(prev => prev.map(n => n._id === id ? { ...n, seen: true } : n));
-    } catch (error) {
-      console.error("Failed to mark as seen:", error);
+    } catch (err) {
+      console.error("Error marking as seen:", err);
     }
   };
 
@@ -127,8 +185,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       });
       setNotifications(prev => prev.map(n => ({ ...n, seen: true })));
       toast.success("All notifications marked as read");
-    } catch (error) {
-      console.error("Failed to mark all as read:", error);
+    } catch (err) {
+      console.error("Error marking all as read:", err);
       toast.error("Failed to mark all as read");
     }
   };
@@ -139,8 +197,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       await fetch(`/api/notifications/${id}`, { method: "DELETE" });
       setNotifications(prev => prev.filter(n => n._id !== id));
       toast.success("Notification deleted");
-    } catch (error) {
-      console.error("Failed to delete notification:", error);
+    } catch (err) {
+      console.error("Error deleting notification:", err);
       toast.error("Failed to delete notification");
     }
   };
@@ -154,64 +212,63 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       });
       setNotifications([]);
       toast.success("All notifications cleared");
-    } catch (error) {
-      console.error("Failed to clear notifications:", error);
+    } catch (err) {
+      console.error("Error clearing notifications:", err);
       toast.error("Failed to clear notifications");
     }
   };
 
-useEffect(() => {
-  if (!userId) return;
+  useEffect(() => {
+    if (!userId) return;
 
-  socketRef.current = initSocket(userId);
+    const initialize = async () => {
+      await initNotifications();
+      await fetchNotifications();
+    };
 
-  const handleNotification = (notification: Notification) => {
-    setNotifications(prev => [notification, ...prev]);
-    if (notificationPermission === "granted") {
-      new Notification("New Notification", {
-        body: notification.message,
-        icon: "/logo.png",
-        badge: "/logo.png",
-        tag: notification._id,
-      });
+    initialize();
+
+    try {
+      socketRef.current = initSocket(userId);
+
+      const handleNotification = (notification: Notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        showBrowserNotification(notification);
+      };
+
+      socketRef.current.on("new-notification", handleNotification);
+    } catch (err) {
+      console.error("Socket.io initialization failed:", err);
     }
-  };
 
-  socketRef.current.on("new-notification", handleNotification);
+    const intervalId = setInterval(fetchNotifications, 30000);
 
-const fetchNotifications = async (initial = false) => {
-  if (initial) setIsLoading(true);
-  try {
-    const res = await fetch(`/api/notifications?userId=${userId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    setNotifications(data);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    if (initial) setIsLoading(false);
-  }
-};
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("new-notification");
+        socketRef.current.disconnect();
+      }
+      clearInterval(intervalId);
+    };
+  }, [userId]);
 
+  useEffect(() => {
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NAVIGATE_TO') {
+        router.push(event.data.url);
+      }
+    };
 
- fetchNotifications(true); 
-const intervalId = setInterval(() => fetchNotifications(false), 5000);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+    }
 
-
-  if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission().then((perm) => setNotificationPermission(perm));
-  }
-
-  return () => {
-    socketRef.current?.off("new-notification", handleNotification);
-    socketRef.current?.disconnect();
-    socketRef.current = null;
-    clearInterval(intervalId);
-  };
-}, [userId, notificationPermission]);
-
-
-
+    return () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      }
+    };
+  }, [router]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -251,7 +308,6 @@ const intervalId = setInterval(() => fetchNotifications(false), 5000);
     return date.toLocaleDateString();
   };
 
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -263,7 +319,7 @@ const intervalId = setInterval(() => fetchNotifications(false), 5000);
         <Bell size={22} />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center">
-            {unreadCount}
+            {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
@@ -280,16 +336,17 @@ const intervalId = setInterval(() => fetchNotifications(false), 5000);
                 {filter === 'all' ? 'Show unread' : 'Show all'}
                 <ChevronDown size={14} className="ml-1" />
               </button>
-              <button
-                onClick={markAllAsRead}
-                disabled={unreadCount === 0}
-                className={`text-xs ${unreadCount === 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-800'} font-medium`}
-              >
-                Mark all as read
-              </button>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Mark all as read
+                </button>
+              )}
             </div>
           </div>
-          <div className="max-h-96 overflow-y-auto min-h-[500px]">
+          <div className="max-h-96 overflow-y-auto min-h-[200px]">
             {isLoading ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -302,38 +359,40 @@ const intervalId = setInterval(() => fetchNotifications(false), 5000);
                   {filter === 'unread' ? 'You have no unread notifications' : 'Your notification list is empty'}
                 </p>
               </div>
-            ) : filteredNotifications.map(n => (
-              <div
-                key={n._id}
-                onClick={() => {
-                  markAsSeen(n._id);
-                  if (n.link) router.push(n.link);
-                }}
-                className={`flex items-start p-4 border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
-                  !n.seen ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex-shrink-0 mt-1 mr-3">{getNotificationIcon(n.type)}</div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${!n.seen ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
-                    {n.message}
-                  </p>
-                  <div className="flex items-center mt-1 text-xs text-gray-500">
-                    <Clock size={12} className="mr-1" />
-                    {formatTime(n.createdAt)}
-                  </div>
-                </div>
-                <button
-                  onClick={(e) => deleteNotification(n._id, e)}
-                  className="ml-2 text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50"
+            ) : (
+              filteredNotifications.map(n => (
+                <div
+                  key={n._id}
+                  onClick={() => {
+                    if (!n.seen) markAsSeen(n._id);
+                    if (n.link) router.push(n.link);
+                    setOpen(false);
+                  }}
+                  className={`flex items-start p-4 border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
+                    !n.seen ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'
+                  }`}
                 >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
+                  <div className="flex-shrink-0 mt-1 mr-3">{getNotificationIcon(n.type)}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm ${!n.seen ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                      {n.message}
+                    </p>
+                    <div className="flex items-center mt-1 text-xs text-gray-500">
+                      <Clock size={12} className="mr-1" />
+                      {formatTime(n.createdAt)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => deleteNotification(n._id, e)}
+                    className="ml-2 text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
 
-         
           {filteredNotifications.length > 0 && (
             <div className="flex justify-end items-center p-3 bg-gray-50 border-t border-gray-100">
               <button
