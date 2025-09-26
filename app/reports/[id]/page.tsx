@@ -197,7 +197,7 @@ export default function ReportDetailsPage() {
 
       <main 
         className={`flex-1 transition-all duration-300 min-h-screen ${
-          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
+          sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         }`}
       >
         <div className="p-4 md:p-6 h-full flex flex-col">
