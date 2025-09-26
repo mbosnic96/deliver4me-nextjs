@@ -1,3 +1,4 @@
+// components/NotificationsDropdown.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -7,7 +8,6 @@ import {
   Package, MessageSquare, Clock, Trash2, ChevronDown
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { initSocket } from "../socket";
 
 interface Notification {
   _id: string;
@@ -25,8 +25,10 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<any>(null);
   const router = useRouter();
+
+  // Polling interval - check for new notifications every 10 seconds
+  const POLLING_INTERVAL = 10000;
 
   const urlBase64ToUint8Array = (base64String: string) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -154,14 +156,12 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     if (!userId) return;
     
     try {
-      setIsLoading(true);
       const res = await fetch(`/api/notifications?userId=${userId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setNotifications(data);
     } catch (err) {
       console.error("Error fetching notifications:", err);
-      toast.error("Failed to fetch notifications");
     } finally {
       setIsLoading(false);
     }
@@ -228,26 +228,10 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
 
     initialize();
 
-    try {
-      socketRef.current = initSocket(userId);
-
-      const handleNotification = (notification: Notification) => {
-        setNotifications(prev => [notification, ...prev]);
-        showBrowserNotification(notification);
-      };
-
-      socketRef.current.on("new-notification", handleNotification);
-    } catch (err) {
-      console.error("Socket.io initialization failed:", err);
-    }
-
-    const intervalId = setInterval(fetchNotifications, 30000);
+    // Set up polling for new notifications - NO SOCKET.IO
+    const intervalId = setInterval(fetchNotifications, POLLING_INTERVAL);
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.off("new-notification");
-        socketRef.current.disconnect();
-      }
       clearInterval(intervalId);
     };
   }, [userId]);
@@ -314,7 +298,10 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         className={`relative p-2 rounded-full transition-all duration-200 ${
           open ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
         }`}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          setOpen(!open);
+          if (!open) fetchNotifications(); // Refresh when opening dropdown
+        }}
       >
         <Bell size={22} />
         {unreadCount > 0 && (

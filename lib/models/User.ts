@@ -1,3 +1,4 @@
+// lib/models/User.ts
 import { Schema, model, models, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
@@ -19,13 +20,34 @@ export interface IUser extends Document {
   deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-    rating: number;
+  rating: number;
   reviewsCount: number;
-   
 }
 
-export interface IUserLean extends Omit<IUser, keyof Document> {
+// Fix the IUserLean interface - include all IUser properties but replace Document properties
+export interface IUserLean {
   _id: Types.ObjectId;
+  name: string;
+  userName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role: 'client' | 'driver' | 'admin';
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  photoUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  isDeleted: boolean;
+  deletedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  rating: number;
+  reviewsCount: number;
+  __v?: number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -35,7 +57,7 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: String,
-    role: { type: String, required: true, enum: ['client', 'driver','admin'] },
+    role: { type: String, required: true, enum: ['client', 'driver', 'admin'] },
     address: String,
     city: String,
     state: String,
@@ -46,12 +68,19 @@ const UserSchema = new Schema<IUser>(
     longitude: Number,
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
-     rating: { type: Number, default: 0 }, // average rating
-    reviewsCount: { type: Number, default: 0 }, // how many reviews
-    
+    rating: { type: Number, default: 0 },
+    reviewsCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+// Remove password from JSON output
+UserSchema.methods.toJSON = function() {
+  const user = this.toObject();
+  delete user.password;
+  delete user.__v;
+  return user;
+};
 
 const UserModel = models?.User || model<IUser>('User', UserSchema);
 

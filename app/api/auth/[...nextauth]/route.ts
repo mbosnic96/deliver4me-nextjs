@@ -1,10 +1,10 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import User from '@/lib/models/User';
+import UserModel, { IUserLean } from '@/lib/models/User';
 import { dbConnect } from '@/lib/db/db';
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -13,46 +13,69 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await dbConnect();
-        const user = await User.findOne({ email: credentials?.email });
+        try {
+          await dbConnect();
+          
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Missing credentials');
+          }
 
-if (!user) throw new Error('No user found');
+          const user = await UserModel.findOne({ 
+            email: credentials.email.toLowerCase().trim() 
+          })
+          .select('+password')
+          .lean();
 
-if (user.isDeleted) {
-  throw new Error('Account disabled');
-}
+          if (!user || Array.isArray(user)) {
+            throw new Error('No user found');
+          }
 
-const isMatch = await bcrypt.compare(credentials!.password, user.password);
-if (!isMatch) throw new Error('Incorrect password');
+          const userData = user as IUserLean;
 
+          if (userData.isDeleted) {
+            throw new Error('Account disabled');
+          }
 
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
+          const isMatch = await bcrypt.compare(credentials.password, userData.password);
+          if (!isMatch) {
+            throw new Error('Incorrect password');
+          }
+
+          return {
+            id: userData._id.toString(),
+            email: userData.email,
+            name: userData.name,
+            role: userData.role,
+          };
+        } catch (error) {
+          console.error('Auth error:', error instanceof Error ? error.message : 'Unknown error');
+          return null;
+        }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        (token as any).id = user.id;
+        (token as any).role = (user as any).role;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        (session.user as any).id = (token as any).id;
+        (session.user as any).role = (token as any).role;
       }
       return session;
     },
   },
   pages: {
     signIn: '/login',
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

@@ -5,7 +5,6 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { Country, State, City } from 'country-state-city';
 import Select from 'react-select';
-import axios from 'axios';
 
 type FormData = {
   name: string;

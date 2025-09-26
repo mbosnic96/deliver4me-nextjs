@@ -1,3 +1,4 @@
+// app/api/notifications/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import { Notification } from "@/lib/models/Notification";
@@ -26,19 +27,14 @@ export async function POST(req: NextRequest) {
       link: body.link,
     });
 
-    try {
-      const io = (global as any).io;
-      if (io) io.to(body.userId).emit("new-notification", notification);
-    } catch (err) {
-      console.warn("Socket.io not available:", err);
-    }
+    // REMOVE SOCKET.IO CODE COMPLETELY - No real-time push needed
+    // The client will fetch new notifications via polling
 
     try {
       const subscriptions = await PushSubscription.find({ userId: body.userId });
       
       console.log(`Found ${subscriptions.length} subscriptions for user ${body.userId}`);
       
-      const validSubscriptions = [];
       const expiredSubscriptions: string[] = [];
 
       const notificationPromises = subscriptions.map(async (sub) => {
@@ -52,7 +48,6 @@ export async function POST(req: NextRequest) {
               createdAt: notification.createdAt,
             })
           );
-          validSubscriptions.push(sub);
           console.log(`Push notification sent successfully to ${sub.subscription.endpoint}`);
         } catch (err: any) {
           console.error("Error sending to subscription:", err);
@@ -60,8 +55,6 @@ export async function POST(req: NextRequest) {
           if (err.statusCode === 410 || err.statusCode === 404 || err.statusCode === 400) {
             expiredSubscriptions.push(String(sub._id));
             console.log(`Subscription expired/invalid, marking for deletion: ${sub.subscription.endpoint}`);
-          } else {
-            console.warn(`Other error (${err.statusCode}) for subscription: ${sub.subscription.endpoint}`);
           }
         }
       });
@@ -74,8 +67,6 @@ export async function POST(req: NextRequest) {
         });
         console.log(`Removed ${expiredSubscriptions.length} expired subscriptions`);
       }
-
-      console.log(`Push notifications: ${validSubscriptions.length} successful, ${expiredSubscriptions.length} expired`);
 
     } catch (err) {
       console.error("Error processing push subscriptions:", err);
