@@ -7,7 +7,7 @@ import {
   Package, MessageSquare, Clock, Settings, Trash2, ChevronDown
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { io, Socket } from 'socket.io-client';
+import { initSocket } from "../socket";
 
 interface Notification {
   _id: string;
@@ -26,7 +26,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const socketRef = useRef<Socket | null>(null);
+   const socketRef = useRef<any>(null);
+
 
   const requestNotificationPermission = async () => {
     if (!('Notification' in window)) return;
@@ -159,28 +160,58 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-    requestNotificationPermission();
+useEffect(() => {
+  if (!userId) return;
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-      query: { userId },
-    });
-    socketRef.current = socket;
+  // 1️⃣ Initialize socket
+  socketRef.current = initSocket(userId);
 
-    socket.on('connect', () => console.log('Socket connected:', socket.id));
+  // 2️⃣ Listen for real-time notifications
+  const handleNotification = (notification: Notification) => {
+    setNotifications(prev => [notification, ...prev]);
+    if (notificationPermission === "granted") {
+      new Notification("New Notification", {
+        body: notification.message,
+        icon: "/logo.png",
+        badge: "/logo.png",
+        tag: notification._id,
+      });
+    }
+  };
 
-    socket.on('new-notification', (notification: Notification) => {
-      setNotifications(prev => [notification, ...prev]);
-      showBrowserNotification(notification);
-    });
+  socketRef.current.on("new-notification", handleNotification);
 
-    socket.on('disconnect', () => console.log('Socket disconnected'));
+  const fetchNotifications = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/notifications?userId=${userId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setNotifications(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [userId]);
+  fetchNotifications();
+  const intervalId = setInterval(fetchNotifications, 3500); 
+
+  if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission().then((perm) => setNotificationPermission(perm));
+  }
+
+  return () => {
+    socketRef.current?.off("new-notification", handleNotification);
+    socketRef.current?.disconnect();
+    socketRef.current = null;
+    clearInterval(intervalId);
+  };
+}, [userId, notificationPermission]);
+
+
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -2,17 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import { Notification } from "@/lib/models/Notification";
 import { PushSubscription } from "@/lib/models/PushSubscription";
-import webpush from 'web-push';
-
-const vapidKeys = {
-  publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  privateKey: process.env.VAPID_PRIVATE_KEY!
-};
+import webpush from "web-push";
 
 webpush.setVapidDetails(
-  'mailto:your-email@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
+  "mailto:your-email@example.com",
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!
 );
 
 export async function POST(req: NextRequest) {
@@ -21,64 +16,45 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     if (!body.userId || !body.message) {
-      return NextResponse.json(
-        { error: "UserId and message are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "UserId and message required" }, { status: 400 });
     }
 
-    const notification = new Notification({
+    const notification = await Notification.create({
       userId: body.userId,
       message: body.message,
-      type: body.type || 'info',
+      type: body.type || "info",
       link: body.link,
     });
 
-    await notification.save();
-
-    // Send push notification
     try {
-      const subscriptions = await PushSubscription.find({ userId: body.userId });
-      
-      for (const sub of subscriptions) {
-        try {
-          await webpush.sendNotification(
-            sub.subscription,
-            JSON.stringify({
-              _id: notification._id,
-              message: notification.message,
-              link: notification.link
-            })
-          );
-        } catch (error) {
-          console.error('Error sending push notification:', error);
-         
-        }
-      }
-    } catch (error) {
-      console.error('Error with push notifications:', error);
+      const io = (global as any).io;
+      if (io) io.to(body.userId).emit("new-notification", notification);
+    } catch (err) {
+      console.warn("Socket.io not available:", err);
     }
 
+    try {
+      const subs = await PushSubscription.find({ userId: body.userId });
+      for (const sub of subs) {
+        try {
+          await webpush.sendNotification(sub.subscription, JSON.stringify(notification));
+        } catch {}
+      }
+    } catch {}
+
     return NextResponse.json(notification);
-  } catch (error) {
-    console.error("Error creating notification:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function GET(req: NextRequest) {
+  await dbConnect();
   const url = new URL(req.url);
   const userId = url.searchParams.get("userId");
   if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 });
 
-  await dbConnect();
-  const notifications = await Notification.find({ userId })
-    .sort({ createdAt: -1 })
-    .lean();
-
+  const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }).lean();
   return NextResponse.json(notifications);
 }
-
