@@ -63,7 +63,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="w-full content-bg border-b border-gray-200 shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 hidden md:flex items-center justify-between">
          
           <div className="md:flex items-center gap-4">
              <Link href="/" className="flex items-center gap-2">
@@ -196,15 +196,7 @@ export default function Navbar() {
           )}
           {session ? (
             <>
-              <Link
-                href="/my-loads"
-                className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
-                  pathname === '/my-loads' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
-                }`}
-              >
-                <User size={20} />
-                <span className="text-xs mt-1">Moji</span>
-              </Link>
+             {session?.user && userId && <NotificationsDropdown userId={userId} />}
 
               <div className="relative flex-1 max-w-[80px]" ref={menuRef}>
                 <button

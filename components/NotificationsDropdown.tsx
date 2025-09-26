@@ -163,10 +163,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
 useEffect(() => {
   if (!userId) return;
 
-  // 1️⃣ Initialize socket
   socketRef.current = initSocket(userId);
 
-  // 2️⃣ Listen for real-time notifications
   const handleNotification = (notification: Notification) => {
     setNotifications(prev => [notification, ...prev]);
     if (notificationPermission === "granted") {
@@ -196,7 +194,7 @@ useEffect(() => {
   };
 
   fetchNotifications();
-  const intervalId = setInterval(fetchNotifications, 3500); 
+  const intervalId = setInterval(fetchNotifications, 10000); 
 
   if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission().then((perm) => setNotificationPermission(perm));
@@ -269,7 +267,7 @@ useEffect(() => {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
+        <div className="absolute -right-5 md:right-0 md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
             <h3 className="font-semibold text-gray-800">Notifications</h3>
             <div className="flex items-center space-x-2">
