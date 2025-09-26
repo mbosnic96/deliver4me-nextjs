@@ -96,25 +96,35 @@ export default function Register() {
     }
   };
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    try {
-      setLoading(true);
-      
-      const payload = {
-        ...data,
-        role: isDelivery ? 'driver' : 'client',
-      };
+const onSubmit: SubmitHandler<FormData> = async (data) => {
+  try {
+    setLoading(true);
 
-      const response = await axios.post('/api/auth/register', payload);
-      
-      toast.success('Registration successful! Please login.');
-      router.push('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
+    const payload = {
+      ...data,
+      role: isDelivery ? 'driver' : 'client',
+    };
+
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Registration failed. Please try again.');
     }
-  };
+
+    toast.success('Registration successful! Please login.');
+    router.push('/login');
+  } catch (error: any) {
+    toast.error(error.message || 'Registration failed. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen dark-bg py-12 px-4 sm:px-6 lg:px-8">

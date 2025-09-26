@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
 
@@ -35,39 +34,49 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate that role has a value
-    if (!role) {
-      Swal.fire("Greška", "Molimo odaberite ulogu", "error");
-      return;
-    }
-    
     setLoading(true);
 
-    try {
-      const userData = { 
-        name, 
-        userName, 
-        email, 
-        role 
-      };
-      
+    const userData = { name, userName, email, role };
 
+    try {
+      let res;
       if (initialData) {
-        await axios.put(`/api/users/${initialData._id}`, userData);
-        Swal.fire("Uspjeh", "Korisnik uspješno ažuriran", "success");
+        res = await fetch(`/api/users/${initialData._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        });
+        if (!res.ok) throw await res.json();
+        Swal.fire({
+          title: "Uspjeh",
+          text: "Korisnik uspješno ažuriran",
+          icon: "success",
+          customClass: { popup: "pointer-events-auto" },
+        });
       } else {
-        await axios.post("/api/users", userData);
-        Swal.fire("Uspjeh", "Korisnik uspješno dodan", "success");
+        res = await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        });
+        if (!res.ok) throw await res.json();
+        Swal.fire({
+          title: "Uspjeh",
+          text: "Korisnik uspješno dodan",
+          icon: "success",
+          customClass: { popup: "pointer-events-auto" },
+        });
       }
+
       onSaved();
     } catch (err: any) {
-      console.error("Error details:", err.response?.data);
-      Swal.fire(
-        "Greška",
-        err?.response?.data?.error || "Greška pri spremanju korisnika",
-        "error"
-      );
+      console.error("Error details:", err?.error || err);
+      Swal.fire({
+        title: "Greška",
+        text: err?.error || "Greška pri spremanju korisnika",
+        icon: "error",
+        customClass: { popup: "pointer-events-auto" },
+      });
     } finally {
       setLoading(false);
     }
