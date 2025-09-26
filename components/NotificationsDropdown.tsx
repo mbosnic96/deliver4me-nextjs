@@ -179,22 +179,24 @@ useEffect(() => {
 
   socketRef.current.on("new-notification", handleNotification);
 
-  const fetchNotifications = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/notifications?userId=${userId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setNotifications(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const fetchNotifications = async (initial = false) => {
+  if (initial) setIsLoading(true);
+  try {
+    const res = await fetch(`/api/notifications?userId=${userId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    setNotifications(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (initial) setIsLoading(false);
+  }
+};
 
-  fetchNotifications();
-  const intervalId = setInterval(fetchNotifications, 10000); 
+
+ fetchNotifications(true); 
+const intervalId = setInterval(() => fetchNotifications(false), 5000);
+
 
   if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission().then((perm) => setNotificationPermission(perm));
@@ -287,7 +289,7 @@ useEffect(() => {
               </button>
             </div>
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto min-h-[500px]">
             {isLoading ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
