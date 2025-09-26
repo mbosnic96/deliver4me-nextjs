@@ -335,17 +335,13 @@ const intervalId = setInterval(() => fetchNotifications(false), 5000);
 
          
           {filteredNotifications.length > 0 && (
-            <div className="flex justify-between items-center p-3 bg-gray-50 border-t border-gray-100">
+            <div className="flex justify-end items-center p-3 bg-gray-50 border-t border-gray-100">
               <button
                 onClick={clearAllNotifications}
                 className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center"
               >
                 <Trash2 size={14} className="mr-1" />
                 Clear all
-              </button>
-              <button className="text-xs text-gray-600 hover:text-gray-800 font-medium flex items-center">
-                <Settings size={14} className="mr-1" />
-                Notification settings
               </button>
             </div>
           )}
