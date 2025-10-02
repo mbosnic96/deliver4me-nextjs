@@ -1,4 +1,3 @@
-// app/api/notifications/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import { Notification } from "@/lib/models/Notification";
@@ -27,8 +26,6 @@ export async function POST(req: NextRequest) {
       link: body.link,
     });
 
-    // REMOVE SOCKET.IO CODE COMPLETELY - No real-time push needed
-    // The client will fetch new notifications via polling
 
     try {
       const subscriptions = await PushSubscription.find({ userId: body.userId });

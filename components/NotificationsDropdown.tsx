@@ -1,4 +1,3 @@
-// components/NotificationsDropdown.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -218,23 +217,36 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     }
   };
 
-  useEffect(() => {
-    if (!userId) return;
+useEffect(() => {
+  if (!userId) return;
 
-    const initialize = async () => {
-      await initNotifications();
-      await fetchNotifications();
-    };
+  const es = new EventSource(`/api/notifications/stream?userId=${userId}`);
 
-    initialize();
+  es.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      } else {
+        // single new notification
+        setNotifications((prev) => [data, ...prev]);
+        showBrowserNotification(data); 
+      }
+    } catch (err) {
+      console.error("Error parsing SSE data:", err);
+    }
+  };
 
-    // Set up polling for new notifications - NO SOCKET.IO
-    const intervalId = setInterval(fetchNotifications, POLLING_INTERVAL);
+  es.onerror = (err) => {
+    console.error("SSE error:", err);
+    es.close();
+  };
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [userId]);
+  return () => {
+    es.close();
+  };
+}, [userId]);
+
 
   useEffect(() => {
     const handleServiceWorkerMessage = (event: MessageEvent) => {
