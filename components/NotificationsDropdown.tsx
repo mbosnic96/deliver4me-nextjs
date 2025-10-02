@@ -26,8 +26,6 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Polling interval - check for new notifications every 10 seconds
-  const POLLING_INTERVAL = 10000;
 
   const urlBase64ToUint8Array = (base64String: string) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
