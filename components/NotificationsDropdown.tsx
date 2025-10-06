@@ -132,7 +132,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         icon: "/logo.png",
         badge: "/logo.png",
         tag: notification._id,
-        data: { url: notification.link || '/notifications' }
+        data: { url: notification.link || '/dashboard' }
       });
 
       n.onclick = () => {

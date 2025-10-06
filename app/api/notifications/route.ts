@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
             JSON.stringify({
               _id: notification._id,
               message: notification.message,
-              link: notification.link || '/notifications',
+              link: notification.link || '/dashboard',
               createdAt: notification.createdAt,
             })
           );

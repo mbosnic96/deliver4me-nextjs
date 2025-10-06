@@ -1,4 +1,3 @@
-// lib/models/User.ts
 import { Schema, model, models, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
@@ -22,9 +21,9 @@ export interface IUser extends Document {
   updatedAt: Date;
   rating: number;
   reviewsCount: number;
+  unreadMessagesCount: number;
 }
 
-// Fix the IUserLean interface - include all IUser properties but replace Document properties
 export interface IUserLean {
   _id: Types.ObjectId;
   name: string;
@@ -70,11 +69,11 @@ const UserSchema = new Schema<IUser>(
     deletedAt: Date,
     rating: { type: Number, default: 0 },
     reviewsCount: { type: Number, default: 0 },
+    unreadMessagesCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// Remove password from JSON output
 UserSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;

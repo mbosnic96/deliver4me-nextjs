@@ -10,7 +10,8 @@ import {
   UserCog,
   Settings,
   Wallet,
-  AlertTriangle
+  AlertTriangle,
+  MessageSquare
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
@@ -120,6 +121,8 @@ const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarPr
                 <SidebarLink href="/reports" icon={<AlertTriangle size={18} />} label="Prijave korisnika" />
               </>
             )}
+            <SidebarLink href="/messages" icon={<MessageSquare size={18} />} label="Poruke" />
+
             <SidebarLink href="/profile" icon={<Settings size={18} />} label="Profil" />
           </div>
         </nav>

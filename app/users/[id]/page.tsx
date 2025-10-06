@@ -7,7 +7,7 @@ import { Vehicle } from "@/lib/types/vehicle";
 import { 
   MapPin, Phone, Mail, Truck, Ruler, 
   Calendar, Star, Award, Clock, User,
-  ArrowLeft, Shield, BadgeCheck, Navigation,
+  ArrowLeft, Shield, MessageCircle, Navigation,
   AtSign, Flag
 } from "lucide-react";
 import Link from "next/link";
@@ -236,7 +236,6 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
     </a>
   )}
 
-  {/* Share button */}
   <button
     onClick={async () => {
       const url = window.location.href;
@@ -261,6 +260,16 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
     <Navigation size={16} className="mr-2 text-blue-600" />
     Podijeli
   </button>
+
+   {session?.user?.id && user && session.user.id !== user.id && (
+    <Link
+      href={`/messages?with=${user.id}`}
+      className="btn btn-primary flex items-center"
+    >
+      <MessageCircle size={16} className="mr-2 text-blue-600" />
+      Pošalji poruku
+    </Link>
+  )}
 
   {session?.user?.id && user && session.user.id !== user.id && (
   <ReportDialog

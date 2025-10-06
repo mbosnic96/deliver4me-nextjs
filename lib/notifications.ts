@@ -1,4 +1,3 @@
-// lib/notifications.ts
 export const createNotification = async (
   userId: string, 
   message: string, 
@@ -27,5 +26,3 @@ export const createNotification = async (
     throw error;
   }
 };
-
-// Remove any Socket.io related functions
