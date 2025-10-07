@@ -4,6 +4,7 @@ export interface IMessage extends Document {
   sender: Types.ObjectId;
   receiver: Types.ObjectId;
   content: string;
+  subject?: string;
   isRead: boolean;
   conversationId: string;
   createdAt: Date;
@@ -25,6 +26,10 @@ const MessageSchema = new Schema<IMessage>(
     content: { 
       type: String, 
       required: true 
+    },
+    subject: { 
+      type: String,
+      default: 'Privatna poruka'
     },
     isRead: { 
       type: Boolean, 

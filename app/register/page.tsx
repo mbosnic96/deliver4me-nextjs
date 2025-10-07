@@ -190,7 +190,13 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
                 <input
                   id="username"
                   type="text"
-                  {...register('username', { required: 'Ovo polje je obavezno!' })}
+                  {...register('username', { 
+                    required: 'Ovo polje je obavezno!',
+                    pattern: {
+                      value: /^[a-zA-Z0-9_-]+$/,
+                      message: 'Korisničko ime može sadržavati samo slova, brojeve, "-" i "_" bez razmaka.'
+                    }
+                  })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                 />
                 {errors.username && (

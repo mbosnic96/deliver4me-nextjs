@@ -13,6 +13,7 @@ interface Message {
     name: string;
     userName: string;
     photoUrl?: string;
+    subject?: string;
   };
   receiver: {
     _id: string;
@@ -23,6 +24,7 @@ interface Message {
   content: string;
   isRead: boolean;
   createdAt: string;
+  subject?: string;
 }
 
 interface Conversation {
@@ -48,7 +50,7 @@ export default function MessagesPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const withUserId = searchParams.get('with');
-  
+  const subject = searchParams.get('subject'); 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [selectedUserInfo, setSelectedUserInfo] = useState<UserInfo | null>(null);
@@ -118,7 +120,6 @@ export default function MessagesPage() {
     newEventSource.onerror = (error) => {
       console.error('SSE connection error:', error);
       newEventSource.close();
-      // Attempt to reconnect after 3 seconds
       setTimeout(() => {
         if (selectedConversation) {
           setupEventSource(selectedConversation);
@@ -182,7 +183,6 @@ export default function MessagesPage() {
     };
   }, [selectedConversation, setupEventSource, session?.user?.id, markMessagesAsRead]);
 
-  // Improved scroll to bottom function
   const scrollToBottom = useCallback(() => {
     if (messagesContainerRef.current) {
       const scrollContainer = messagesContainerRef.current;
@@ -280,13 +280,17 @@ export default function MessagesPage() {
         },
         body: JSON.stringify({
           receiverId: selectedConversation,
-          content: newMessage
+          content: newMessage,
+          subject: subject || 'Privatna poruka' 
         })
       });
 
       if (res.ok) {
         setNewMessage("");
         setStartingNewConversation(false);
+         if (subject) {
+          window.history.replaceState({}, '', '/messages');
+        }
       } else {
         const errorData = await res.json();
         console.error('Error sending message:', errorData);
@@ -388,52 +392,64 @@ export default function MessagesPage() {
             {selectedConversation ? (
               <>
                 <div className="p-4 border-b border-gray-200 content-bg flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedConversation(null);
-                        setSelectedUserInfo(null);
-                        setStartingNewConversation(false);
-                        if (eventSource) {
-                          eventSource.close();
-                          setEventSource(null);
-                        }
-                      }}
-                      className="lg:hidden text-gray-600 hover: text-blue-600"
-                    >
-                      <ArrowLeft size={20} />
-                    </button>
-                    
-                    {selectedUserInfo?.photoUrl ? (
-                      <Image
-                        src={selectedUserInfo.photoUrl}
-                        alt={selectedUserInfo.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <User size={20} className="text-gray-400" />
-                      </div>
-                    )}
-                    
-                    <div className="flex-1">
-                      <h3 className="font-semibold  text-blue-600">
-                        {selectedUserInfo?.name || "Korisnik"}
-                      </h3>
-                      <p className="text-sm text-blue-600">
-                        @{selectedUserInfo?.userName || "korisnik"}
-                      </p>
-                    </div>
-                    
-                    {startingNewConversation && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
-                        Nova konverzacija
-                      </span>
-                    )}
-                  </div>
-                </div>
+  <div className="flex items-center gap-3">
+    <button
+      onClick={() => {
+        setSelectedConversation(null);
+        setSelectedUserInfo(null);
+        setStartingNewConversation(false);
+        if (eventSource) {
+          eventSource.close();
+          setEventSource(null);
+        }
+      }}
+      className="lg:hidden text-gray-600 hover:text-blue-600"
+    >
+      <ArrowLeft size={20} />
+    </button>
+    
+    {selectedUserInfo?.photoUrl ? (
+      <Image
+        src={selectedUserInfo.photoUrl}
+        alt={selectedUserInfo.name}
+        width={40}
+        height={40}
+        className="rounded-full"
+      />
+    ) : (
+      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+        <User size={20} className="text-gray-400" />
+      </div>
+    )}
+    
+    <div className="flex-1">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-blue-600">
+            {selectedUserInfo?.name || "Korisnik"}
+          </h3>
+          <p className="text-sm text-blue-600">
+            @{selectedUserInfo?.userName || "korisnik"}
+          </p>
+        </div>
+        
+        {startingNewConversation && (
+          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+            Nova konverzacija
+          </span>
+        )}
+      </div>
+      
+      {messages.length > 0 && messages[0]?.subject && messages[0].subject !== 'Privatna poruka' && (
+        <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="text-sm font-medium text-blue-800">
+            Predmet: {messages[0].subject}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
                 <div 
                   ref={messagesContainerRef}

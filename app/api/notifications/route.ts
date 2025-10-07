@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     const notification = await Notification.create({
       userId: body.userId,
       message: body.message,
-      type: body.type || "info",
       link: body.link,
     });
 
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
             JSON.stringify({
               _id: notification._id,
               message: notification.message,
-              link: notification.link || '/dashboard',
+              link: notification.link || '/notifications',
               createdAt: notification.createdAt,
             })
           );

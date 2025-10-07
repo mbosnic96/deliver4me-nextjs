@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { receiverId, content } = await req.json();
+    const { receiverId, content, subject } = await req.json();
 
     if (!receiverId || !content?.trim()) {
       return NextResponse.json(
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       sender: new Types.ObjectId(session.user.id),
       receiver: new Types.ObjectId(receiverId),
       content: content.trim(),
+      subject: subject || 'Privatna poruka', 
       conversationId: conversationId,
       isRead: false
     };
@@ -76,6 +77,7 @@ export async function POST(req: NextRequest) {
       receiverId,
       senderName: sender.name,
       messageContent: content.trim(),
+      subject: subject || 'Privatna poruka', 
       conversationId,
       messageId: savedMessage._id.toString()
     });
@@ -113,12 +115,14 @@ async function sendMessagePushNotification({
   receiverId,
   senderName,
   messageContent,
+  subject,
   conversationId,
   messageId
 }: {
   receiverId: string;
   senderName: string;
   messageContent: string;
+  subject?: string; 
   conversationId: string;
   messageId: string;
 }) {
@@ -134,7 +138,7 @@ async function sendMessagePushNotification({
     const notificationPromises = subscriptions.map(async (sub) => {
       try {
         const notificationPayload = {
-          title: `Nova poruka od ${senderName}`,
+          title:`Nova poruka od ${senderName} za ${subject || 'Privatna poruka'}`,
           body: messageContent.length > 100 
             ? `${messageContent.substring(0, 100)}...` 
             : messageContent,
@@ -147,7 +151,8 @@ async function sendMessagePushNotification({
             messageId: messageId,
             conversationId: conversationId,
             senderName: senderName,
-            senderId: senderId
+            senderId: senderId,
+            subject: subject
           },
           actions: [
             {

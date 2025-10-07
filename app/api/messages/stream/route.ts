@@ -3,14 +3,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import MessageModel from '@/lib/models/Message';
 import { dbConnect } from '@/lib/db/db';
-import { Types } from 'mongoose';
 
-const clients = new Map();
+const clients = new Map<string, ReadableStreamDefaultController>();
 
 export async function GET(req: NextRequest) {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.id) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -34,18 +33,38 @@ export async function GET(req: NextRequest) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
+  const encoder = new TextEncoder();
+
   const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected', clientId })}\n\n`));
+    async start(controller) {
+      controller.enqueue(
+        encoder.encode(`data: ${JSON.stringify({ type: 'connected', clientId })}\n\n`)
+      );
 
       clients.set(clientId, controller);
 
-      sendRecentMessages(conversationId, controller);
+      await sendRecentMessages(conversationId, controller);
+
+      const heartbeat = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(`: heartbeat\n\n`));
+        } catch {
+          clearInterval(heartbeat);
+          clients.delete(clientId);
+        }
+      }, 5000);
+
+      (controller as any).heartbeat = heartbeat;
     },
+
     cancel() {
+      const controller = clients.get(clientId);
+      if (controller) {
+        const heartbeat = (controller as any).heartbeat;
+        if (heartbeat) clearInterval(heartbeat);
+      }
       clients.delete(clientId);
-      console.log(`Client disconnected: ${clientId}`);
+      console.log(`SSE client disconnected: ${clientId}`);
     },
   });
 
@@ -64,9 +83,9 @@ async function sendRecentMessages(conversationId: string, controller: ReadableSt
     const encoder = new TextEncoder();
     controller.enqueue(
       encoder.encode(
-        `data: ${JSON.stringify({ 
-          type: 'recent_messages', 
-          messages: messages.reverse() 
+        `data: ${JSON.stringify({
+          type: 'recent_messages',
+          messages: messages.reverse(),
         })}\n\n`
       )
     );
@@ -86,41 +105,36 @@ export async function broadcastNewMessage(message: any) {
   const encoder = new TextEncoder();
   const data = `data: ${JSON.stringify({ type: 'new_message', message })}\n\n`;
 
-  if (clients.has(senderClientId)) {
-    const senderController = clients.get(senderClientId);
-    try {
-      senderController.enqueue(encoder.encode(data));
-    } catch (error) {
-      console.error('Error sending to sender:', error);
-      clients.delete(senderClientId);
-    }
-  }
+  [senderClientId, receiverClientId].forEach((id) => {
+    const controller = clients.get(id);
+    if (!controller) return;
 
-  if (clients.has(receiverClientId)) {
-    const receiverController = clients.get(receiverClientId);
     try {
-      receiverController.enqueue(encoder.encode(data));
-    } catch (error) {
-      console.error('Error sending to receiver:', error);
-      clients.delete(receiverClientId);
+      controller.enqueue(encoder.encode(data));
+    } catch (err) {
+      console.error(`Error sending to ${id}:`, err);
+      clients.delete(id);
     }
-  }
+  });
 }
 
 export async function broadcastMessageRead(conversationId: string, userId: string, messageIds: string[]) {
   const clientId = `${userId}-${conversationId}`;
-  
-  if (clients.has(clientId)) {
-    const controller = clients.get(clientId);
-    const encoder = new TextEncoder();
-    
+  const controller = clients.get(clientId);
+  if (!controller) return;
+
+  const encoder = new TextEncoder();
+  try {
     controller.enqueue(
       encoder.encode(
-        `data: ${JSON.stringify({ 
-          type: 'messages_read', 
-          messageIds 
+        `data: ${JSON.stringify({
+          type: 'messages_read',
+          messageIds,
         })}\n\n`
       )
     );
+  } catch (err) {
+    console.error('Error broadcasting message read:', err);
+    clients.delete(clientId);
   }
 }

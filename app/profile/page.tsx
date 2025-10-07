@@ -510,10 +510,19 @@ const updatePositionOnly = useCallback(async () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Username
                       </label>
-                      <Input
+                     <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                        {...register('userName', { required: 'Username is required' })}
+                        {...register('userName', { 
+                          required: 'Username is required',
+                          pattern: {
+                            value: /^[a-zA-Z0-9_-]+$/,
+                            message: 'Username can only contain letters, numbers, "-" and "_" (no spaces).'
+                          }
+                        })}
+                        onInput={(e) => {
+                          e.currentTarget.value = e.currentTarget.value.replace(/\s+/g, '');
+                        }}
                       />
                       {errors.userName && (
                         <p className="mt-1 text-sm text-red-600">{errors.userName.message}</p>

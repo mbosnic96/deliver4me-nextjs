@@ -788,6 +788,15 @@ useEffect(() => {
                     <Mail size={16} className="mr-2 text-blue-600" />
                     Kontakt
                   </a>
+                  {session?.user?.id && user && session.user.id !== user._id && (
+                    <Link
+                      href={`/messages?with=${user._id}&subject=${encodeURIComponent(`Pitanje o teretu: ${loadData.title}`)}`}
+                      className="flex-1 btn btn-primary flex items-center justify-center py-2"
+                    >
+                      <MessageSquare size={16} className="mr-2" />
+                      Pošalji poruku
+                    </Link>
+                  )}
                 </div>
               </div>
             )}

@@ -1,8 +1,7 @@
 export const createNotification = async (
   userId: string, 
   message: string, 
-  type?: string,
-  link?: string
+  link?: string,
 ) => {
   try {
     const response = await fetch('/api/notifications', {
@@ -11,8 +10,7 @@ export const createNotification = async (
       body: JSON.stringify({ 
         userId, 
         message, 
-        type: type || 'info',
-        link 
+        link,
       })
     });
     
