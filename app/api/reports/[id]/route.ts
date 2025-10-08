@@ -10,7 +10,7 @@ interface RouteParams {
   };
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   await dbConnect();
   const session = await getServerSession(authOptions);
 
@@ -18,7 +18,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await context.params;
   const data = await request.json();
 
   if (!data.status) {
@@ -40,7 +40,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   
   if (data.status === "resolved" || data.status === "dismissed") {
     report.resolvedAt = new Date();
-    report.resolvedBy = session.user.id;
+    report.resolvedBy = new (require("mongoose").Types.ObjectId)(session.user.id);
   }
 
   await report.save();
@@ -52,8 +52,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
   return NextResponse.json(populatedReport);
 }
-
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   await dbConnect();
   const session = await getServerSession(authOptions);
 
@@ -61,7 +60,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await context.params; // ✅ FIXED
 
   const report = await Report.findById(id)
     .populate("reporterId", "name userName email")
