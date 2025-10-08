@@ -64,81 +64,6 @@ export default function MessagesPage() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const conversationsContainerRef = useRef<HTMLDivElement>(null);
 
-  const setupEventSource = useCallback((userId: string): EventSource | null => {
-    if (!session?.user?.id || !userId) return null;
-
-    if (eventSource) {
-      eventSource.close();
-    }
-
-    const newEventSource = new EventSource(
-      `/api/messages/stream?with=${userId}`
-    );
-
-    newEventSource.onopen = () => {
-      console.log('SSE connection opened for user:', userId);
-    };
-
-    newEventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        switch (data.type) {
-          case 'connected':
-            console.log('SSE connected:', data.clientId);
-            break;
-            
-          case 'recent_messages':
-  setMessages(data.messages || []);
-  scrollToBottom();
-  break;
-
-            
-          case 'new_message':
-            setMessages(prev => {
-              if (prev.some(msg => msg._id === data.message._id)) {
-                return prev;
-              }
-              return [...prev, data.message];
-            });
-            fetchConversations();
-            break;
-            
-          case 'messages_read':
-            setMessages(prev => 
-              prev.map(msg => 
-                data.messageIds.includes(msg._id) 
-                  ? { ...msg, isRead: true }
-                  : msg
-              )
-            );
-            break;
-        }
-      } catch (error) {
-        console.error('Error parsing SSE data:', error);
-      }
-    };
-
-    newEventSource.onerror = (error) => {
-      console.error('SSE connection error:', error);
-      newEventSource.close();
-      newEventSource.onerror = (error) => {
-  console.error("SSE connection error:", error);
-  newEventSource.close();
-  setTimeout(() => {
-    if (selectedConversation) setupEventSource(selectedConversation);
-  }, 5000);
-};
-
-    };
-
-    setEventSource(newEventSource);
-
-    return newEventSource;
-  }, [session?.user?.id, selectedConversation]);
-
-
-
 
   useEffect(() => {
     fetchConversations();
@@ -261,6 +186,7 @@ export default function MessagesPage() {
     }
 
     const es = new EventSource(`/api/messages/stream?with=${selectedConversation}`);
+      if (eventSource) eventSource.close();
     setEventSource(es);
 
     es.onmessage = (event) => {
@@ -289,6 +215,16 @@ export default function MessagesPage() {
       es.close();
     };
   }, [selectedConversation, session?.user?.id, markMessagesAsRead]);
+
+  useEffect(() => {
+  return () => {
+    if (eventSource) {
+      console.log('Cleaning up SSE connection');
+      eventSource.close();
+    }
+  };
+}, [eventSource]);
+
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;

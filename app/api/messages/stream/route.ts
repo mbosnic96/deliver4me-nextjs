@@ -6,6 +6,7 @@ import { dbConnect } from '@/lib/db/db';
 import { broadcastGlobalUnreadUpdate } from '../global-unread-stream/route';
 
 const clients = new Map<string, ReadableStreamDefaultController>();
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   await dbConnect();
