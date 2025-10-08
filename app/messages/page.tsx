@@ -89,8 +89,10 @@ export default function MessagesPage() {
             break;
             
           case 'recent_messages':
-            setMessages(data.messages || []);
-            break;
+  setMessages(data.messages || []);
+  scrollToBottom();
+  break;
+
             
           case 'new_message':
             setMessages(prev => {
@@ -120,11 +122,14 @@ export default function MessagesPage() {
     newEventSource.onerror = (error) => {
       console.error('SSE connection error:', error);
       newEventSource.close();
-      setTimeout(() => {
-        if (selectedConversation) {
-          setupEventSource(selectedConversation);
-        }
-      }, 3000);
+      newEventSource.onerror = (error) => {
+  console.error("SSE connection error:", error);
+  newEventSource.close();
+  setTimeout(() => {
+    if (selectedConversation) setupEventSource(selectedConversation);
+  }, 5000);
+};
+
     };
 
     setEventSource(newEventSource);
@@ -133,28 +138,7 @@ export default function MessagesPage() {
   }, [session?.user?.id, selectedConversation]);
 
 
-  const markMessagesAsRead = useCallback(async (conversationId: string) => {
-    if (!session?.user?.id || !conversationId) return;
 
-    try {
-      const res = await fetch('/api/messages/mark-read', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          conversationId
-        })
-      });
-
-      if (res.ok) {
-        setMessages(prev => prev.map(msg => ({ ...msg, isRead: true })));
-        fetchConversations();
-      }
-    } catch (error) {
-      console.error('Error marking messages as read:', error);
-    }
-  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchConversations();
@@ -166,22 +150,7 @@ export default function MessagesPage() {
     }
   }, [withUserId, conversationsLoaded]);
 
-  useEffect(() => {
-    let currentEventSource: EventSource | null = null;
-    
-    if (selectedConversation) {
-      currentEventSource = setupEventSource(selectedConversation);
-      
-      const conversationId = `${[session?.user?.id, selectedConversation].sort().join('-')}`;
-      markMessagesAsRead(conversationId);
-    }
 
-    return () => {
-      if (currentEventSource) {
-        currentEventSource.close();
-      }
-    };
-  }, [selectedConversation, setupEventSource, session?.user?.id, markMessagesAsRead]);
 
   const scrollToBottom = useCallback(() => {
     if (messagesContainerRef.current) {
@@ -253,21 +222,73 @@ export default function MessagesPage() {
     }
   };
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
-      setLoading(true);
       const res = await fetch('/api/messages');
       if (res.ok) {
         const data = await res.json();
         setConversations(data);
-        setConversationsLoaded(true);
+        if (!conversationsLoaded) {
+          setConversationsLoaded(true);
+        }
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [conversationsLoaded]);
+
+    const markMessagesAsRead = useCallback(async (conversationId: string) => {
+    if (!session?.user?.id || !conversationId) return;
+    try {
+      const res = await fetch('/api/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId })
+      });
+      if (res.ok) {fetchConversations();
+      }
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  }, [session?.user?.id, fetchConversations]);
+
+    useEffect(() => {
+    if (!selectedConversation) {
+      if (eventSource) eventSource.close();
+      return;
+    }
+
+    const es = new EventSource(`/api/messages/stream?with=${selectedConversation}`);
+    setEventSource(es);
+
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'recent_messages') {
+          setMessages(data.messages || []);
+        } else if (data.type === 'new_message') {
+          setMessages(prev => [...prev, data.message]);
+          markMessagesAsRead(data.message.conversationId);
+        }
+      } catch (error) {
+        console.error('Error parsing SSE data:', error);
+      }
+    };
+
+    es.onerror = (error) => {
+      console.error('SSE connection error:', error);
+      es.close();
+    };
+
+    const conversationId = [session?.user?.id, selectedConversation].sort().join('-');
+    markMessagesAsRead(conversationId);
+
+    return () => {
+      es.close();
+    };
+  }, [selectedConversation, session?.user?.id, markMessagesAsRead]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;

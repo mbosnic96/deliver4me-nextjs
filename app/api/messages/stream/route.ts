@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import MessageModel from '@/lib/models/Message';
 import { dbConnect } from '@/lib/db/db';
+import { broadcastGlobalUnreadUpdate } from '../global-unread-stream/route';
 
 const clients = new Map<string, ReadableStreamDefaultController>();
 
@@ -116,6 +117,7 @@ export async function broadcastNewMessage(message: any) {
       clients.delete(id);
     }
   });
+   await broadcastGlobalUnreadUpdate(receiverId); 
 }
 
 export async function broadcastMessageRead(conversationId: string, userId: string, messageIds: string[]) {
@@ -133,6 +135,7 @@ export async function broadcastMessageRead(conversationId: string, userId: strin
         })}\n\n`
       )
     );
+    await broadcastGlobalUnreadUpdate(userId);
   } catch (err) {
     console.error('Error broadcasting message read:', err);
     clients.delete(clientId);

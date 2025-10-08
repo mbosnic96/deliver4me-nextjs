@@ -5,6 +5,7 @@ import MessageModel from '@/lib/models/Message';
 import UserModel from '@/lib/models/User';
 import { dbConnect } from '@/lib/db/db';
 import { Types } from 'mongoose';
+import { broadcastGlobalUnreadUpdate } from '../global-unread-stream/route';
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,6 +25,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const users = conversationId.split('-');
+    const otherUserId = users.find((id: string) => id !== session.user.id);
+
     const result = await MessageModel.updateMany(
       { 
         conversationId, 
@@ -33,19 +37,23 @@ export async function POST(req: NextRequest) {
       { isRead: true }
     );
 
-    const unreadCount = await MessageModel.countDocuments({
-      receiver: new Types.ObjectId(session.user.id),
-      isRead: false
-    });
+    if (result.modifiedCount > 0) {
+       const unreadCount = await MessageModel.countDocuments({
+        receiver: new Types.ObjectId(session.user.id),
+        isRead: false
+      });
+      await UserModel.findByIdAndUpdate(session.user.id, {
+        unreadMessagesCount: unreadCount
+      });
 
-    await UserModel.findByIdAndUpdate(session.user.id, {
-      unreadMessagesCount: unreadCount
-    });
-
+      await broadcastGlobalUnreadUpdate(session.user.id); 
+      if (otherUserId) {
+        await broadcastGlobalUnreadUpdate(otherUserId);
+      }
+    }
     return NextResponse.json({ 
       success: true, 
-      markedRead: result.modifiedCount,
-      unreadCount 
+      markedRead: result.modifiedCount
     });
 
   } catch (error) {

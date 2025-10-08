@@ -8,6 +8,7 @@ import { useSession, signOut } from 'next-auth/react';
 import NotificationsDropdown from './NotificationsDropdown';
 import { useState, useRef, useEffect } from 'react';
 import { LoadForm } from './LoadForm';
+import MessagesIcon from './MessagesIcon';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -94,6 +95,7 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-4">
             {session?.user && userId && <NotificationsDropdown userId={userId} />}
+            {session?.user && userId && <MessagesIcon userId={userId} />}
 
             {status === 'loading' ? null : !session?.user ? (
               <div className="flex items-center gap-4">
@@ -197,6 +199,7 @@ export default function Navbar() {
           {session ? (
             <>
              {session?.user && userId && <NotificationsDropdown userId={userId} />}
+                 {session?.user && userId && <MessagesIcon userId={userId} />}
 
               <div className="relative flex-1 max-w-[80px]" ref={menuRef}>
                 <button

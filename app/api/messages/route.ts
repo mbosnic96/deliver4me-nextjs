@@ -8,6 +8,7 @@ import { Types } from 'mongoose';
 import { broadcastNewMessage } from './stream/route';
 import { PushSubscription } from '@/lib/models/PushSubscription';
 import webpush from 'web-push';
+import { broadcastGlobalUnreadUpdate } from './global-unread-stream/route';
 
 webpush.setVapidDetails(
   "mailto:your-email@example.com",
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     await broadcastNewMessage(savedMessage.toObject());
+    await broadcastGlobalUnreadUpdate(receiverId); 
 
     await sendMessagePushNotification({
       receiverId,
@@ -211,6 +213,12 @@ export async function GET(req: NextRequest) {
       const users = [session.user.id, conversationWith].sort();
       const conversationId = `${users[0]}-${users[1]}`;
 
+          const unreadCountBeforeUpdate = await MessageModel.countDocuments({
+           conversationId,
+           receiver: new Types.ObjectId(session.user.id),
+           isRead: false
+       });
+
       const messages = await MessageModel.find({ conversationId })
         .populate('sender', 'name userName photoUrl')
         .populate('receiver', 'name userName photoUrl')
@@ -226,9 +234,14 @@ export async function GET(req: NextRequest) {
         { isRead: true }
       );
 
-      await UserModel.findByIdAndUpdate(session.user.id, {
-        $inc: { unreadMessagesCount: -1 }
-      });
+  if (unreadCountBeforeUpdate > 0) {
+        await UserModel.findByIdAndUpdate(session.user.id, {
+          $inc: { unreadMessagesCount: -unreadCountBeforeUpdate } // Use the actual count
+        });
+        
+        await broadcastGlobalUnreadUpdate(session.user.id); 
+      }
+      
 
       return NextResponse.json(messages);
     } else {
