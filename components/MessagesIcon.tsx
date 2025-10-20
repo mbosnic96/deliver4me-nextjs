@@ -1,83 +1,82 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import { useSocket } from "@/lib/SocketProvider";
 
-export default function MessagesIcon({ userId }: { userId: string }) {
+interface MessagesIconProps {
+  userId: string;
+}
+
+export default function MessagesIcon({ userId }: MessagesIconProps) {
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const { socket, isConnected } = useSocket();
   const router = useRouter();
 
+  const fetchUnreadCount = useCallback(() => {
+    if (!socket || !userId) return;
+
+    socket.emit('get_unread_count', (response: { unreadCount: number }) => {
+      setUnreadCount(response.unreadCount || 0);
+    });
+  }, [socket, userId]);
+
   useEffect(() => {
-    if (!userId) return;
+    if (!socket || !userId) return;
 
-    let reconnectTimeout: NodeJS.Timeout;
-
-    const connect = () => {
-      if (eventSourceRef.current && eventSourceRef.current.readyState !== EventSource.CLOSED) {
-        return;
+    const handleGlobalUpdate = (data?: { unreadCount?: number }) => {
+      if (data?.unreadCount !== undefined) {
+        setUnreadCount(data.unreadCount);
+      } else {
+        fetchUnreadCount();
       }
-
-      const es = new EventSource("/api/messages/global-unread-stream");
-      eventSourceRef.current = es;
-
-      es.onopen = () => {
-        console.log("Global Unread SSE connected");
-        setIsConnected(true);
-      };
-
-      es.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "unread_count") {
-            setUnreadCount(data.unreadCount);
-          }
-        } catch (e) {}
-      };
-
-      es.onerror = () => {
-        console.warn("⚠️ Global Unread SSE error, reconnecting in 5s...");
-        setIsConnected(false);
-        es.close();
-        clearTimeout(reconnectTimeout);
-        reconnectTimeout = setTimeout(connect, 5000);
-      };
     };
 
-    fetch("/api/messages/unread")
-      .then(res => res.json())
-      .then(data => setUnreadCount(data.unreadCount || 0))
-      .catch(err => console.error("Initial unread fetch failed:", err));
-    
-    connect();
+    const handleSendMessage = (msg: { receiver: { _id: string } }) => {
+      if (msg.receiver._id === userId) {
+        setUnreadCount(prev => prev + 1);
+      }
+    };
+
+    const handleConnect = () => {
+      fetchUnreadCount();
+    };
+
+    socket.on('global_unread_update', handleGlobalUpdate);
+    socket.on('send_message', handleSendMessage);
+    socket.on('connect', handleConnect);
+
+    // Initial fetch if already connected
+    if (isConnected) fetchUnreadCount();
 
     return () => {
-      clearTimeout(reconnectTimeout);
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        console.log("Global Unread SSE disconnected on cleanup");
-      }
+      socket.off('global_unread_update', handleGlobalUpdate);
+      socket.off('send_message', handleSendMessage);
+      socket.off('connect', handleConnect);
     };
-  }, [userId]);
+  }, [socket, userId, isConnected, fetchUnreadCount]);
 
   return (
     <button
       onClick={() => router.push("/messages")}
-      className="relative p-2 rounded-full transition-all duration-200 hover:bg-gray-100 text-gray-700 dark:text-gray-300"
-      title="Poruke"
+      className="relative p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+      aria-label={`Poruke ${unreadCount > 0 ? `(${unreadCount} nepročitanih)` : ''}`}
     >
-      <MessageCircle size={22} />
-
+      <MessageCircle 
+        size={22} 
+        className={unreadCount > 0 ? "text-blue-600" : "text-gray-600"} 
+      />
       {unreadCount > 0 && (
-        <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+        <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>
       )}
-      
       {!isConnected && (
-        <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title="Reconnecting..."></span>
+        <span
+          className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full border border-white"
+          title="Povezivanje..."
+        />
       )}
     </button>
   );
