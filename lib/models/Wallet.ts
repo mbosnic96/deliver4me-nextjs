@@ -19,7 +19,7 @@ export interface IWallet extends Document {
   cards: WalletCard[];
   transactions: {
     amount: number;
-    type: "credit" | "debit";
+    type: "credit" | "debit" | "escrow_deposit" | "escrow_release" | "escrow_refund" | "escrow_pending" | "escrow_cancel";
     description: string;
     createdAt: Date;
   }[];
@@ -49,7 +49,18 @@ const WalletSchema = new Schema<IWallet>(
       type: [
         {
           amount: Number,
-          type: { type: String, enum: ["credit", "debit"] },
+          type: { 
+            type: String, 
+            enum: [
+              "credit", 
+              "debit", 
+              "escrow_deposit", 
+              "escrow_release", 
+              "escrow_refund", 
+              "escrow_pending", 
+              "escrow_cancel"
+            ] 
+          },
           description: String,
           createdAt: { type: Date, default: Date.now },
         },

@@ -4,7 +4,7 @@ import Bid from "@/lib/models/Bid";
 import Load from "@/lib/models/Load";
 import Wallet from "@/lib/models/Wallet";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../lib/authOptions";
+import { authOptions } from "@/lib/authOptions";
 
 export async function PATCH(
   req: Request,
@@ -21,7 +21,6 @@ export async function PATCH(
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
 
   const params = await context.params;
   const { id } = params;
@@ -45,90 +44,71 @@ export async function PATCH(
   }
 
   if (status === "accepted") {
-  const clientWallet = await Wallet.findOne({ userId: session.user.id });
-  if (!clientWallet) {
-    return NextResponse.json({ error: "Wallet not found" }, { status: 404 });
-  }
+    const clientWallet = await Wallet.findOne({ userId: session.user.id });
+    if (!clientWallet) {
+      return NextResponse.json({ error: "Wallet not found" }, { status: 404 });
+    }
 
-  if (clientWallet.balance < bid.price) {
-    return NextResponse.json(
-      { error: "Insufficient balance. Please add funds to your wallet." },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const driverWallet = await Wallet.findOne({ userId: bid.driverId._id });
-    if (!driverWallet) {
+    if (clientWallet.balance < bid.price) {
       return NextResponse.json(
-        { error: "Driver wallet not found" },
-        { status: 404 }
+        { error: "Insufficient balance. Please add funds to your wallet." },
+        { status: 400 }
       );
     }
 
-    await Wallet.findByIdAndUpdate(clientWallet._id, {
-      $inc: { balance: -bid.price, escrow: bid.price },
-      $push: {
-        transactions: {
-          $each: [
-            {
-              amount: -bid.price,
-              type: "debit",
-              description: `Funds moved to escrow for bid ${bid._id} on load ${load._id}`,
-              createdAt: new Date(),
-            },
-            {
-              amount: bid.price,
-              type: "credit",
-              description: `Escrow deposit for bid ${bid._id}`,
-              createdAt: new Date(),
-            },
-          ],
+    try {
+      // Update client wallet - move funds from balance to escrow
+      await Wallet.findByIdAndUpdate(clientWallet._id, {
+        $inc: { balance: -bid.price, escrow: +bid.price },
+        $push: {
+          transactions: {
+            amount: -bid.price,
+            type: "escrow_deposit",
+            description: `Escrow deposit for accepted bid on load "${load.title}"`,
+            createdAt: new Date(),
+          },
         },
-      },
-    });
+      });
 
-    await Wallet.findByIdAndUpdate(driverWallet._id, {
-      $inc: { escrow: +bid.price },
-      $push: {
-        transactions: {
-          $each: [
-            {
+      // Add driver escrow so driver can see pending earnings
+      const driverWallet = await Wallet.findOne({ userId: bid.driverId._id });
+      if (driverWallet) {
+        await Wallet.findByIdAndUpdate(driverWallet._id, {
+          $inc: { escrow: +bid.price },
+          $push: {
+            transactions: {
               amount: +bid.price,
-              type: "credit",
-              description: `Escrow reserved for your accepted bid ${bid._id} on load ${load._id}`,
+              type: "escrow_pending",
+              description: `Escrow reserved for your accepted bid on load "${load.title}"`,
               createdAt: new Date(),
             },
-          ],
+          },
+        });
+      }
+      
+      bid.status = "accepted";
+      load.status = "Poslan";
+      load.assignedBidId = bid._id;
+
+      await Promise.all([
+        bid.save(),
+        load.save(),
+        Bid.updateMany(
+          { loadId: load._id, _id: { $ne: bid._id } },
+          { status: "rejected" }
+        ),
+      ]);
+    } catch (error) {
+      console.error("Error accepting bid:", error);
+      return NextResponse.json(
+        {
+          error: "Failed to accept bid",
+          details: error instanceof Error ? error.message : "Unknown error",
         },
-      },
-    });
-
-    
-    bid.status = "accepted";
-    load.status = "Poslan";
-    load.assignedBidId = bid._id;
-
-    await Promise.all([
-      bid.save(),
-      load.save(),
-      Bid.updateMany(
-        { loadId: load._id, _id: { $ne: bid._id } },
-        { status: "rejected" }
-      ),
-    ]);
-  } catch (error) {
-    console.error("Error accepting bid:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to accept bid",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
-  }
-}
- else {
+        { status: 500 }
+      );
+    }
+  } else {
     bid.status = "rejected";
     await bid.save();
   }

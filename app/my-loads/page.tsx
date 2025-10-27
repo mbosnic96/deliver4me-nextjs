@@ -108,29 +108,42 @@ export default function MyLoadsPage() {
       header: "Delivery Time",
       cell: ({ row }) => row.original.preferredDeliveryDate?.slice(0, 16).replace("T", " ") || "-",
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const dbStatus = (row.original.status || "").toLowerCase(); 
-        return (
-          <Select
-            value={dbStatus}
-            onValueChange={(value) => handleStatusChange(row.original.id, value)}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="aktivan">Aktivan</SelectItem>
-              <SelectItem value="poslan">Poslan</SelectItem>
-              <SelectItem value="dostavljen">Dostavljen</SelectItem>
-              <SelectItem value="otkazan">Otkazan</SelectItem>
-            </SelectContent>
-          </Select>
-        );
-      },
-    },
+{
+  accessorKey: "status",
+  header: "Status",
+  cell: ({ row }) => {
+    const dbStatus = (row.original.status || "").toLowerCase(); 
+    
+    // Prevent editing if in final state
+    if (["dostavljen", "otkazan"].includes(dbStatus)) {
+      return (
+        <div className={`px-2 py-1 rounded text-xs font-medium ${
+          dbStatus === "dostavljen" ? "bg-green-100 text-green-800" :
+          "bg-gray-100 text-gray-800"
+        }`}>
+          {dbStatus}
+        </div>
+      );
+    }
+
+    return (
+      <Select
+        value={dbStatus}
+        onValueChange={(value) => handleStatusChange(row.original.id, value)}
+      >
+        <SelectTrigger className="w-32">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="aktivan">Aktivan</SelectItem>
+          <SelectItem value="poslan">Poslan</SelectItem>
+          <SelectItem value="dostavljen">Dostavljen</SelectItem>
+          <SelectItem value="otkazan">Otkazan</SelectItem>
+        </SelectContent>
+      </Select>
+    );
+  },
+},
   ];
 
   const additionalFilters = [

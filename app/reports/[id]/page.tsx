@@ -187,7 +187,7 @@ export default function ReportDetailsPage() {
   const statusConfig = getStatusConfig(report.status);
 
   return (
-<div className="flex min-h-screen">
+    <div className="min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
@@ -200,229 +200,224 @@ export default function ReportDetailsPage() {
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         }`}
       >
-        <div className="p-4 md:p-6 h-full flex flex-col">
-          <Link href="/reports" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Nazad na listu prijava
-          </Link>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Detalji prijave</h1>
-              <p className="text-gray-600">ID: {report._id}</p>
+        <div className="p-4 md:p-6">
+          {/* Header Section */}
+          <div className="mb-6">
+            <Link href="/reports" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Nazad na listu prijava
+            </Link>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold">Detalji prijave</h1>
+                <p className="text-gray-600">ID: {report._id}</p>
+              </div>
+              <Badge className={`${statusConfig.color} self-start sm:self-auto`}>
+                {statusConfig.label}
+              </Badge>
             </div>
-            <Badge className={statusConfig.color}>
-              {statusConfig.label}
-            </Badge>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Flag className="h-5 w-5 mr-2 text-orange-500" />
-                  Informacije o prijavi
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium">Tip prijave</Label>
-                    <p className="font-semibold">{getReportTypeLabel(report.reportType)}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">Datum prijave</Label>
-                    <p className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                      {new Date(report.createdAt).toLocaleString('bs-BA')}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">Opis problema</Label>
-                  <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    <p className="whitespace-pre-wrap">{report.description}</p>
-                  </div>
-                </div>
-
-                {report.evidence.length > 0 && (
-                  <div>
-                    <Label className="text-sm font-medium">Dokazi ({report.evidence.length})</Label>
-                    <div className="mt-2 space-y-2">
-                      {report.evidence.map((evidence, index) => (
-                        <a
-                          key={index}
-                          href={evidence}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Dokaz {index + 1}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {report.loadId && (
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - 2/3 width */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Report Information Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Truck className="h-5 w-5 mr-2 text-blue-500" />
-                    Informacije o teretu
+                    <Flag className="h-5 w-5 mr-2 text-orange-500" />
+                    Informacije o prijavi
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p><strong>Naslov:</strong> {report.loadId.title}</p>
-                    <p><strong>Opis:</strong> {report.loadId.description}</p>
-                    <Link 
-                      href={`/load/${report.loadId._id}`}
-                      className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                      target="_blank"
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Pogledaj teret
-                    </Link>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium">Tip prijave</Label>
+                      <p className="font-semibold">{getReportTypeLabel(report.reportType)}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Datum prijave</Label>
+                      <p className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                        {new Date(report.createdAt).toLocaleString('bs-BA')}
+                      </p>
+                    </div>
                   </div>
+
+                  <div>
+                    <Label className="text-sm font-medium">Opis problema</Label>
+                    <div className="mt-1 p-3">
+                      <p>{report.description}</p>
+                    </div>
+                  </div>
+
+                  {report.evidence.length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium">Dokazi ({report.evidence.length})</Label>
+                      <div className="mt-2 space-y-2">
+                        {report.evidence.map((evidence, index) => (
+                          <a
+                            key={index}
+                            href={evidence}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Dokaz {index + 1}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            )}
-          </div>
 
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upravljanje prijavom</CardTitle>
-                <CardDescription>Ažurirajte status i dodajte bilješke</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Na čekanju</SelectItem>
-                      <SelectItem value="under_review">U pregledu</SelectItem>
-                      <SelectItem value="resolved">Riješeno</SelectItem>
-                      <SelectItem value="dismissed">Odbijeno</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Load Information Card (if exists) */}
+              {report.loadId && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Truck className="h-5 w-5 mr-2 text-blue-500" />
+                      Informacije o teretu
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p><strong>Naslov:</strong> {report.loadId.title}</p>
+                      <p><strong>Opis:</strong> {report.loadId.description}</p>
+                      <Link 
+                        href={`/load/${report.loadId._id}`}
+                        className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                        target="_blank"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Pogledaj teret
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
-                <div>
-                  <Label htmlFor="adminNotes">Admin bilješke</Label>
-                  <Textarea
-                    id="adminNotes"
-                    value={adminNotes}
-                    onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="Dodajte bilješke o prijavi..."
-                    rows={4}
-                  />
-                </div>
-
-                <Button 
-                  onClick={handleSave} 
-                  disabled={saving}
-                  className="w-full"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Spremanje...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Spremi promjene
-                    </>
-                  )}
-                </Button>
-
-                {report.resolvedAt && (
-                  <div className="pt-4 border-t">
-                    <p className="text-sm text-gray-600">
-                      <strong>Riješeno:</strong> {new Date(report.resolvedAt).toLocaleString('bs-BA')}
-                      {report.resolvedBy && ` • od ${report.resolvedBy.name}`}
-                    </p>
+            {/* Right Column - 1/3 width */}
+            <div className="space-y-6">
+              {/* Report Management Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upravljanje prijavom</CardTitle>
+                  <CardDescription>Ažurirajte status i dodajte bilješke</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Na čekanju</SelectItem>
+                        <SelectItem value="under_review">U pregledu</SelectItem>
+                        <SelectItem value="resolved">Riješeno</SelectItem>
+                        <SelectItem value="dismissed">Odbijeno</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="h-5 w-5 mr-2 text-green-500" />
-                  Korisnik koji je prijavio
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p><strong>Ime:</strong> {report.reporterId.name}</p>
-                <p><strong>Korisničko ime:</strong> @{report.reporterId.userName}</p>
-                <p className="flex items-center">
-                  <Mail className="h-4 w-4 mr-2" />
-                  {report.reporterId.email}
-                </p>
-                <p className="flex items-center">
-                  <Phone className="h-4 w-4 mr-2" />
-                  {report.reporterId.phone}
-                </p>
-                <p className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  {report.reporterId.address}, {report.reporterId.city}, {report.reporterId.country}
-                </p>
-                <Link 
-                  href={`/users/${report.reporterId._id}`}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-                  target="_blank"
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  Pogledaj profil
-                </Link>
-              </CardContent>
-            </Card>
+                  <div>
+                    <Label htmlFor="adminNotes">Admin bilješke</Label>
+                    <Textarea
+                      id="adminNotes"
+                      value={adminNotes}
+                      onChange={(e) => setAdminNotes(e.target.value)}
+                      placeholder="Dodajte bilješke o prijavi..."
+                      rows={4}
+                    />
+                  </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="h-5 w-5 mr-2 text-red-500" />
-                  Prijavljeni korisnik
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p><strong>Ime:</strong> {report.reportedUserId.name}</p>
-                <p><strong>Korisničko ime:</strong> @{report.reportedUserId.userName}</p>
-                <p className="flex items-center">
-                  <Mail className="h-4 w-4 mr-2" />
-                  {report.reportedUserId.email}
-                </p>
-                <p className="flex items-center">
-                  <Phone className="h-4 w-4 mr-2" />
-                  {report.reportedUserId.phone}
-                </p>
-                <p className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  {report.reportedUserId.address}, {report.reportedUserId.city}, {report.reportedUserId.country}
-                </p>
-                <Link 
-                  href={`/users/${report.reportedUserId._id}`}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-                  target="_blank"
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  Pogledaj profil
-                </Link>
-              </CardContent>
-            </Card>
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={saving}
+                    className="w-full"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Spremanje...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Spremi promjene
+                      </>
+                    )}
+                  </Button>
+
+                  {report.resolvedAt && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm text-gray-600">
+                        <strong>Riješeno:</strong> {new Date(report.resolvedAt).toLocaleString('bs-BA')}
+                        {report.resolvedBy && ` • od ${report.resolvedBy.name}`}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Reporter Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-green-500" />
+                    Korisnik koji je prijavio
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p><strong>Ime:</strong> {report.reporterId.name}</p>
+                  <p><strong>Korisničko ime:</strong> @{report.reporterId.userName}</p>
+                  <p className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    {report.reporterId.email}
+                  </p>
+                  <Link 
+                    href={`/users/${report.reporterId._id}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
+                    target="_blank"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Pogledaj profil
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Reported User Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-red-500" />
+                    Prijavljeni korisnik
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p><strong>Ime:</strong> {report.reportedUserId.name}</p>
+                  <p><strong>Korisničko ime:</strong> @{report.reportedUserId.userName}</p>
+                  <p className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    {report.reportedUserId.email}
+                  </p>
+                  <Link 
+                    href={`/users/${report.reportedUserId._id}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
+                    target="_blank"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Pogledaj profil
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </main>

@@ -119,6 +119,8 @@ const Sidebar = ({ role, navbarHeight = 64, collapsed, setCollapsed }: SidebarPr
                 <SidebarLink href="/users" icon={<UserCog size={18} />} label="Korisnici" />
                 <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Svi tereti" />
                 <SidebarLink href="/reports" icon={<AlertTriangle size={18} />} label="Prijave korisnika" />
+                
+                <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
               </>
             )}
             <SidebarLink href="/profile" icon={<Settings size={18} />} label="Profil" />
