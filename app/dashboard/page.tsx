@@ -434,7 +434,7 @@ function Carousel({ title, items, isDriver = false }: CarouselProps) {
                     <>
                       <div className="flex items-center gap-4 mb-4">
                         <img 
-                          src={item.photoUrl || "/default-avatar.png"} 
+                          src={item.photoUrl || "/logo.png"} 
                           alt={item.name} 
                           className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 group-hover:border-blue-200 transition-colors" 
                         />
@@ -557,16 +557,16 @@ function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsProps) {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-blue-500 font-medium">Model</label>
-                        <p className="text-blue-500 font-semibold">{v.model || "N/A"}</p>
+                        <p className="text-white">{v.model || "N/A"}</p>
                       </div>
                       <div>
                         <label className="text-sm text-blue-500 font-medium">Registracija</label>
-                        <p className="text-blue-500 font-semibold">{v.plateNumber || "N/A"}</p>
+                        <p className="text-white">{v.plateNumber || "N/A"}</p>
                       </div>
                     </div>
                     <div>
                       <label className="text-sm text-blue-500 font-medium">Dimenzije (š×v×d)</label>
-                      <p className="text-blue-500 font-semibold">
+                      <p className="text-white">
                         {v.width || 0} × {v.height || 0} × {v.length || 0} cm
                       </p>
                     </div>
