@@ -4,7 +4,7 @@ import Bid from "@/lib/models/Bid";
 import Load from "@/lib/models/Load";
 import Wallet from "@/lib/models/Wallet";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "../../../../lib/authOptions";
 
 export async function PATCH(
   req: Request,

@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/authOptions'
 import Vehicle from '@/lib/models/Vehicle'
 import { dbConnect } from '@/lib/db/db'
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+export async function PATCH(request: Request, context: RouteContext) {
   await dbConnect()
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { id } = await context.params
   const data = await request.json()
   const updated = await Vehicle.findOneAndUpdate(
-    { _id: params.id, userId: session.user.id },
+    { _id: id, userId: session.user.id },
     data,
     { new: true }
   )
@@ -19,12 +24,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json(updated)
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, context: RouteContext) {
   await dbConnect()
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const deleted = await Vehicle.findOneAndDelete({ _id: params.id, userId: session.user.id })
+  const { id } = await context.params
+  const deleted = await Vehicle.findOneAndDelete({ _id: id, userId: session.user.id })
   if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ success: true })
 }

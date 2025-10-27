@@ -13,14 +13,22 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {toast} from "react-toastify";
 import { ReviewDialog } from "@/components/ReviewDialog";
-import { RouteMap } from "@/components/RouteMap";
+//import { RouteMap } from "@/components/RouteMap";
 import { LatLngTuple } from "leaflet";
 import { parseISO } from "date-fns";
 import { getCountryName, getStateName } from '@/lib/services/CscService';
 import { createNotification } from '@/lib/notifications';
 import { ReportDialog } from "@/components/ReportDialog";
-
-
+import dynamic from "next/dynamic";
+const RouteMap = dynamic(() => import("@/components/RouteMap").then(mod => mod.RouteMap), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 w-full rounded-lg bg-gray-100 flex items-center justify-center">
+      <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+      <span className="ml-2">Učitavam mapu...</span>
+    </div>
+  )
+});
 interface LoadPageProps {
   params: Promise<{ id: string }>;
 }
@@ -750,7 +758,7 @@ useEffect(() => {
                         ))}
                       </div>
                       <span className="text-sm text-white ml-2">
-                        ({user.reviewsCount || 0})
+                        ({user.reviewsCount || 0} recenzija) 
                       </span>
                     </div>
                   )}

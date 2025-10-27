@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import { Notification } from "@/lib/models/Notification";
 
-interface Params {
-  params: { id: string };
+interface RouteContext {
+  params: Promise<{ id: string }>;
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(req: NextRequest, context: RouteContext) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await context.params;
 
     const notification = await Notification.findByIdAndUpdate(
       id,

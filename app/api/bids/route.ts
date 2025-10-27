@@ -3,7 +3,7 @@ import { dbConnect } from "@/lib/db/db";
 import Bid from "@/lib/models/Bid";
 import Vehicle from "@/lib/models/Vehicle";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "../../../lib/authOptions";
 
 // Helper za mapiranje bid-a
 function formatBid(bid: any) {

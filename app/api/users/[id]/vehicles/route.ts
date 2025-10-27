@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import Vehicle from "@/lib/models/Vehicle";
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function GET(
   req: Request,
-  context: { params: { id: string } | Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
-    // Explicitly await if params is a Promise
     const { id: userId } = await context.params;
 
     const vehicles = await Vehicle.find({ userId }).lean().exec();

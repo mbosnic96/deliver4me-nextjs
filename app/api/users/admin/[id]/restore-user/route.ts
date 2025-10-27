@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 import { userService } from '@/lib/services/UserService';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function POST(request: Request, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    await userService.restoreUser(params.id);
+    const { id } = await context.params;
+    await userService.restoreUser(id);
     return NextResponse.json({ message: 'User restored successfully' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });

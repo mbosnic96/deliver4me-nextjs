@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import Review from "@/lib/models/Review";
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
-    const resolvedParams = await params;
-    const userId = resolvedParams.id;
+    const { id: userId } = await context.params;
 
     const reviews = await Review.find({ toUserId: userId }).lean().exec();
 

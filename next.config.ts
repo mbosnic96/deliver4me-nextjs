@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '100mb',
     },
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

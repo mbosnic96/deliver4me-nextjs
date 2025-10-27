@@ -4,7 +4,7 @@ import User from "@/lib/models/User";
 import { dbConnect } from "@/lib/db/db";
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(request: Request) {
   try {

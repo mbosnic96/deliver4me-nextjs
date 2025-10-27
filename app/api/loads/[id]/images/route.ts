@@ -5,8 +5,12 @@ import path from 'path'
 import { dbConnect } from '@/lib/db/db'
 import Load from '@/lib/models/Load'
 
-export async function POST(req: NextRequest, context: { params: { id: string } }) {
-  const loadId = context.params.id
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+export async function POST(req: NextRequest, context: RouteContext) {
+  const { id: loadId } = await context.params
 
   await dbConnect()
 
@@ -42,8 +46,8 @@ export async function POST(req: NextRequest, context: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
-  const loadId = context.params.id
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  const { id: loadId } = await context.params
   await dbConnect()
 
   try {

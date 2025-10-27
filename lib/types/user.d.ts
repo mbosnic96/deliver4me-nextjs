@@ -13,7 +13,9 @@ export interface FullUserDto {
   photoUrl?: string;
   latitude?: number;
   longitude?: number;
-  isDeleted: !!user.isDeleted
+  isDeleted: !!user.isDeleted;
+  rating: number;
+  reviewsCount: number;
 }
 
 export interface EditUserDto {

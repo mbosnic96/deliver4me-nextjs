@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
+    const { id } = await context.params;
     const { email } = await request.json();
 
     if (!email) {
@@ -15,7 +20,6 @@ export async function PATCH(
       );
     }
 
-   
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -24,8 +28,7 @@ export async function PATCH(
       );
     }
 
-   
-    await userService.updateEmail(params.id, email);
+    await userService.updateEmail(id, email);
 
     return NextResponse.json(
       { success: true },

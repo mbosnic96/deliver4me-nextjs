@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { userService } from '@/lib/services/UserService';
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 // GET
-export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const user = await userService.getUserById(id);
@@ -19,7 +23,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 }
 
 // full user update
-export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function PUT(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json();
@@ -32,7 +36,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
 }
 
 // location update only
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const body = await request.json();
@@ -45,9 +49,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 // DELETE
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     await userService.requestAccountDeletion(id); 
     return NextResponse.json({ success: true });
   } catch (error: any) {

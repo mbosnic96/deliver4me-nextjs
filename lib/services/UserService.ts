@@ -181,7 +181,9 @@ export class UserService {
       photoUrl: user.photoUrl,
       latitude: user.latitude,
       longitude: user.longitude,
-      isDeleted: !!user.isDeleted
+      isDeleted: !!user.isDeleted,
+      rating: user.rating,
+      reviewsCount: user.reviewsCount,
     };
   }
 }
