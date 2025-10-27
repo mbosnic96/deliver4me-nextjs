@@ -201,7 +201,6 @@ export default function ReportDetailsPage() {
         }`}
       >
         <div className="p-4 md:p-6">
-          {/* Header Section */}
           <div className="mb-6">
             <Link href="/reports" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -219,11 +218,8 @@ export default function ReportDetailsPage() {
             </div>
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - 2/3 width */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Report Information Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -275,7 +271,6 @@ export default function ReportDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Load Information Card (if exists) */}
               {report.loadId && (
                 <Card>
                   <CardHeader>
@@ -287,7 +282,6 @@ export default function ReportDetailsPage() {
                   <CardContent>
                     <div className="space-y-2">
                       <p><strong>Naslov:</strong> {report.loadId.title}</p>
-                      <p><strong>Opis:</strong> {report.loadId.description}</p>
                       <Link 
                         href={`/load/${report.loadId._id}`}
                         className="inline-flex items-center text-blue-600 hover:text-blue-800"
@@ -302,9 +296,7 @@ export default function ReportDetailsPage() {
               )}
             </div>
 
-            {/* Right Column - 1/3 width */}
             <div className="space-y-6">
-              {/* Report Management Card */}
               <Card>
                 <CardHeader>
                   <CardTitle>Upravljanje prijavom</CardTitle>
@@ -366,7 +358,6 @@ export default function ReportDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Reporter Information Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -392,7 +383,6 @@ export default function ReportDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Reported User Information Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">

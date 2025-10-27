@@ -147,7 +147,7 @@ const ReportsPage = () => {
         }`}
       >
         <div className="p-4 md:p-6 h-full flex flex-col">
-          <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
+          <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0 min-w-0 overflow-x-auto">
           <Table<Report>
             title="Prijave korisnika"
             description="Upravljajte prijavama korisnika za spam, prevaru i druge prekršaje"

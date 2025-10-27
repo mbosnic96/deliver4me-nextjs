@@ -1,15 +1,15 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import Sidebar from "@/components/Sidebar";
 import { Table } from "@/components/Table";
 import { AddUserForm } from "@/components/AddUserForm";
+import { ColumnDef } from "@tanstack/react-table";
+import Sidebar from "@/components/Sidebar";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, RefreshCcw, Eye } from "lucide-react";
-import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 type UserRow = {
@@ -45,13 +45,10 @@ export default function UsersPage() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "DELETE",
-      });
-
+      const response = await fetch(`/api/users/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete user");
-
       toast.success("Korisnik uspješno deaktiviran!");
+      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error("Greška pri brisanju korisnika");
@@ -59,21 +56,16 @@ export default function UsersPage() {
   };
 
   const handleRestore = async (id: string) => {
-  try {
-    const response = await fetch(`/api/users/${id}/restore`, {
-      method: "PATCH",
-    });
-
-    if (!response.ok) throw new Error("Failed to restore user");
-
-    toast.success("Korisnik uspješno reaktiviran!");
-  } catch (error) {
-    console.error(error);
-    toast.error("Greška pri reaktivaciji korisnika");
-  }
-};
-
-
+    try {
+      const response = await fetch(`/api/users/${id}/restore`, { method: "PATCH" });
+      if (!response.ok) throw new Error("Failed to restore user");
+      toast.success("Korisnik uspješno reaktiviran!");
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      toast.error("Greška pri reaktivaciji korisnika");
+    }
+  };
 
   const columns: ColumnDef<UserRow>[] = [
     {
@@ -87,26 +79,63 @@ export default function UsersPage() {
         />
       ),
     },
-    { accessorKey: "name", header: "Ime" },
-    { accessorKey: "userName", header: "Korisničko ime" },
-    { accessorKey: "email", header: "Email" },
-    { accessorKey: "role", header: "Uloga" },
-    { accessorKey: "phone", header: "Telefon" },
+    { accessorKey: "name", header: "Ime", cell: ({ row }) => (
+      <div className="max-w-[120px] truncate" title={row.original.name}>{row.original.name}</div>
+    ) },
+    { accessorKey: "userName", header: "Korisničko ime", cell: ({ row }) => (
+      <div className="max-w-[150px] truncate" title={row.original.userName}>{row.original.userName}</div>
+    ) },
+    { accessorKey: "email", header: "Email", cell: ({ row }) => (
+      <div className="max-w-[200px] truncate" title={row.original.email}>{row.original.email}</div>
+    ) },
+    { accessorKey: "role", header: "Uloga", cell: ({ row }) => (
+      <div className="max-w-[100px] truncate" title={row.original.role}>{row.original.role}</div>
+    ) },
+    { accessorKey: "phone", header: "Telefon", cell: ({ row }) => (
+      <div className="max-w-[140px] truncate" title={row.original.phone}>{row.original.phone}</div>
+    ) },
+    { accessorKey: "isDeleted", header: "Aktivan", cell: ({ row }) => (
+      <span className={`inline-block w-3 h-3 rounded-full ${row.original.isDeleted ? "bg-red-500" : "bg-green-500"}`}></span>
+    ) },
+  ];
+
+  const renderActions = (row: UserRow, edit: (row: UserRow) => void) => (
+    <div className="flex flex-nowrap gap-2">
+      <Button size="sm" onClick={() => router.push(`/users/${row._id}`)}>
+        <Eye className="h-4 w-4 mr-1" /> Vidi
+      </Button>
+
+      <Button variant="outline" size="sm" onClick={() => edit(row)}>
+        <Edit className="h-4 w-4 mr-1" /> Uredi
+      </Button>
+
+      {row.isDeleted ? (
+        <Button variant="default" size="sm" onClick={() => handleRestore(row._id)}>
+          <RefreshCcw className="h-4 w-4 mr-1" /> Reaktiviraj
+        </Button>
+      ) : (
+        <Button variant="destructive" size="sm" onClick={() => handleDelete(row._id)}>
+          <Trash2 className="h-4 w-4 mr-1" /> Deaktiviraj
+        </Button>
+      )}
+    </div>
+  );
+
+  const additionalFilters = [
     {
-      accessorKey: "isDeleted",
-      header: "Aktivan",
-      cell: ({ row }) => (
-        <span
-          className={`inline-block w-3 h-3 rounded-full ${
-            row.original.isDeleted ? "bg-red-500" : "bg-green-500"
-          }`}
-        ></span>
-      ),
+      key: "role",
+      label: "Uloga",
+      options: [
+        { value: "all", label: "Svi" },
+        { value: "admin", label: "Admin" },
+        { value: "client", label: "Klijent" },
+        { value: "driver", label: "Vozač" },
+      ],
     },
   ];
 
   return (
-  <div className="flex min-h-screen">
+    <div className="min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
@@ -114,74 +143,21 @@ export default function UsersPage() {
         setCollapsed={setSidebarCollapsed}
       />
 
-      <main 
-        className={`flex-1 transition-all duration-300 min-h-screen ${
-          sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
-        }`}
-      >
+      <main className={`flex-1 transition-all duration-300 min-h-screen ${sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"}`}>
         <div className="p-4 md:p-6 h-full flex flex-col">
           <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
-          <Table<UserRow>
-            title="Korisnici"
-            description="Upravljajte korisnicima sistema"
-            columns={columns}
-            apiBase="/api/users"
-            FormComponent={AddUserForm}
-            showSearch={true}
-            searchPlaceholder="Pretraži korisnike..."
-             additionalFilters={[
-              {
-                key: "role",
-                label: "Uloga",
-                options: [
-                  { value: "all", label: "Svi" },
-                  { value: "admin", label: "Admin" },
-                  { value: "client", label: "Klijent" },
-                  { value: "driver", label: "Vozač" },
-                ],
-              },
-            ]}
-
-         renderActions={(row, edit, remove) => (
-          
-  <div className="flex space-x-2">
-      <Button
-      size="sm"
-      onClick={() => router.push(`/users/${row._id}`)} 
-    >
-      <Eye className="h-4 w-4 mr-1" />
-      Vidi
-    </Button>
-
-    <Button variant="outline" size="sm" onClick={() => edit(row)}>
-      <Edit className="h-4 w-4 mr-1" />
-      Uredi
-    </Button>
-
-    {row.isDeleted ? (
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() => handleRestore(row._id)}
-      >
-         <RefreshCcw className="h-4 w-4 mr-1" />
-        Reaktiviraj
-      </Button>
-    ) : (
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={() => handleDelete(row._id)}
-      >
-        <Trash2 className="h-4 w-4 mr-1" />
-        Deaktiviraj
-      </Button>
-    )}
-  </div>
-)}
-
-          />
-        </div>
+            <Table<UserRow>
+              title="Korisnici"
+              description="Upravljajte korisnicima sistema"
+              columns={columns}
+              apiBase="/api/users"
+              FormComponent={AddUserForm}
+              showSearch
+              searchPlaceholder="Pretraži korisnike..."
+              additionalFilters={additionalFilters}
+              renderActions={renderActions}
+            />
+          </div>
         </div>
       </main>
     </div>
