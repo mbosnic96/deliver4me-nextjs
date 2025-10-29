@@ -96,12 +96,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl font-semibold text-blue-500 mb-2">User Not Found</div>
-          <p className="text-gray-600 mb-4">The requested user could not be found.</p>
-          <Link href="/users" className="btn btn-primary">
-            <ArrowLeft size={16} className="mr-2" />
-            Back to Users
-          </Link>
+          <div className="text-2xl font-semibold text-blue-500 mb-2">Korisnik nije pronađen</div>
         </div>
       </div>
     );
@@ -160,12 +155,6 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                     <div className="flex items-center text-white">
                       <MapPin size={16} className="mr-2 text-blue-600" />
                       <span>{user.city || 'Nepoznato'}, {user.country || 'Nepoznato'}</span>
-                    </div>
-                    <div className="flex items-center text-white">
-                      <Phone size={16} className="mr-2 text-blue-500" />
-                      <a href={`tel:${user.phone}`} className="hover:text-primary-600">
-                        {user.phone || 'Nepoznato'}
-                      </a>
                     </div>
                   </div>
 
@@ -289,12 +278,6 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                       </div>
                     </div>
 
-                    {vehicle.cargoPercentage !== undefined && (
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">Zauzeće tereta</div>
-                        <div className="font-semibold text-white">{vehicle.cargoPercentage}%</div>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

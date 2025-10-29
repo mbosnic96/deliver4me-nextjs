@@ -36,7 +36,7 @@ export default function LoginPage() {
       const session = await getSession();
 
       if (session?.user?.role) {
-         router.push('/profile');
+         router.push('/dashboard');
       }
     }
   };
@@ -85,7 +85,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium">
-                Password
+                Lozinka
               </label>
               <input
                 id="password"
@@ -96,7 +96,7 @@ export default function LoginPage() {
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 }`}
                 {...register('password', {
-                  required: 'Password je obavezan',
+                  required: 'Lozinka je obavezna',
                 })}
               />
               {errors.password && (
@@ -129,10 +129,9 @@ export default function LoginPage() {
           d="M4 12a8 8 0 018-8v8z"
         ></path>
       </svg>
-      Loading...
     </span>
   ) : (
-    'Login'
+    'Prijavi se'
   )}
 </button>
 
@@ -142,7 +141,7 @@ export default function LoginPage() {
     onClick={() => router.push('/forgot-password')}
     className="text-sm text-blue-600 hover:underline"
   >
-    Forgot your password?
+   Zaboravili ste lozinku?
   </button>
 </div>
 

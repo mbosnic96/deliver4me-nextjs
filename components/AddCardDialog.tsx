@@ -86,7 +86,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Add New Card</DialogTitle>
+                    <DialogTitle>Dodaj karticu</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,7 +124,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
 
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="cardNumber">Card Number</Label>
+                            <Label htmlFor="cardNumber">Broj kartice</Label>
                             <Input
                                 id="cardNumber"
                                 type="text"
@@ -141,7 +141,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
                         </div>
 
                         <div>
-                            <Label htmlFor="holderName">Card Holder Name</Label>
+                            <Label htmlFor="holderName">Vlasnik kartice</Label>
                             <Input
                                 id="holderName"
                                 type="text"
@@ -158,7 +158,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="expiry">Expiry Date</Label>
+                                <Label htmlFor="expiry">Datum isteka</Label>
                                 <Datetime
                                     dateFormat="MM/YY"
                                     timeFormat={false}
@@ -208,7 +208,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
                     </div>
 
                     <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? "Adding Card..." : "Add Card"}
+                        {loading ? "Spremanje..." : "Sačuvaj"}
                     </Button>
                 </form>
             </DialogContent>

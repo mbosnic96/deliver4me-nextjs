@@ -308,7 +308,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
         </DialogHeader>
 
         <div className="space-y-4 md:space-y-6 overflow-y-auto max-h-[60vh] md:max-h-[70vh]">
-          <div className="space-y-3">
+          <div className="border rounded p-3 md:p-4 space-y-3">
             <div>
               <label className="block font-semibold mb-1 text-sm md:text-base">Naslov</label>
               <input 

@@ -58,7 +58,7 @@ export default function MyWallet() {
       }
     } catch (error) {
       console.error("Failed to fetch wallet:", error);
-      toast.error("Failed to load wallet data");
+      toast.error("Neuspješno učitavanje novčanika");
     }
   };
 
@@ -79,14 +79,14 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
     });
 
     if (res.ok) {
-      toast.success("Funds added successfully!");
+      toast.success("Sredstva uspješno dodana!");
       fetchWallet();
     } else {
       throw new Error("Failed to add funds");
     }
   } catch (error) {
     console.error("Error adding funds:", error);
-    toast.error("Failed to add funds");
+    toast.error("Neuspješno dodavanje sredstava");
   } finally {
     setAddingFunds(false);
   }
@@ -107,14 +107,14 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
       });
       
       if (res.ok) {
-        toast.success("Card added successfully!");
+        toast.success("Uspješno dodavanje kartice!");
         fetchWallet();
       } else {
-        throw new Error("Failed to add card");
+        throw new Error("Neuspješno dodavanje kartice");
       }
     } catch (error) {
       console.error("Error adding card:", error);
-      toast.error("Failed to add card");
+      toast.error("Neuspješno dodavanje kartice");
       throw error;
     }
   };
@@ -134,14 +134,14 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
       });
       
       if (res.ok) {
-        toast.success("Card deleted successfully!");
+        toast.success("Uspješno obrisana kartica!");
         fetchWallet();
       } else {
-        throw new Error("Failed to delete card");
+        throw new Error("Neuspješno brisanje kartice");
       }
     } catch (error) {
       console.error("Error deleting card:", error);
-      toast.error("Failed to delete card");
+      toast.error("Neuspješno brisanje kartice");
     } finally {
       setDeletingCard(null);
     }
@@ -163,11 +163,11 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
       fetchWallet();
     } else {
       const error = await res.json();
-      toast.error(error.error || "Failed to process payout");
+      toast.error(error.error || "Neuspješna isplata");
     }
   } catch (error) {
     console.error("Error during payout:", error);
-    toast.error("Failed to process payout");
+    toast.error("Neuspješna isplata");
   }
 };
 
@@ -191,10 +191,9 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-                My Wallet
-              </h1>
+                Novčanik              </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Manage your funds and payment methods
+                Upravljajte sredstvima i metodama plaćanja
               </p>
             </div>
           </div>
@@ -208,9 +207,9 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm opacity-90">Available Balance</p>
+                        <p className="text-sm opacity-90">Dostupna sredstva</p>
                         <p className="text-3xl font-bold mt-1">
-                          ${wallet.balance.toFixed(2)}
+                          {wallet.balance.toFixed(2)} BAM
                         </p>
                       </div>
                       <DollarSign className="h-12 w-12 opacity-90" />
@@ -223,12 +222,12 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm opacity-90">In Escrow</p>
+                        <p className="text-sm opacity-90">Rezervisana sredstva</p>
                         <p className="text-3xl font-bold mt-1">
-                          ${wallet.escrow.toFixed(2)}
+                          {wallet.escrow.toFixed(2)} BAM
                         </p>
                         <p className="text-xs opacity-80 mt-1">
-                          Funds reserved for active transactions
+                          Sredstva rezervisana za tekuće isporuke
                         </p>
                       </div>
                       <Shield className="h-12 w-12 opacity-90" />
@@ -244,7 +243,7 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-semibold flex items-center">
                       <CreditCard className="h-5 w-5 mr-2" />
-                      Payment Methods
+                      Metode plaćanja
                     </h3>
                     <AddCardDialog onAddCard={handleAddCard} />
                   </div>
@@ -263,8 +262,8 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
                     {wallet.cards.length === 0 && (
                       <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
                         <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No payment methods added yet</p>
-                        <p className="text-sm mt-1">Add your first card to get started</p>
+                        <p>Nema dodanih metoda plaćanja</p>
+                        <p className="text-sm mt-1">Dodajte svoju karticu</p>
                       </div>
                     )}
                   </div>
@@ -272,10 +271,10 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
               </Card>
 
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6  max-h-62 overflow-y-auto">
                   <h3 className="text-lg font-semibold mb-6 flex items-center">
                     <History className="h-5 w-5 mr-2" />
-                    Transaction History
+                    Historija transakcija
                   </h3>
                   
                   {wallet.transactions.length > 0 ? (
@@ -309,8 +308,8 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
                   ) : (
                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                       <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No transactions yet</p>
-                      <p className="text-sm mt-1">Your transaction history will appear here</p>
+                      <p>Nema transakcija</p>
+                      <p className="text-sm mt-1">Historija transakcija će se prikazati ovdje</p>
                     </div>
                   )}
                 </CardContent>
@@ -320,7 +319,6 @@ const handleAddFunds = async (amount: number, cardIndex?: number) => {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 dark:text-gray-400">Loading wallet...</p>
               </div>
             </div>
           )}

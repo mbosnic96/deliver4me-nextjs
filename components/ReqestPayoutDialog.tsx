@@ -35,20 +35,20 @@ export function RequestPayoutDialog({ cards, onPayout }: RequestPayoutDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-white text-blue-600 hover:bg-blue-50">Request Payout</Button>
+        <Button className="bg-white text-blue-600 hover:bg-blue-50">Isplata</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Request Payout</DialogTitle>
+          <DialogTitle>Isplata</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Amount</Label>
+            <Label>Iznos</Label>
             <Input
               type="number"
               min={0}
               step={0.01}
-              placeholder="Enter payout amount"
+              placeholder="Unesite iznos za isplatu"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
@@ -56,13 +56,13 @@ export function RequestPayoutDialog({ cards, onPayout }: RequestPayoutDialogProp
           </div>
 
           <div>
-            <Label>Select Card</Label>
+            <Label>Odaberite karticu</Label>
            <Select
   value={selectedCard.toString()} 
   onValueChange={(v) => setSelectedCard(parseInt(v))} 
 >
   <SelectTrigger className="w-full">
-    <SelectValue placeholder="Select a card" />
+    <SelectValue placeholder="Odaberite karicu" />
   </SelectTrigger>
   <SelectContent>
     {cards.map((card, idx) => (
@@ -76,7 +76,7 @@ export function RequestPayoutDialog({ cards, onPayout }: RequestPayoutDialogProp
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Processing..." : "Request Payout"}
+            {loading ? "Obrada..." : "Isplati"}
           </Button>
         </form>
       </DialogContent>

@@ -28,12 +28,12 @@ interface ReportDialogProps {
 }
 
 const reportTypes = [
-  { value: "spam", label: "Spam ili lažni oglas", description: "Nevažeći ili obmanjujući sadržaj" },
-  { value: "inappropriate_content", label: "Neprikladan sadržaj", description: "Uvredljiv, neprimjeren ili štetni sadržaj" },
-  { value: "fraud", label: "Prevara ili prevara", description: "Pokušaj prevare ili obmanjivanja" },
-  { value: "harassment", label: "Uznemiravanje", description: "Neželjeni kontakt ili uznemiravanje" },
-  { value: "fake_profile", label: "Lažni profil", description: "Profil koji se predstavlja lažno" },
-  { value: "other", label: "Ostalo", description: "Neki drugi razlog" },
+  { value: "spam", label: "Spam ili lažni oglas", description: " - Nevažeći ili obmanjujući sadržaj" },
+  { value: "inappropriate_content", label: "Neprikladan sadržaj", description: " - Uvredljiv, neprimjeren ili štetni sadržaj" },
+  { value: "fraud", label: "Prevara ili prevara", description: " - Pokušaj prevare ili obmanjivanja" },
+  { value: "harassment", label: "Uznemiravanje", description: " - Neželjeni kontakt ili uznemiravanje" },
+  { value: "fake_profile", label: "Lažni profil", description: " - Profil koji se predstavlja lažno" },
+  { value: "other", label: "Ostalo", description: " - Neki drugi razlog" },
 ];
 
 export function ReportDialog({

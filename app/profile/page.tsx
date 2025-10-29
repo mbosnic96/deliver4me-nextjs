@@ -110,7 +110,7 @@ const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
           onClick={onRemove}
           className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
         >
-          Remove photo
+         Ukloni sliku
         </button>
       ) : (
         <>
@@ -119,7 +119,7 @@ const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
             onClick={handleClick}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer"
           >
-            Add photo
+            Dodaj sliku
           </button>
           <Input
             type="file"
@@ -173,8 +173,8 @@ const LocationMap = ({
         <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
           <p className="text-gray-500 dark:text-gray-400">
             {latitude === null || longitude === null 
-              ? "Select a city to view location" 
-              : "Loading map..."}
+              ? "Odaberite grad za početnu lokaciju" 
+              : "Učitavanje mape..."}
           </p>
         </div>
       )}
@@ -235,7 +235,6 @@ const mapRef = useRef<any>(null)
       const res = await fetch('/api/users/me')
       if (!res.ok) throw new Error('Failed to load user')
       const user = await res.json()
-     console.log('User data:', user)
       
       reset({
         name: user.name,
@@ -264,7 +263,7 @@ const mapRef = useRef<any>(null)
       }
     } catch (error) {
       console.error('Failed to load user data', error)
-      toast.error('Failed to load user data')
+      toast.error('Greška pri učitavanju podataka korisnika')
     } finally {
       setLoading(false)
     }
@@ -325,11 +324,11 @@ const updateMapWithCity = useCallback(async () => {
       setValue('longitude', coords.lng, { shouldDirty: true })
       setMapInitialized(true)
     } else {
-      toast.error('Invalid coordinates received for this city')
+      toast.error('Nije moguće pronaći koordinate za ovaj grad')
     }
   } catch (error) {
     console.error('Failed to get city coordinates', error)
-    toast.error('Failed to get location data for this city')
+    toast.error('Nije moguće pronaći koordinate za ovaj grad')
   } finally {
     setLoading(false)
   }
@@ -349,7 +348,7 @@ const updateMapWithCity = useCallback(async () => {
       return data.url
     } catch (error) {
       console.error('Upload failed:', error)
-      toast.error('Failed to upload image')
+      toast.error('Neuspješno učitavanje slike')
       return null
     }
   }, [])
@@ -363,7 +362,7 @@ const handleFileChange = useCallback(async (base64Data: string) => {
     }
   } catch (error) {
     console.error('Upload failed:', error)
-    toast.error('Failed to upload image')
+    toast.error('Neuspješno učitavanje slike')
   } finally {
     setLoading(false)
   }
@@ -382,12 +381,12 @@ const onSubmit = useCallback(async (data: FormData) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    if (!res.ok) throw new Error('Failed to update profile');
-    toast.success('Profile updated successfully');
+    if (!res.ok) throw new Error('Neuspješno ažuriranje profila');
+    toast.success('Profilu je uspješno ažuriran');
     reset(data);
   } catch (error) {
     console.error('Failed to update profile', error);
-    toast.error('Failed to update profile');
+    toast.error('Neuspješno ažuriranje profila');
   } finally {
     setLoading(false);
   }
@@ -398,14 +397,14 @@ const requestAccountDeletion = useCallback(async () => {
   if (!session?.user?.id) return;
 
   const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'This will permanently delete your account!',
+    title: 'Jeste li sigurni?',
+    text: 'Ovime brišete svoj račun!',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Delete account',
-    cancelButtonText: 'Cancel'
+    confirmButtonText: 'Obriši račun',
+    cancelButtonText: 'Otkaži'
   });
 
   if (result.isConfirmed) {
@@ -415,10 +414,10 @@ const requestAccountDeletion = useCallback(async () => {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Failed to delete account');
-      Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
+      Swal.fire('Obrisano!', 'Vaš račun je obrisan.', 'success');
     } catch (error) {
       console.error('Failed to delete account', error);
-      Swal.fire('Error', 'Failed to delete account', 'error');
+      Swal.fire('Greška', 'Neuspješno brisanje računa', 'error');
     } finally {
       setLoading(false);
     }
@@ -428,7 +427,7 @@ const requestAccountDeletion = useCallback(async () => {
 
 const updatePositionOnly = useCallback(async () => {
   if (!latitude || !longitude || !session?.user?.id) {
-    toast.error('Please select a location first');
+    toast.error('Prvo odaberite lokaciju');
     return;
   }
   setLoading(true);
@@ -438,11 +437,11 @@ const updatePositionOnly = useCallback(async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ latitude, longitude })
     });
-    if (!res.ok) throw new Error('Failed to update location');
-    toast.success('Location updated successfully');
+    if (!res.ok) throw new Error('Neuspješno ažuriranje lokacije');
+    toast.success('Lokacija je uspješno ažurirana');
   } catch (error) {
     console.error('Failed to update location', error);
-    toast.error('Failed to update location');
+    toast.error('Neuspješno ažuriranje lokacije');
   } finally {
     setLoading(false);
   }
@@ -480,7 +479,7 @@ const updatePositionOnly = useCallback(async () => {
         <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
             <form onSubmit={handleSubmit(onSubmit)}>
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Profile</h2>
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Profil</h2>
                 
                 <div className="flex flex-col lg:flex-row gap-6 items-center">
                   <div className="w-full lg:w-1/3">
@@ -494,7 +493,7 @@ const updatePositionOnly = useCallback(async () => {
                   <div className="w-full lg:w-2/3 space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Full name
+                        Ime i prezime
                       </label>
                       <Input
                         type="text"
@@ -508,16 +507,16 @@ const updatePositionOnly = useCallback(async () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Username
+                        Korisničko ime
                       </label>
                      <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         {...register('userName', { 
-                          required: 'Username is required',
+                          required: 'Korisničko ime je obavezno',
                           pattern: {
                             value: /^[a-zA-Z0-9_-]+$/,
-                            message: 'Username can only contain letters, numbers, "-" and "_" (no spaces).'
+                            message: 'Korisničko ime može sadržavati samo slova, brojeve, donje crte i crtice'
                           }
                         })}
                         onInput={(e) => {
@@ -532,7 +531,7 @@ const updatePositionOnly = useCallback(async () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Country
+                          Država
                         </label>
                         <Select
                           options={countryOptions}
@@ -540,7 +539,7 @@ const updatePositionOnly = useCallback(async () => {
                           onChange={(selected) =>
                             setValue('country', selected?.value || '', { shouldDirty: true })
                           }
-                          placeholder="Select country"
+                          placeholder="Odaberi državu"
                           className="react-select-container"
                           classNamePrefix="react-select"
                           instanceId="country-select"
@@ -550,7 +549,7 @@ const updatePositionOnly = useCallback(async () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          State/Region
+                          Regija
                         </label>
                         <Select
                           options={selectedStates}
@@ -558,7 +557,7 @@ const updatePositionOnly = useCallback(async () => {
                           onChange={(selected) =>
                             setValue('state', selected?.value || '', { shouldDirty: true })
                           }
-                          placeholder="Select state"
+                          placeholder="Odaberi regiju"
                           isDisabled={!country}
                           isLoading={loadingStates}
                           className="react-select-container"
@@ -571,7 +570,7 @@ const updatePositionOnly = useCallback(async () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          City
+                          Grad
                         </label>
                         <Select
                           options={selectedCities}
@@ -579,7 +578,7 @@ const updatePositionOnly = useCallback(async () => {
                           onChange={(selected) =>
                             setValue('city', selected?.value || '', { shouldDirty: true })
                           }
-                          placeholder="Select city"
+                          placeholder="Odaberi grad"
                           isDisabled={!state}
                           isLoading={loadingCities}
                           className="react-select-container"
@@ -590,7 +589,7 @@ const updatePositionOnly = useCallback(async () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Postal code
+                         Poštanski broj
                         </label>
                         <Input
                           type="text"
@@ -602,7 +601,7 @@ const updatePositionOnly = useCallback(async () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Address
+                        Adresa
                       </label>
                       <Input
                         type="text"
@@ -613,12 +612,12 @@ const updatePositionOnly = useCallback(async () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Phone
+                        Telefon
                       </label>
                       <Input
                         type="text"
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                        {...register('phone', { required: 'Phone is required' })}
+                        {...register('phone', { required: 'Telefon je obavezan' })}
                       />
                       {errors.phone && (
                         <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
@@ -631,7 +630,7 @@ const updatePositionOnly = useCallback(async () => {
                         disabled={!isDirty || loading}
                         className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                       >
-                        {loading ? 'Saving...' : 'Save Changes'}
+                        {loading ? 'Spremanje...' : 'Spremi'}
                       </button>
                     </div>
                   </div>
@@ -639,9 +638,9 @@ const updatePositionOnly = useCallback(async () => {
               </section>
 
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Location</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Lokacija</h3>
                 <p className="mb-4 text-gray-600 dark:text-gray-300">
-                  Drag the marker to your exact location to help delivery personnel find you.
+                 Označite svoju lokaciju na karti povlačenjem markera ili odabirom grada, a zatim kliknite "Ažuriraj lokaciju" za spremanje promjena. Da bi Vas vozači lakše pronašli.
                 </p>
 
                <LocationMap 
@@ -659,34 +658,34 @@ const updatePositionOnly = useCallback(async () => {
                     disabled={!latitude || !longitude || loading}
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
                   >
-                    {loading ? 'Updating...' : 'Update Location'}
+                    {loading ? 'Spremanje...' : 'Ažuriranje lokaciju'}
                   </button>
                 </div>
               </section>
 
               <section className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Account Settings</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Postavke računa</h3>
                 
                 <div className="space-y-6">
                   <div>
-                    <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Email address</h4>
+                    <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Email adresa</h4>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">{watch('email')}</span>
-                       <Button  className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200" onClick={() => setOpen(true)}>Change Email</Button>
+                       <Button  className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200" onClick={() => setOpen(true)}>Promijeni email</Button>
       <ChangeEmailDialog open={open} onOpenChange={setOpen} currentEmail={watch('email')}/>
                      
                     </div>
                   </div>
 
                   <div>
-  <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Password</h4>
+  <h4 className="font-medium mb-2 text-gray-700 dark:text-gray-300">Lozinka</h4>
   <div className="flex justify-between items-center">
     <span className="text-gray-600 dark:text-gray-400">••••••••</span>
     <Button 
       className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
       onClick={() => setOpenPassword(true)}
     >
-      Change Password
+      Promijeni lozinku
     </Button>
     <ChangePasswordDialog open={openPassword} onOpenChange={setOpenPassword} />
   </div>
@@ -698,9 +697,9 @@ const updatePositionOnly = useCallback(async () => {
              
               {role !== 'admin' && (
                 <section className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-red-500">
-                  <h3 className="text-xl font-bold mb-4 text-red-500">Danger Zone</h3>
+                  <h3 className="text-xl font-bold mb-4 text-red-500">Opasna zona</h3>
                   <p className="mb-4 text-gray-600 dark:text-gray-300">
-                    This will permanently delete your account and all associated data.
+                    Ovime uklanjate Vaš račun!
                   </p>
                   <div className="flex justify-end">
                     <button
@@ -709,7 +708,7 @@ const updatePositionOnly = useCallback(async () => {
                       disabled={loading}
                       className="px-6 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition dark:hover:bg-red-900/20"
                     >
-                      Delete Account
+                     Briši račun
                     </button>
                   </div>
                 </section>

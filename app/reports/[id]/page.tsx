@@ -177,7 +177,7 @@ export default function ReportDetailsPage() {
           <h2 className="text-2xl font-bold text-red-600 mb-2">Prijava nije pronađena</h2>
           <p className="text-gray-600">Tražena prijava ne postoji ili je obrisana.</p>
           <Link href="/admin/reports" className="text-blue-600 underline mt-4 inline-block">
-            ← Nazad na listu prijava
+             Nazad na listu prijava
           </Link>
         </div>
       </div>

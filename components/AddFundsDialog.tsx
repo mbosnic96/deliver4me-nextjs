@@ -35,20 +35,20 @@ export function AddFundsDialog({ cards, onAddFunds }: AddFundsDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-white text-blue-600 hover:bg-blue-50">Add Funds</Button>
+                <Button className="bg-white text-blue-600 hover:bg-blue-50">Dodaj sredstva</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Add Funds</DialogTitle>
+                    <DialogTitle>Dodaj sredstva</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <Label>Amount</Label>
+                        <Label>Količina</Label>
                         <Input
                             type="number"
                             min={0}
                             step={0.01}
-                            placeholder="Enter amount"
+                            placeholder="Unesite iznos"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             required
@@ -56,7 +56,7 @@ export function AddFundsDialog({ cards, onAddFunds }: AddFundsDialogProps) {
                     </div>
 
                     <div>
-                        <Label>Select Card</Label>
+                        <Label>Odaberite karticz</Label>
                         <Select
                             value={selectedCard.toString()}
                             onValueChange={(v) => setSelectedCard(parseInt(v))}

@@ -181,10 +181,10 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         body: JSON.stringify({ userId })
       });
       setNotifications(prev => prev.map(n => ({ ...n, seen: true })));
-      toast.success("All notifications marked as read");
+      toast.success("Sve obavijesti označene kao pročitane");
     } catch (err) {
       console.error("Error marking all as read:", err);
-      toast.error("Failed to mark all as read");
+      toast.error("Neuspješno označavanje kao pročitano");
     }
   };
 
@@ -196,7 +196,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       toast.success("Notification deleted");
     } catch (err) {
       console.error("Error deleting notification:", err);
-      toast.error("Failed to delete notification");
+      toast.error("Neuspješno brisanje obavijesti");
     }
   };
 
@@ -211,7 +211,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       toast.success("All notifications cleared");
     } catch (err) {
       console.error("Error clearing notifications:", err);
-      toast.error("Failed to clear notifications");
+      toast.error("Neuspješno brisanje obavijesti");
     }
   };
 
@@ -231,12 +231,10 @@ useEffect(() => {
         showBrowserNotification(data); 
       }
     } catch (err) {
-      console.error("Error parsing SSE data:", err);
     }
   };
 
   es.onerror = (err) => {
-    console.error("SSE error:", err);
     es.close();
   };
 
@@ -296,9 +294,9 @@ useEffect(() => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+    if (diffInHours < 1) return 'Sad';
+    if (diffInHours < 24) return `prije ${diffInHours}h`;
+    if (diffInHours < 168) return `prije ${Math.floor(diffInHours / 24)}d`;
     return date.toLocaleDateString();
   };
 
@@ -324,7 +322,7 @@ useEffect(() => {
       {open && (
         <div className="absolute -right-[130px]  md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
-            <h3 className="font-semibold text-gray-800">Notifications</h3>
+            <h3 className="font-semibold text-gray-800">Obavijesti</h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
@@ -338,7 +336,7 @@ useEffect(() => {
                   onClick={markAllAsRead}
                   className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  Mark all as read
+                  Označi sve kao pročitano
                 </button>
               )}
             </div>
@@ -351,7 +349,7 @@ useEffect(() => {
             ) : filteredNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                 <Bell size={48} className="text-gray-300 mb-2" />
-                <p className="text-gray-500 font-medium">No notifications</p>
+                <p className="text-gray-500 font-medium">Nema obavijesti</p>
                 <p className="text-gray-400 text-sm mt-1">
                   {filter === 'unread' ? 'You have no unread notifications' : 'Your notification list is empty'}
                 </p>
@@ -397,7 +395,7 @@ useEffect(() => {
                 className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center"
               >
                 <Trash2 size={14} className="mr-1" />
-                Clear all
+                Briši sve
               </button>
             </div>
           )}

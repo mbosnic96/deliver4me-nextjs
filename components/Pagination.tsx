@@ -35,7 +35,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           disabled={currentPage === 1}
           className="flex-1 max-w-24"
         >
-          Previous
+          Prethodna
         </Button>
         
         <span className="text-sm text-muted-foreground px-4">
@@ -49,7 +49,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           disabled={currentPage === totalPages}
           className="flex-1 max-w-24"
         >
-          Next
+          Sljedeća
         </Button>
       </div>
 
@@ -60,7 +60,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
         >
-          First
+          Prva
         </Button>
         
         <Button
@@ -69,7 +69,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          Previous
+          Prethodna
         </Button>
 
         {startPage > 1 && (
@@ -115,7 +115,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          Next
+          Sljedeća
         </Button>
         
         <Button
@@ -124,7 +124,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
         >
-          Last
+          Zadnja
         </Button>
       </div>
     </div>
