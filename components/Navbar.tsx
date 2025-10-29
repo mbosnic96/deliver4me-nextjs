@@ -167,54 +167,89 @@ export default function Navbar() {
         <div className={`flex items-center justify-around py-2 ${showCreateButton ? 'px-2' : 'px-4'}`}>
           <Link
             href="/"
-            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
+            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[50px] ${
               pathname === '/' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
-            <Home size={20} />
-            <span className="text-xs mt-1">Početna</span>
+            <Home size={16} />
+            <span className="text-[0.65rem] mt-1">Početna</span>
           </Link>
             {session && (
           <Link
             href="/load"
-            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[80px] ${
+            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[50px] ${
               pathname === '/load' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
-            <Truck size={20} />
-            <span className="text-xs mt-1">Tereti</span>
+            <Truck size={16} />
+            <span className="text-[0.65rem] mt-1">Tereti</span>
+          </Link>
+           )}
+
+  {session && (
+          <Link
+            href="/my-wallet"
+            className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[50px] ${
+              pathname === '/my-wallet' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
+            }`}
+          >
+            <Wallet size={16} />
+            <span className="text-[0.65rem] mt-1">Novčanik</span>
           </Link>
            )}
 
           {showCreateButton && (
             <button
               onClick={() => setShowLoadModal(true)}
-              className="flex flex-col items-center p-2 rounded-lg transition text-green-600 hover:text-green-700 flex-1 max-w-[80px] -mt-4"
+              className="flex flex-col items-center p-2 rounded-lg transition text-green-600 hover:text-green-700 flex-1 max-w-[50px] -mt-4"
             >
               <div className="bg-white p-3 rounded-full shadow-lg border-2 border-green-600">
-                <Plus size={24} />
+                <Plus size={16} />
               </div>
-              <span className="text-xs mt-1">Novi</span>
+              <span className="text-[0.65rem] mt-1">Novi</span>
             </button>
           )}
           {session ? (
             <>
-             {session?.user && userId && <NotificationsDropdown userId={userId} />}
-                 {session?.user && userId && <MessagesIcon userId={userId} />}
+             {session?.user && userId && (
+  <div
+    className={`flex flex-col items-center p-2 py-0 rounded-lg transition flex-1 max-w-[50px] ${
+      pathname === '/notifications'
+        ? 'text-indigo-600 bg-indigo-50'
+        : 'text-gray-600 hover:text-indigo-600'
+    }`}
+  >
+    <NotificationsDropdown userId={userId} />
+    <span className="text-[0.65rem] -mt-[4px]">Notifikacije</span>
+  </div>
+)}
 
-              <div className="relative flex-1 max-w-[80px]" ref={menuRef}>
+{session?.user && userId && (
+  <div
+    className={`flex flex-col items-center p-2 rounded-lg transition flex-1 max-w-[50px] ${
+      pathname === '/messages'
+        ? 'text-indigo-600 bg-indigo-50'
+        : 'text-gray-600 hover:text-indigo-600'
+    }`}
+  >
+    <MessagesIcon userId={userId} />
+    <span className="text-[0.65rem] -mt-[4px]">Poruke</span>
+  </div>
+)}
+
+              <div className="relative flex-1 max-w-[50px]" ref={menuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className={`flex flex-col items-center p-2 rounded-lg transition w-full ${
                     userMenuOpen ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600'
                   }`}
                 >
-                  <Settings size={20} />
-                  <span className="text-xs mt-1">Više</span>
+                  <Settings size={16} />
+                  <span className="text-[0.65rem] mt-1">Više</span>
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                     {roleLinks.map((item) => {
                       const Icon = item.icon;
                       return (
@@ -246,10 +281,10 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex flex-col items-center p-2 rounded-lg transition text-gray-600 hover:text-indigo-600 flex-1 max-w-[80px]"
+              className="flex flex-col items-center p-2 rounded-lg transition text-gray-600 hover:text-indigo-600 flex-1 max-w-[50px]"
             >
-              <User size={20} />
-              <span className="text-xs mt-1">Prijava</span>
+              <User size={16} />
+              <span className="text-[0.65rem] mt-1">Prijava</span>
             </Link>
           )}
         </div>

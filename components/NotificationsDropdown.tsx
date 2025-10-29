@@ -305,24 +305,24 @@ useEffect(() => {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className={`relative p-2 rounded-full transition-all duration-200 ${
-          open ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
+        className={`relative md:p-2 rounded-full transition-all duration-200 ${
+          open ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-600'
         }`}
         onClick={() => {
           setOpen(!open);
-          if (!open) fetchNotifications(); // Refresh when opening dropdown
+          if (!open) fetchNotifications(); 
         }}
       >
-        <Bell size={22} />
+        <Bell size={16} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center">
+          <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute -right-5 md:right-0 md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
+        <div className="absolute -right-[130px]  md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
             <h3 className="font-semibold text-gray-800">Notifications</h3>
             <div className="flex items-center space-x-2">

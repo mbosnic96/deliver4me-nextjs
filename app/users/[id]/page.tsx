@@ -217,10 +217,10 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                     </div>
                   )}
 
-                  <div className="flex space-x-3 pt-4">
+                  <div className="flex flex-wrap space-x-3 pt-4">
   <a
     href={`tel:${user.phone}`}
-    className="btn btn-primary flex items-center"
+    className="btn btn-primary flex items-center mb-1"
   >
     <Phone size={16} className="mr-2 text-blue-600" />
     Pozovi
@@ -229,7 +229,7 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
   {user.email && (
     <a
       href={`mailto:${user.email}`}
-      className="btn btn-outline flex items-center"
+      className="btn btn-primary flex items-center mb-1"
     >
       <Mail size={16} className="mr-2 text-blue-600" />
       Email
@@ -255,7 +255,7 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
         toast.error("Greška pri dijeljenju linka");
       }
     }}
-    className="btn btn-outline flex items-center"
+    className="btn btn-primary flex items-center mb-1"
   >
     <Navigation size={16} className="mr-2 text-blue-600" />
     Podijeli
@@ -264,7 +264,7 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
    {session?.user?.id && user && session.user.id !== user.id && (
     <Link
       href={`/messages?with=${user.id}`}
-      className="btn btn-primary flex items-center"
+      className="btn btn-primary flex items-center mb-1"
     >
       <MessageCircle size={16} className="mr-2 text-blue-600" />
       Pošalji poruku
@@ -276,7 +276,7 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
     reportedUserId={user.id}
     reportedUserName={user.name}
     trigger={
-      <button className="btn btn-outline flex items-center text-red-600 border-red-200 hover:bg-red-50">
+      <button className="btn flex items-center mb-1 text-red-600 border-red-200 hover:bg-red-50">
         <Flag size={16} className="mr-2" />
         Prijavi
       </button>

@@ -58,13 +58,14 @@ export default function MessagesIcon({ userId }: MessagesIconProps) {
   }, [socket, userId, isConnected, fetchUnreadCount]);
 
   return (
+     <div className="relative">
     <button
       onClick={() => router.push("/messages")}
-      className="relative p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+      className="relative rounded-full transition-all duration-200 hover:bg-gray-100 md:p-2"
       aria-label={`Poruke ${unreadCount > 0 ? `(${unreadCount} nepročitanih)` : ''}`}
     >
       <MessageCircle 
-        size={22} 
+        size={16} 
         className={unreadCount > 0 ? "text-blue-600" : "text-gray-600"} 
       />
       {unreadCount > 0 && (
@@ -79,5 +80,6 @@ export default function MessagesIcon({ userId }: MessagesIconProps) {
         />
       )}
     </button>
+    </div>
   );
 }

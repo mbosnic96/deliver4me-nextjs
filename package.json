@@ -2,12 +2,12 @@
   "name": "deliver4me-nextjs",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "ts-node --project tsconfig.server.json server.ts",
-    "build": "next build && tsc --project tsconfig.server.json",
-    "start": "cross-env NODE_ENV=production node dist/server.js",
-    "lint": "next lint"
-  },
+"scripts": {
+  "dev": "cross-env NODE_OPTIONS='--max-old-space-size=4096' ts-node --project tsconfig.server.json server.ts",
+  "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build && tsc --project tsconfig.server.json",
+  "start": "cross-env NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' node dist/server.js",
+  "lint": "next lint"
+},
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-dialog": "^1.1.15",

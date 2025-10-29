@@ -168,7 +168,7 @@ export default function ReportsPage() {
   );
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen">
       <Sidebar
         role={role}
         navbarHeight={84}
