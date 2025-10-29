@@ -3,8 +3,33 @@ import { dbConnect } from "@/lib/db/db";
 import Bid from "@/lib/models/Bid";
 import Load from "@/lib/models/Load";
 import Wallet from "@/lib/models/Wallet";
+import Vehicle from "@/lib/models/Vehicle";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+
+async function recalculateVehicleCargoPercentage(vehicleId: string) {
+  const vehicle = await Vehicle.findById(vehicleId);
+  if (!vehicle) return;
+
+  const activeLoads = vehicle.currentLoads.filter(
+    (load: any) => load.status === "active"
+  );
+  const totalActiveVolume = activeLoads.reduce(
+    (sum: number, load: any) => sum + (load.volumeUsed || 0), 
+    0
+  );
+  
+  const newCargoPercentage = vehicle.volume > 0 
+    ? Math.min(100, (totalActiveVolume / vehicle.volume) * 100)
+    : 0;
+
+  await Vehicle.findByIdAndUpdate(
+    vehicleId,
+    { 
+      cargoPercentage: Math.round(newCargoPercentage * 100) / 100
+    }
+  );
+}
 
 export async function PATCH(
   req: Request,
@@ -25,8 +50,9 @@ export async function PATCH(
   const params = await context.params;
   const { id } = params;
   
-  const bid = await Bid.findById(id).populate("driverId", "name userName photoUrl rating reviewsCount");
-
+  const bid = await Bid.findById(id)
+    .populate("driverId", "name userName photoUrl rating reviewsCount")
+    .populate("vehicleId", "brand model plateNumber volume"); 
   if (!bid) {
     return NextResponse.json({ error: "Bid not found" }, { status: 404 });
   }
@@ -44,6 +70,12 @@ export async function PATCH(
   }
 
   if (status === "accepted") {
+    if (load.status !== "Aktivan") {
+      return NextResponse.json({ 
+        error: "Teret nije aktivan. Status se može mijenjati samo putem prihvaćanja ponude." 
+      }, { status: 400 });
+    }
+
     const clientWallet = await Wallet.findOne({ userId: session.user.id });
     if (!clientWallet) {
       return NextResponse.json({ error: "Wallet not found" }, { status: 404 });
@@ -56,7 +88,24 @@ export async function PATCH(
       );
     }
 
-    try {
+ try {
+  if (bid.vehicleId) {
+    await Vehicle.findByIdAndUpdate(
+      bid.vehicleId._id,
+      {
+        $push: {
+          currentLoads: {
+            loadId: load._id,
+            volumeUsed: load.cargoVolume,
+            status: "active"
+          }
+        }
+      }
+    );
+
+    await recalculateVehicleCargoPercentage(bid.vehicleId._id);
+  }
+
       // Update client wallet - move funds from balance to escrow
       await Wallet.findByIdAndUpdate(clientWallet._id, {
         $inc: { balance: -bid.price, escrow: +bid.price },

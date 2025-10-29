@@ -23,7 +23,7 @@ type Vehicle = {
   volume: number;
   vehicleType?: { name: string };
   createdAt: string;
-  active: boolean;
+  cargoPercentage: number;
 };
 
 export default function VehiclesPage() {
@@ -97,18 +97,10 @@ export default function VehiclesPage() {
       ),
     },
     {
-      accessorKey: "active",
-      header: "Status",
+      accessorKey: "cargoPercentage",
+      header: "Popunjeno prostora (%)",
       cell: ({ row }) => (
-        <div
-          className={`px-2 py-1 rounded text-xs font-medium inline-block ${
-            row.original.active
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-200 text-gray-600"
-          }`}
-        >
-          {row.original.active ? "Aktivno" : "Neaktivno"}
-        </div>
+        <div>{row.original.cargoPercentage.toFixed(2)}</div>
       ),
     },
   ];

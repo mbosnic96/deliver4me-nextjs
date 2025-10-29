@@ -5,7 +5,55 @@ import { dbConnect } from "@/lib/db/db";
 import Load from "@/lib/models/Load";
 import Bid from "@/lib/models/Bid";
 import Wallet from "@/lib/models/Wallet";
+import Vehicle from "@/lib/models/Vehicle";
 import User from "@/lib/models/User";
+
+interface VehicleLoad {
+  loadId: any;
+  volumeUsed: number;
+  status: "active" | "delivered" | "canceled";
+}
+
+interface Vehicle {
+  id?: string;              
+  _id?: string;             
+  userId: string;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  volume: number;
+  width: number;
+  length: number;
+  height: number;
+  vehicleType?: {
+    name: string;
+  };
+  images: string[];         
+  cargoPercentage: number;
+  currentLoads: VehicleLoad[];
+  createdAt: string;
+}
+
+async function recalculateVehicleCargoPercentage(vehicleId: string) {
+  const vehicleDoc = await Vehicle.findById(vehicleId);
+  if (!vehicleDoc) return;
+
+  const vehicle = vehicleDoc.toObject() as Vehicle;
+  
+  const activeLoads = vehicle.currentLoads.filter((load: VehicleLoad) => load.status === "active");
+  const totalActiveVolume = activeLoads.reduce((sum: number, load: VehicleLoad) => sum + load.volumeUsed, 0);
+  
+  const newCargoPercentage = vehicle.volume > 0 
+    ? Math.min(100, (totalActiveVolume / vehicle.volume) * 100)
+    : 0;
+
+  await Vehicle.findByIdAndUpdate(
+    vehicleId,
+    { 
+      cargoPercentage: Math.round(newCargoPercentage * 100) / 100
+    }
+  );
+}
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   await dbConnect();
@@ -43,23 +91,36 @@ export async function PATCH(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Prevent status changes after final states
-    if (["Dostavljen", "Otkazan", "dostavljen", "canceled", "otkazan"].includes(existing.status)) {
-      return NextResponse.json({ error: `Nemoguće ažurirati status tereta koji je već ${existing.status}` }, { status: 400 });
-    }
-
     const userRole = authSession.user.role;
     const isOwner = existing.userId.toString() === authSession.user.id;
 
-   
+    if (existing.status === "Aktivan" && data.status && 
+        data.status !== "Aktivan" && 
+        data.status !== "Otkazan" && 
+        data.status !== "otkazan" && 
+        data.status !== "canceled") {
+      return NextResponse.json({ 
+        error: "Status tereta se može promijeniti samo putem prihvaćanja ponude ili otkazivanja" 
+      }, { status: 400 });
+    }
+
+    if (["Dostavljen", "Otkazan", "dostavljen", "canceled", "otkazan"].includes(existing.status)) {
+      return NextResponse.json({ 
+        error: `Nemoguće ažurirati status tereta koji je već ${existing.status}` 
+      }, { status: 400 });
+    }
+
     if ((data.status === "Dostavljen" || data.status === "dostavljen" || data.status === "delivered") && isOwner && userRole !== "admin") {
-      return NextResponse.json({ error: "Klijent ne može označiti teret kao dostavljen. Samo vozač može potvrditi dostavu." }, { status: 403 });
+      return NextResponse.json({ 
+        error: "Klijent ne može označiti teret kao dostavljen. Samo vozač može potvrditi dostavu." 
+      }, { status: 403 });
     }
 
     if (userRole === "admin" || isOwner) {
-      // Prevent admin/client from marking as delivered
       if (data.status === "Dostavljen" || data.status === "dostavljen" || data.status === "delivered") {
-        return NextResponse.json({ error: "Samo vozač može označiti teret kao dostavljen." }, { status: 403 });
+        return NextResponse.json({ 
+          error: "Samo vozač može označiti teret kao dostavljen." 
+        }, { status: 403 });
       }
 
       // Handle cancelation with escrow refund
@@ -86,7 +147,7 @@ export async function PATCH(
             });
           }
 
-          //  remove from driver escrow if it exists
+          // Remove from driver escrow if it exists
           if (driverWallet && driverWallet.escrow >= amount) {
             await Wallet.findByIdAndUpdate(driverWallet._id, {
               $inc: { escrow: -amount },
@@ -100,14 +161,34 @@ export async function PATCH(
               },
             });
           }
+
+          // Update vehicle cargo percentage
+          if (winningBid.vehicleId) {
+            await Vehicle.findByIdAndUpdate(
+              winningBid.vehicleId,
+              { 
+                $set: {
+                  "currentLoads.$[elem].status": "canceled"
+                }
+              },
+              {
+                arrayFilters: [
+                  { "elem.loadId": existing._id, "elem.status": "active" }
+                ]
+              }
+            );
+
+            await recalculateVehicleCargoPercentage(winningBid.vehicleId);
+          }
         }
       }
 
-      // Balance check for fixedPrice updates
       if ("fixedPrice" in data) {
         const wallet = await Wallet.findOne({ userId: existing.userId });
         if (!wallet || wallet.balance < data.fixedPrice) {
-          return NextResponse.json({ error: "Nemate dovoljno novca na računu za objavu ovog tereta." }, { status: 400 });
+          return NextResponse.json({ 
+            error: "Nemate dovoljno novca na računu za objavu ovog tereta." 
+          }, { status: 400 });
         }
       }
 
@@ -124,9 +205,12 @@ export async function PATCH(
       return NextResponse.json(updated);
     }
 
+    // Driver logic
     if (userRole === "driver") {
       if (!("status" in data)) {
-        return NextResponse.json({ error: "Vozači mogu samo ažurirati status" }, { status: 403 });
+        return NextResponse.json({ 
+          error: "Vozači mogu samo ažurirati status" 
+        }, { status: 403 });
       }
       
       // Handle driver cancellation with escrow refund
@@ -140,9 +224,10 @@ export async function PATCH(
           return NextResponse.json({ error: "Dodijeljena ponuda nije pronađena" }, { status: 404 });
         }
 
-       
         if (winningBid.driverId.toString() !== authSession.user.id) {
-          return NextResponse.json({ error: "Niste dodijeljeni vozač za ovaj teret" }, { status: 403 });
+          return NextResponse.json({ 
+            error: "Niste dodijeljeni vozač za ovaj teret" 
+          }, { status: 403 });
         }
 
         const clientWallet = await Wallet.findOne({ userId: existing.userId });
@@ -179,6 +264,25 @@ export async function PATCH(
           });
         }
 
+      
+        if (winningBid.vehicleId) {
+          await Vehicle.findByIdAndUpdate(
+            winningBid.vehicleId,
+            { 
+              $set: {
+                "currentLoads.$[elem].status": "canceled"
+              }
+            },
+            {
+              arrayFilters: [
+                { "elem.loadId": existing._id, "elem.status": "active" }
+              ]
+            }
+          );
+
+          await recalculateVehicleCargoPercentage(winningBid.vehicleId);
+        }
+
         // Update load status to canceled
         const updatedLoad = await Load.findByIdAndUpdate(
           id, 
@@ -192,7 +296,7 @@ export async function PATCH(
         });
       }
       
-      // Handle delivery with escrow transfer to driver
+      // Handle delivery
       if (data.status === "Dostavljen" || data.status === "dostavljen" || data.status === "delivered") {
         const clientWallet = await Wallet.findOne({ userId: existing.userId });
         const driverWallet = await Wallet.findOne({ userId: authSession.user.id });
@@ -230,7 +334,7 @@ export async function PATCH(
         }
 
         try {
-          // take from client escrow
+          // Take from client escrow
           await Wallet.findByIdAndUpdate(clientWallet._id, {
             $inc: { escrow: -amount },
             $push: {
@@ -243,7 +347,7 @@ export async function PATCH(
             },
           });
 
-          //  Transfer from driver escrow to driver balance (minus platform fee)
+          // Transfer from driver escrow to driver balance 
           await Wallet.findByIdAndUpdate(driverWallet._id, {
             $inc: { escrow: -amount, balance: +driverAmount },
             $push: {
@@ -256,12 +360,11 @@ export async function PATCH(
             },
           });
 
-          // fee to admin wallet
+          // Fee to admin wallet
           const adminUser = await User.findOne({ role: "admin" });
           if (adminUser) {
             let adminWallet = await Wallet.findOne({ userId: adminUser._id });
         
-            
             await Wallet.findByIdAndUpdate(adminWallet._id, {
               $inc: { balance: +platformFee },
               $push: {
@@ -275,6 +378,25 @@ export async function PATCH(
             });
           } else {
             console.warn("Admin user not found - platform fee not collected");
+          }
+
+          
+          if (winningBid.vehicleId) {
+            await Vehicle.findByIdAndUpdate(
+              winningBid.vehicleId,
+              { 
+                $set: {
+                  "currentLoads.$[elem].status": "delivered"
+                }
+              },
+              {
+                arrayFilters: [
+                  { "elem.loadId": existing._id, "elem.status": "active" }
+                ]
+              }
+            );
+
+            await recalculateVehicleCargoPercentage(winningBid.vehicleId);
           }
 
           // Update load status to delivered
@@ -325,6 +447,20 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
 
   if (session.user.role !== "admin" && existing.userId.toString() !== session.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (existing.assignedBidId) {
+    const winningBid = await Bid.findById(existing.assignedBidId);
+    if (winningBid && winningBid.vehicleId) {
+      await Vehicle.findByIdAndUpdate(
+        winningBid.vehicleId,
+        { 
+          $pull: { currentLoads: { loadId: existing._id } }
+        }
+      );
+
+      await recalculateVehicleCargoPercentage(winningBid.vehicleId);
+    }
   }
 
   await Load.findByIdAndDelete(id);

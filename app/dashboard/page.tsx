@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { Carousel } from "@/components/Carousel";
 import { VehicleTabs } from "@/components/VehicleTabs";
 import Sidebar from "@/components/Sidebar";
+import { Vehicle } from "@/lib/types/vehicle";
 
 const AllRoutesMap = dynamic(() => import('@/components/AllRoutesMap').then(mod => mod.AllRoutesMap), {
   ssr: false,
@@ -34,7 +35,7 @@ interface UserType {
 }
 
 interface Load {
-  id: string;
+  _id: string;
   title: string;
   pickupLatitude: number;
   pickupLongitude: number;
@@ -49,17 +50,7 @@ interface Load {
   createdAt: string;
 }
 
-interface Vehicle {
-  id: string;
-  model: string;
-  cargoPercentage?: number;
-  plateNumber?: string;
-  width?: number;
-  height?: number;
-  length?: number;
-  lat?: number;
-  lng?: number;
-}
+
 
 interface Statistics {
   monthlyRevenue: number;
@@ -194,12 +185,12 @@ export default function DashboardPage() {
         Math.abs(load.deliveryLatitude) <= 90 && Math.abs(load.deliveryLongitude) <= 180;
       
       if (!isValid) {
-        console.warn('Invalid coordinates for load:', load.id);
+        console.warn('Invalid coordinates for load:', load._id);
       }
       return isValid;
     })
     .map(load => ({
-      id: load.id,
+      id: load._id.toString(),
       title: load.title,
       pickup: { 
         lat: load.pickupLatitude,

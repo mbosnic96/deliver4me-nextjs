@@ -5,9 +5,8 @@ import Image from "next/image";
 import { FullUserDto } from "@/lib/types/user";
 import { Vehicle } from "@/lib/types/vehicle";
 import { 
-  MapPin, Phone, Mail, Truck, Ruler, 
-  Calendar, Star, Award, Clock, User,
-  ArrowLeft, Shield, MessageCircle, Navigation,
+  MapPin, Phone, Mail, Truck, User, Navigation2, Share2,
+  ArrowLeft, Shield, MessageCircle,
   AtSign, Flag
 } from "lucide-react";
 import Link from "next/link";
@@ -17,8 +16,12 @@ import { LeafletMap } from "@/components/LeafletMap";
 import { LatLngTuple } from "leaflet";
 import { toast } from "react-toastify";
 import { ReportDialog } from "@/components/ReportDialog";
-
 import { useSession } from "next-auth/react";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 
 interface UserProfilePageProps {
   params: Promise<{ id: string }>;
@@ -31,9 +34,8 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
-  const [currentVehicleImageIndex, setCurrentVehicleImageIndex] = useState<{[key: string]: number}>({});
-  
-  const { data: session, status: sessionStatus } = useSession();
+
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,13 +60,6 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
         if (vehiclesRes.ok) {
           const vehiclesData: Vehicle[] = await vehiclesRes.json();
           setVehicles(vehiclesData);
-          
-          const initialIndices: {[key: string]: number} = {};
-          vehiclesData.forEach(vehicle => {
-            const vehicleId = vehicle.id || vehicle._id || `temp-${Math.random()}`;
-            initialIndices[vehicleId] = 0;
-          });
-          setCurrentVehicleImageIndex(initialIndices);
         }
 
         if (reviewsRes.ok) {
@@ -81,42 +76,12 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
     fetchData();
   }, [id]);
 
+  const getVehicleId = (vehicle: Vehicle): string => vehicle.id || vehicle._id || `temp-${vehicles.indexOf(vehicle)}`;
 
-  const getVehicleId = (vehicle: Vehicle): string => {
-    return vehicle.id || vehicle._id || `temp-${vehicles.indexOf(vehicle)}`;
-  };
-
-  const nextVehicleImage = (vehicle: Vehicle) => {
-    const vehicleId = getVehicleId(vehicle);
-    if (vehicle.images.length > 0) {
-      setCurrentVehicleImageIndex(prev => ({
-        ...prev,
-        [vehicleId]: ((prev[vehicleId] || 0) + 1) % vehicle.images.length
-      }));
-    }
-  };
-
-  const prevVehicleImage = (vehicle: Vehicle) => {
-    const vehicleId = getVehicleId(vehicle);
-    if (vehicle.images.length > 0) {
-      setCurrentVehicleImageIndex(prev => ({
-        ...prev,
-        [vehicleId]: ((prev[vehicleId] || 0) - 1 + vehicle.images.length) % vehicle.images.length
-      }));
-    }
-  };
-
-const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
-  if (!imagePath) return '/assets/default-vehicle.jpg';
-  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
-  const vehicleId = getVehicleId(vehicle);
-  return `/uploads/vehicles/${vehicleId}/${imagePath}`;
-};
-
-
-  const getCurrentImageIndex = (vehicle: Vehicle): number => {
-    const vehicleId = getVehicleId(vehicle);
-    return currentVehicleImageIndex[vehicleId] || 0;
+  const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
+    if (!imagePath) return '/assets/default-vehicle.jpg';
+    if (imagePath.startsWith('http') || imagePath.startsWith('data:')) return imagePath;
+    return `/uploads/vehicles/${getVehicleId(vehicle)}/${imagePath}`;
   };
 
   if (loading) {
@@ -150,19 +115,16 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+       <div className={`grid grid-cols-1 gap-8 ${
+  user.role === 'driver' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
+}`}>
           <div className="lg:col-span-2 space-y-6">
             <div className="content-bg rounded-xl shadow-sm border p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 <div className="flex justify-center lg:justify-start">
                   <div className="w-32 h-32 relative rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
                     {user.photoUrl ? (
-                      <Image
-                        src={user.photoUrl}
-                        alt="Profile Photo"
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={user.photoUrl} alt="Profile Photo" fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                         <User size={48} className="text-blue-500" />
@@ -183,14 +145,11 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                     <div className="flex items-center space-x-2">
                       {user.role === 'admin' && (
                         <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                          <Shield size={12} className="inline mr-1 text-blue-600" />
-                          Admin
+                          <Shield size={12} className="inline mr-1 text-blue-600" />Admin
                         </span>
                       )}
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        user.role === 'driver' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-green-100 text-green-800'
+                        user.role === 'driver' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {user.role === 'driver' ? 'Vozač' : 'Klijent'}
                       </span>
@@ -210,101 +169,61 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
                     </div>
                   </div>
 
-                  {user.address && (
-                    <div className="text-white">
-                      <MapPin size={16} className="inline mr-2 text-blue-600" />
-                      {user.address}
-                    </div>
-                  )}
-
                   <div className="flex flex-wrap space-x-3 pt-4">
-  <a
-    href={`tel:${user.phone}`}
-    className="btn btn-primary flex items-center mb-1"
-  >
-    <Phone size={16} className="mr-2 text-blue-600" />
-    Pozovi
-  </a>
+                    <a href={`tel:${user.phone}`} className="btn btn-primary flex items-center mb-1">
+                      <Phone size={16} className="mr-2 text-blue-600" />Pozovi
+                    </a>
 
-  {user.email && (
-    <a
-      href={`mailto:${user.email}`}
-      className="btn btn-primary flex items-center mb-1"
-    >
-      <Mail size={16} className="mr-2 text-blue-600" />
-      Email
-    </a>
-  )}
+                    <button
+                      onClick={async () => {
+                        const url = window.location.href;
+                        try {
+                          if (navigator.share) {
+                            await navigator.share({ title: user.name, url });
+                            toast.success("Link podijeljen!");
+                          } else {
+                            await navigator.clipboard.writeText(url);
+                            toast.success("Link kopiran u clipboard!");
+                          }
+                        } catch {
+                          toast.error("Greška pri dijeljenju linka");
+                        }
+                      }}
+                      className="btn btn-primary flex items-center mb-1"
+                    >
+                      <Share2 size={16} className="mr-2 text-blue-600" />Podijeli
+                    </button>
 
-  <button
-    onClick={async () => {
-      const url = window.location.href;
-      try {
-        if (navigator.share) {
-          await navigator.share({
-            title: user.name,
-            url,
-          });
-          toast.success("Link podijeljen!");
-        } else {
-          await navigator.clipboard.writeText(url);
-          toast.success("Link kopiran u clipboard!");
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Greška pri dijeljenju linka");
-      }
-    }}
-    className="btn btn-primary flex items-center mb-1"
-  >
-    <Navigation size={16} className="mr-2 text-blue-600" />
-    Podijeli
-  </button>
+                    {session?.user?.id && user && session.user.id !== user.id && (
+                      <Link href={`/messages?with=${user.id}`} className="btn btn-primary flex items-center mb-1">
+                        <MessageCircle size={16} className="mr-2 text-blue-600" />Pošalji poruku
+                      </Link>
+                    )}
 
-   {session?.user?.id && user && session.user.id !== user.id && (
-    <Link
-      href={`/messages?with=${user.id}`}
-      className="btn btn-primary flex items-center mb-1"
-    >
-      <MessageCircle size={16} className="mr-2 text-blue-600" />
-      Pošalji poruku
-    </Link>
-  )}
-
-  {session?.user?.id && user && session.user.id !== user.id && (
-  <ReportDialog
-    reportedUserId={user.id}
-    reportedUserName={user.name}
-    trigger={
-      <button className="btn flex items-center mb-1 text-red-600 border-red-200 hover:bg-red-50">
-        <Flag size={16} className="mr-2" />
-        Prijavi
-      </button>
-    }
-  />
-)}
-</div>
-
+                    {session?.user?.id && user && session.user.id !== user.id && (
+                      <ReportDialog
+                        reportedUserId={user.id}
+                        reportedUserName={user.name}
+                        trigger={
+                          <button className="btn flex items-center mb-1 text-red-600 border-red-200 hover:bg-red-50">
+                            <Flag size={16} className="mr-2" />Prijavi
+                          </button>
+                        }
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="content-bg rounded-xl shadow-sm border p-6">
               <h3 className="font-semibold text-white mb-4 flex items-center">
-                <Navigation size={20} className="mr-2 text-blue-600" />
-                Lokacija korisnika
+                <Navigation2 size={20} className="mr-2 text-blue-600" />Lokacija korisnika
               </h3>
-              <p className="text-white mb-4 text-sm">
-                Prikazana je zadnja poznata lokacija korisnika.
-              </p>
+              <p className="text-white mb-4 text-sm">Prikazana je zadnja poznata lokacija korisnika.</p>
               <div className="h-72 rounded-lg border overflow-hidden">
                 {userLocation ? (
-                  <LeafletMap 
-                    lat={userLocation[0]} 
-                    lng={userLocation[1]} 
-                    zoom={13}
-                    className="h-full w-full"
-                  />
+                  <LeafletMap lat={userLocation[0]} lng={userLocation[1]} zoom={13} className="h-full w-full" />
                 ) : (
                   <div className="h-full flex items-center justify-center text-white content-bg">
                     <div className="text-center">
@@ -316,85 +235,43 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
               </div>
             </div>
 
-   
             <RatingsCard averageRating={averageRating} totalReviews={totalReviews} />
-
-         
             <ReviewsList userId={user.id} />
           </div>
 
+          {user.role === 'driver' && (
+            <div className="space-y-6">
+              <div className="content-bg rounded-xl shadow-sm border p-6">
+                <h3 className="font-semibold text-white mb-4 flex items-center">
+                  <Truck size={20} className="mr-2 text-blue-600" />Vozila ({vehicles.length})
+                </h3>
+                {vehicles.length === 0 && (
+                  <p className="text-white text-center py-8">Korisnik nema registrovanih vozila</p>
+                )}
+              </div>
 
-          <div className="space-y-6">
-          
-            <div className="content-bg rounded-xl shadow-sm border p-6">
-              <h3 className="font-semibold text-white mb-4 flex items-center">
-                <Truck size={20} className="mr-2 text-blue-600" />
-                Vozila ({vehicles.length})
-              </h3>
-              {vehicles.length === 0 && (
-                <p className="text-white text-center py-8">
-                  Korisnik nema registrovanih vozila
-                </p>
-              )}
-            </div>
-
-        
-            {vehicles.map((vehicle) => {
-              const currentIndex = getCurrentImageIndex(vehicle);
-              
-              return (
+              {vehicles.map((vehicle) => (
                 <div key={getVehicleId(vehicle)} className="content-bg rounded-xl shadow-sm border overflow-hidden">
                   {vehicle.images.length > 0 && (
-                    <div className="relative aspect-video">
-                      <Image
-                        src={getVehicleImageUrl(vehicle, vehicle.images[currentIndex])}
-                        alt={vehicle.model || "Vehicle"}
-                        fill
-                        className="object-cover"
-                      />
-                      
-                      {vehicle.images.length > 1 && (
-                        <>
-                          <button
-                            onClick={() => prevVehicleImage(vehicle)}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:content-bg p-1 rounded-full shadow-md transition-colors"
-                          >
-                            <ArrowLeft size={16} className="text-blue-500"/>
-                          </button>
-                          <button
-                            onClick={() => nextVehicleImage(vehicle)}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:content-bg p-1 rounded-full shadow-md transition-colors"
-                          >
-                            <ArrowLeft size={16} className="rotate-180 text-blue-500" />
-                          </button>
-                        </>
-                      )}
-                      
-                   
-                      {vehicle.images.length > 1 && (
-                        <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
-                          {currentIndex + 1} / {vehicle.images.length}
-                        </div>
-                      )}
-                      
-                     
-                      {vehicle.vehicleType && (
-                        <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                          {vehicle.vehicleType.name}
-                        </div>
-                      )}
-                    </div>
+                    <Swiper modules={[Navigation]} navigation className="aspect-video">
+                      {vehicle.images.map((img, idx) => (
+                        <SwiperSlide key={idx}>
+                          <Image
+                            src={getVehicleImageUrl(vehicle, img)}
+                            alt={vehicle.model || "Vehicle"}
+                            fill
+                            className="object-cover"
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
                   )}
 
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-blue-500">
-                          {vehicle.model || "Nepoznat model"}
-                        </h4>
-                        <p className="text-white text-sm">
-                          {vehicle.brand || "Nepoznata marka"}
-                        </p>
+                        <h4 className="font-semibold text-blue-500">{vehicle.model || "Nepoznat model"}</h4>
+                        <p className="text-white text-sm">{vehicle.brand || "Nepoznata marka"}</p>
                       </div>
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
                         {vehicle.volume?.toFixed(2) ?? 0} m³
@@ -403,38 +280,26 @@ const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
 
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
-                          Registracija
-                        </div>
-                        <div className="font-semibold text-white">
-                          {vehicle.plateNumber || "-"}
-                        </div>
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">Registracija</div>
+                        <div className="font-semibold text-white">{vehicle.plateNumber || "-"}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
-                          Dimenzije
-                        </div>
-                        <div className="font-semibold text-white">
-                          {vehicle.width ?? 0}×{vehicle.length ?? 0}×{vehicle.height ?? 0}m
-                        </div>
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">Dimenzije</div>
+                        <div className="font-semibold text-white">{vehicle.width ?? 0}×{vehicle.length ?? 0}×{vehicle.height ?? 0}m</div>
                       </div>
                     </div>
 
                     {vehicle.cargoPercentage !== undefined && (
                       <div className="mt-3 pt-3 border-t">
-                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">
-                          Zauzeće tereta
-                        </div>
-                        <div className="font-semibold text-white">
-                          {vehicle.cargoPercentage}%
-                        </div>
+                        <div className="text-xs text-blue-500 uppercase font-medium mb-1">Zauzeće tereta</div>
+                        <div className="font-semibold text-white">{vehicle.cargoPercentage}%</div>
                       </div>
                     )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

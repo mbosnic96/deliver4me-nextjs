@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import VehicleType from "@/lib/models/VehicleType";
 import Vehicle from "@/lib/models/Vehicle";
 import { dbConnect } from "@/lib/db/db";
 
@@ -9,20 +8,20 @@ export async function GET(request: Request) {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id)
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const url = new URL(request.url);
   const pageParam = url.searchParams.get("page");
   const limitParam = url.searchParams.get("limit");
-  const search = url.searchParams.get("search")?.trim().toLowerCase(); 
+  const search = url.searchParams.get("search")?.trim().toLowerCase();
 
   const page = pageParam ? parseInt(pageParam, 10) : null;
   const limit = limitParam ? parseInt(limitParam, 10) : null;
   const skip = page && limit ? (page - 1) * limit : 0;
 
   const query: any = { userId: session.user.id };
-
 
   if (search) {
     query.$or = [
@@ -35,6 +34,11 @@ export async function GET(request: Request) {
   const total = await Vehicle.countDocuments(query);
 
   let vehiclesQuery = Vehicle.find(query)
+    .populate({
+      path: "currentLoads.loadId",
+      model: "Load",
+      select: "title pickupCity deliveryCity status fixedPrice createdAt",
+    })
     .sort({ createdAt: -1 })
     .lean();
 
@@ -46,23 +50,38 @@ export async function GET(request: Request) {
 
   const mappedVehicles = vehicles.map((v: any) => ({
     ...v,
-    _id: (v._id as any).toString(),
-    id: (v._id as any).toString(),
+    _id: v._id.toString(),
+    id: v._id.toString(),
     createdAt: v.createdAt ? new Date(v.createdAt).toISOString() : null,
+    currentLoads:
+      v.currentLoads?.map((load: any) => ({
+        _id: load._id?.toString?.() || null,
+        loadId: load.loadId?._id?.toString?.() || load.loadId || null,
+        title: load.loadId?.title || "",
+        pickupCity: load.loadId?.pickupCity || "",
+        deliveryCity: load.loadId?.deliveryCity || "",
+        status: load.status || load.loadId?.status || "active",
+        fixedPrice: load.loadId?.fixedPrice || 0,
+        volumeUsed: load.volumeUsed || 0,
+        createdAt: load.loadId?.createdAt
+          ? new Date(load.loadId.createdAt).toISOString()
+          : null,
+      })) || [],
   }));
 
-  if (page && limit) {
-    return NextResponse.json({
-      data: mappedVehicles,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    });
-  }
+  const responseData = page && limit
+    ? {
+        data: mappedVehicles,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    : { data: mappedVehicles, total };
 
-  return NextResponse.json({ data: mappedVehicles, total });
+  return NextResponse.json(responseData);
 }
+
 
 
 export async function POST(request: Request) {

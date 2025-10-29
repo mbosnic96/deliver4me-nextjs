@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Truck, MapPin, Star, Eye } from "lucide-react";
 
 interface CarouselItem {
-  id: string;
+  _id: string;
   title?: string;
   name?: string;
   photoUrl?: string;
@@ -45,7 +45,7 @@ export function Carousel({ title, items, isDriver = false,  isUsers = false }: C
           <div className="flex gap-4 pb-4 min-w-max">
             {items.map((item) => (
               <div 
-                key={item.id} 
+                key={item._id} 
                 className="min-w-[280px] md:min-w-[320px] content-bg rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 overflow-hidden group"
               >
                 <div className="p-4 md:p-6">
@@ -104,9 +104,8 @@ export function Carousel({ title, items, isDriver = false,  isUsers = false }: C
                     </>
                   )}
                   
-                  {/* FIXED: Make this a clickable link */}
                   <Link 
-                    href={isDriver ? `/users/${item.id}` : `/load/${item.id}`}
+                    href={isDriver ? `/users/${item._id}` : `/load/${item._id}`}
                     className="mt-4 w-full px-4 py-2 border border-gray-300 text-white rounded-lg hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 flex items-center justify-center gap-2 font-medium group/btn"
                   >
                     <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />

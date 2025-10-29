@@ -12,6 +12,11 @@ const VehicleSchema = new Schema({
   vehicleTypeId: { type: Schema.Types.ObjectId, ref: "VehicleType" },
   images: [String],
   cargoPercentage: { type: Number, default: 0 },
+   currentLoads: [{ 
+    loadId: { type: Schema.Types.ObjectId, ref: "Load" },
+    volumeUsed: Number,
+    status: { type: String, enum: ["active", "delivered", "canceled"], default: "active" }
+  }],
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
 const Vehicle = models.Vehicle || model("Vehicle", VehicleSchema);
