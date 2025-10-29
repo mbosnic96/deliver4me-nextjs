@@ -205,7 +205,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                         reportedUserId={user.id}
                         reportedUserName={user.name}
                         trigger={
-                          <button className="btn flex items-center mb-1 text-red-600 border-red-200 hover:bg-red-50">
+                          <button className="btn flex items-center mb-1 text-red-600">
                             <Flag size={16} className="mr-2" />Prijavi
                           </button>
                         }
