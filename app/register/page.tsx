@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { Country, State, City } from 'country-state-city';
 import Select from 'react-select';
 

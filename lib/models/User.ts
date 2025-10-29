@@ -22,6 +22,8 @@ export interface IUser extends Document {
   rating: number;
   reviewsCount: number;
   unreadMessagesCount: number;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
 
 export interface IUserLean {
@@ -70,6 +72,9 @@ const UserSchema = new Schema<IUser>(
     rating: { type: Number, default: 0 },
     reviewsCount: { type: Number, default: 0 },
     unreadMessagesCount: { type: Number, default: 0 },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+    
   },
   { timestamps: true }
 );

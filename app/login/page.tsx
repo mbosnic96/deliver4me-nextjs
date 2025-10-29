@@ -104,37 +104,48 @@ export default function LoginPage() {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white rounded-full py-2 mt-2 hover:bg-blue-700 transition disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin mr-2 h-4 w-4 text-white"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8z"
-                    ></path>
-                  </svg>
-                  Loading...
-                </span>
-              ) : (
-                'Login'
-              )}
-            </button>
+           <button
+  type="submit"
+  disabled={isSubmitting}
+  className="w-full bg-blue-600 text-white rounded-full py-2 mt-2 hover:bg-blue-700 transition disabled:opacity-50"
+>
+  {isSubmitting ? (
+    <span className="flex items-center justify-center">
+      <svg
+        className="animate-spin mr-2 h-4 w-4 text-white"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8z"
+        ></path>
+      </svg>
+      Loading...
+    </span>
+  ) : (
+    'Login'
+  )}
+</button>
+
+<div className="flex justify-end mt-2">
+  <button
+    type="button"
+    onClick={() => router.push('/forgot-password')}
+    className="text-sm text-blue-600 hover:underline"
+  >
+    Forgot your password?
+  </button>
+</div>
+
 
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 text-sm px-4 py-2 rounded-md">
