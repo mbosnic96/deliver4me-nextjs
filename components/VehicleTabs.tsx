@@ -101,10 +101,9 @@ export function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsPr
                           return (
                             <SwiperSlide key={index}>
                               <div className="relative rounded-xl overflow-hidden shadow-lg h-64">
-                                <Image
+                                <img
                                   src={url}
                                   alt={`${v.brand} ${v.model} - Slika ${index + 1}`}
-                                  fill
                                   className="object-contain"
                                 />
                                 <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">

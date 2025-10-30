@@ -14,59 +14,61 @@ export async function GET(req: NextRequest) {
     return new Response("Missing userId", { status: 400 });
   }
 
-  // Create a readable stream
+  let isControllerClosed = false;
+
   const stream = new ReadableStream({
     async start(controller) {
-      controller.enqueue(
-        new TextEncoder().encode("retry: 10000\n\n")
-      );
-
-      await dbConnect();
-      let isControllerClosed = false;
-
-      // Send initial notifications
       try {
-        const initial = await Notification.find({ userId })
-          .sort({ createdAt: -1 })
-          .limit(10)
-          .lean();
-
         controller.enqueue(
-          new TextEncoder().encode(`data: ${JSON.stringify(initial)}\n\n`)
+          new TextEncoder().encode("retry: 10000\n\n")
         );
 
-        userLastCheck.set(userId, new Date());
-      } catch (error) {
-        console.error("Error fetching initial notifications:", error);
-        controller.enqueue(
-          new TextEncoder().encode(`data: ${JSON.stringify([])}\n\n`)
-        );
-      }
+        await dbConnect();
 
-      const interval = setInterval(async () => {
-        if (isControllerClosed) {
-          clearInterval(interval);
-          return;
+        // Send initial notifications
+        try {
+          const initial = await Notification.find({ userId })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .lean();
+
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify(initial)}\n\n`)
+          );
+
+          userLastCheck.set(userId, new Date());
+        } catch (error) {
+          console.error("Error fetching initial notifications:", error);
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify([])}\n\n`)
+          );
         }
 
-        try {
-          const lastCheck = userLastCheck.get(userId) || new Date(0);
-          const now = new Date();
+        const interval = setInterval(async () => {
+          if (isControllerClosed) {
+            clearInterval(interval);
+            return;
+          }
 
-          const newNotifications = await Notification.find({
-            userId,
-            seen: false,
-            createdAt: { $gt: lastCheck }
-          })
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .lean();
+          try {
+            const lastCheck = userLastCheck.get(userId) || new Date(0);
+            const now = new Date();
 
-          if (newNotifications.length > 0) {
-            userLastCheck.set(userId, now);
+            const newNotifications = await Notification.find({
+              userId,
+              seen: false,
+              createdAt: { $gt: lastCheck }
+            })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .lean();
 
-            for (const notification of newNotifications) {
-              if (!isControllerClosed) {
+            if (newNotifications.length > 0) {
+              userLastCheck.set(userId, now);
+
+              for (const notification of newNotifications) {
+                if (isControllerClosed) break;
+                
                 try {
                   controller.enqueue(
                     new TextEncoder().encode(`data: ${JSON.stringify(notification)}\n\n`)
@@ -74,38 +76,46 @@ export async function GET(req: NextRequest) {
                 } catch (enqueueError) {
                   console.error("Error enqueueing data:", enqueueError);
                   isControllerClosed = true;
-                  clearInterval(interval);
                   break;
                 }
               }
             }
+
+            userLastCheck.set(userId, now);
+
+          } catch (dbError) {
+            console.error("Error fetching new notifications:", dbError);
           }
+        }, 5000);
 
-          userLastCheck.set(userId, now);
-
-        } catch (dbError) {
-          console.error("Error fetching new notifications:", dbError);
+        if (!isControllerClosed) {
+          controller.enqueue(new TextEncoder().encode(": connected\n\n"));
         }
-      }, 5000); 
-      if (!isControllerClosed) {
-        controller.enqueue(new TextEncoder().encode(": connected\n\n"));
-      }
 
-      controller.close = () => {
-        isControllerClosed = true;
-        clearInterval(interval);
-        userLastCheck.delete(userId);
-        console.log("Stream controller closed for user:", userId);
-      };
+      } catch (error) {
+        console.error("Stream setup error:", error);
+        if (!isControllerClosed) {
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify({ error: "Stream setup failed" })}\n\n`)
+          );
+        }
+      }
     },
+
+    cancel() {
+      isControllerClosed = true;
+      userLastCheck.delete(userId);
+      console.log("Stream cancelled for user:", userId);
+    }
   });
 
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
-      "Content-Encoding": "none",
+      "Connection": "keep-alive",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Cache-Control"
     },
   });
 }

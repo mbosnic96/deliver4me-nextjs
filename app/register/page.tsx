@@ -145,7 +145,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
                 type="button"
                 className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
                   !isDelivery
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-700 text-white'
                     : 'content-bg text-blue-600 border border-blue-600'
                 }`}
                 onClick={() => setIsDelivery(false)}
@@ -156,7 +156,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
                 type="button"
                 className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
                   isDelivery
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-700 text-white'
                     : 'content-bg text-blue-600 border border-blue-600'
                 }`}
                 onClick={() => setIsDelivery(true)}
@@ -387,7 +387,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-700 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Obrada...' : 'Registracija'}
             </button>

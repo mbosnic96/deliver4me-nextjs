@@ -392,7 +392,7 @@ export default function MessagesContent() {
                     </div>
                   </div>
                   <div className="pt-1 text-center">
-                    <span className="font-semibold text-white bg-blue-600 px-3 py-1 rounded-full text-sm">
+                    <span className="font-semibold text-white bg-blue-700 px-3 py-1 rounded-full text-sm">
                       {subject}
                       {isNewConversation && " (Novi razgovor)"}
                     </span>
@@ -415,7 +415,7 @@ export default function MessagesContent() {
                     </div>
                   ) : messages.map(msg => (
                     <div key={msg._id} className={`flex ${msg.sender._id === session?.user?.id ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${msg.sender._id === session?.user?.id ? "bg-blue-600 text-white" : "bg-white text-blue-600 border"}`}>
+                      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${msg.sender._id === session?.user?.id ? "bg-blue-700 text-white" : "bg-white text-blue-600 border"}`}>
                         <p className="break-words">{msg.content}</p>
                         <div className="flex items-center justify-end gap-2 text-xs mt-1">
                           <span className={msg.sender._id === session?.user?.id ? "text-blue-100" : "text-gray-500"}>
@@ -444,7 +444,7 @@ export default function MessagesContent() {
                   <button 
                     onClick={sendMessage} 
                     disabled={!newMessage.trim()} 
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-blue-300"
+                    className="px-4 py-2 bg-blue-700 text-white rounded-lg disabled:bg-blue-300"
                   >
                     <Send size={20} />
                   </button>

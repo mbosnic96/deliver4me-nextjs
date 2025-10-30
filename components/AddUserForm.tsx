@@ -128,10 +128,10 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
         </select>
       </div>
       <div className="flex justify-end gap-2">
-        <Button type="button" onClick={onClose} variant="outline">
+        <Button type="button" onClick={onClose} variant="outline" className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
           Otkaži
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
           {loading ? "Spremanje..." : initialData ? "Ažuriraj korisnika" : "Dodaj korisnika"}
         </Button>
       </div>

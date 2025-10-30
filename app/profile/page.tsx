@@ -117,7 +117,7 @@ const PhotoUpload = ({ photoUrl, onRemove, onChange }: {
           <button
             type="button"
             onClick={handleClick}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
           >
             Dodaj sliku
           </button>
@@ -628,7 +628,7 @@ const updatePositionOnly = useCallback(async () => {
                       <button
                         type="submit"
                         disabled={!isDirty || loading}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                        className="px-6 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                       >
                         {loading ? 'Spremanje...' : 'Spremi'}
                       </button>
@@ -658,7 +658,7 @@ const updatePositionOnly = useCallback(async () => {
                     disabled={!latitude || !longitude || loading}
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
                   >
-                    {loading ? 'Spremanje...' : 'Ažuriranje lokaciju'}
+                    {loading ? 'Spremanje...' : 'Ažuriraj lokaciju'}
                   </button>
                 </div>
               </section>
@@ -706,7 +706,7 @@ const updatePositionOnly = useCallback(async () => {
                       type="button"
                       onClick={requestAccountDeletion}
                       disabled={loading}
-                      className="px-6 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition dark:hover:bg-red-900/20"
+                      className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
                      Briši račun
                     </button>

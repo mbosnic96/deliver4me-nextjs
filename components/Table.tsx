@@ -191,6 +191,7 @@ const handleFilterChange = (key: string, value: string) => {
       setEditingRow(undefined);
       setDialogOpen(true);
     }}
+    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
   >
     Dodaj
   </Button>

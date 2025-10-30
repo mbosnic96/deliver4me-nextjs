@@ -866,7 +866,7 @@ useEffect(() => {
                   <div className="mt-2 flex justify-end">
                     <Link
                       href={`/users/${bid.driver._id}`}
-                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center"
+                      className="px-3 py-1 bg-blue-700 text-white rounded text-sm flex items-center"
                     >
                       <Eye size={14} className="mr-1" />
                       Vidi profil vozača

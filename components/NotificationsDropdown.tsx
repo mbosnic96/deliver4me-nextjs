@@ -272,6 +272,12 @@ useEffect(() => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+     useEffect(() => {
+    if (userId) {
+      initNotifications();
+    }
+  }, [userId]);
+
   const filteredNotifications = filter === 'unread'
     ? notifications.filter(n => !n.seen)
     : notifications;

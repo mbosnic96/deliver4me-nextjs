@@ -181,16 +181,24 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
     setIsDirty(true)
   }
 
-  const removeImage = (index: number) => {
-    const removed = imagePreviews[index]
-    if (removed.startsWith('/uploads')) {
-      setImagesToRemove(prev => [...prev, removed])
-    }
-
-    setSelectedImages(prev => prev.filter((_, i) => i !== index))
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    setIsDirty(true)
+const removeImage = (index: number) => {
+  const removedPreview = imagePreviews[index];
+  const removedImageUrl = form.images[index]; 
+  if (removedImageUrl && removedImageUrl.startsWith('/api/uploads/')) {
+    setImagesToRemove(prev => [...prev, removedImageUrl]);
   }
+
+  if (removedPreview.startsWith('blob:')) {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  }
+
+  setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  
+  const updatedImages = form.images.filter((_: any, i: number) => i !== index);
+  handleChange('images', updatedImages);
+  
+  setIsDirty(true);
+};
 
   const handleClose = useCallback(() => {
     if (isDirty && !showCloseWarning) {
@@ -484,8 +492,8 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
         </div>
 
         <DialogFooter className="flex flex-col-reverse md:flex-row gap-2 md:gap-0 pt-4 border-t mt-4">
-          <Button onClick={handleClose} variant="outline" className="w-full md:w-auto text-sm md:text-base">Otkaži</Button>
-          <Button onClick={handleSubmit} disabled={isLoading} className="w-full md:w-auto text-sm md:text-base">
+          <Button onClick={handleClose} variant="outline" className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Otkaži</Button>
+          <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             {isLoading ? 'Spremanje...' : 'Spremi'}
           </Button>
         </DialogFooter>

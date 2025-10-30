@@ -92,7 +92,7 @@ export default function VehicleTypesPage() {
             searchPlaceholder="Pretraži tipove vozila..."
             renderActions={(row, edit, remove) => (
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={() => edit(row)}>
+                <Button variant="outline" size="sm" onClick={() => edit(row)} className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
                   <Edit className="h-4 w-4 mr-1" />
                   Uredi
                 </Button>
@@ -100,6 +100,7 @@ export default function VehicleTypesPage() {
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(row._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Briši

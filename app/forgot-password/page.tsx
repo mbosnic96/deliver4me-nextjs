@@ -60,7 +60,7 @@ export default function ForgotPassword() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="w-full py-2 bg-blue-700 text-white rounded hover:bg-blue-700 transition"
         >
           {loading ? 'Slanje...' : 'Pošalji link za reset'}
         </button>

@@ -195,7 +195,7 @@ export default function LoadsPage() {
                   className="pl-10 pr-4 py-2"
                 />
               </div>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Button type="submit" className="bg-blue-700 hover:bg-blue-700">
                 <Search size={20} className="mr-2" />
                 Pretraži
               </Button>
