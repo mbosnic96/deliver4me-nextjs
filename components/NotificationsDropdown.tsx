@@ -25,7 +25,8 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
+  const initializedRef = useRef(false);
+  const subscriptionRef = useRef<PushSubscription | null>(null);
 
   const urlBase64ToUint8Array = (base64String: string) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -35,42 +36,74 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   };
 
   const initNotifications = async () => {
-    if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
+    if (!('Notification' in window) || initializedRef.current) {
       return;
     }
 
     try {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-      console.log('Notification permission:', permission);
-
-      if (permission !== "granted") {
-        console.log('Notification permission not granted');
-        return;
+      initializedRef.current = true;
+      
+      const currentPermission = Notification.permission;
+      
+      let permission = currentPermission;
+      
+      if (currentPermission === 'default') {
+        permission = await Notification.requestPermission();
       }
+      
+      setNotificationPermission(permission);
 
-      if ('serviceWorker' in navigator) {
-        try {
-          const registration = await navigator.serviceWorker.ready;
-          console.log("Service Worker is ready");
-          await subscribeToPush(registration);
-        } catch (err) {
-          console.error("Service Worker not ready:", err);
-          
-          try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
-            console.log("Service Worker registered:", registration);
-            await subscribeToPush(registration);
-          } catch (regErr) {
-            console.error("Service Worker registration failed:", regErr);
-          }
-        }
-      } else {
-        console.log('Service Worker not supported');
+      if (permission === "granted") {
+        await initializeServiceWorkerAndSubscribe();
       }
     } catch (err) {
       console.error("Error initializing notifications:", err);
+      initializedRef.current = false;
+    }
+  };
+
+  const initializeServiceWorkerAndSubscribe = async () => {
+    if (!('serviceWorker' in navigator)) {
+      return;
+    }
+
+    try {
+      let registration = await navigator.serviceWorker.getRegistration();
+      
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js');
+        
+        if (registration.installing) {
+          await new Promise<void>((resolve, reject) => {
+            const worker = registration!.installing!;
+            const stateChangeHandler = () => {
+              if (worker.state === 'activated') {
+                worker.removeEventListener('statechange', stateChangeHandler);
+                resolve();
+              } else if (worker.state === 'redundant') {
+                worker.removeEventListener('statechange', stateChangeHandler);
+                reject(new Error('Service Worker installation failed'));
+              }
+            };
+            worker.addEventListener('statechange', stateChangeHandler);
+            
+            setTimeout(() => {
+              worker.removeEventListener('statechange', stateChangeHandler);
+              reject(new Error('Service Worker activation timeout'));
+            }, 10000);
+          });
+        }
+      } else {
+        console.log('Found existing Service Worker registration');
+      }
+
+      registration = await navigator.serviceWorker.ready;
+
+      if (!subscriptionRef.current) {
+        await subscribeToPush(registration);
+      }
+    } catch (err) {
+      console.error("Service Worker initialization failed:", err);
     }
   };
 
@@ -83,21 +116,30 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       }
 
       const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
-
       let subscription = await registration.pushManager.getSubscription();
-      
+
       if (subscription) {
-        console.log("Existing push subscription found");
+        subscriptionRef.current = subscription;
+        
         try {
-          await fetch('/api/push/validate', {
+          const validationResponse = await fetch('/api/push/validate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ subscription })
           });
-        } catch (err) {
-          console.log("Subscription validation failed, creating new one");
-          await subscription.unsubscribe();
+          
+          if (validationResponse.ok) {
+            console.log("Existing subscription is valid");
+            return subscription;
+          } else {
+            await subscription.unsubscribe();
+            subscription = null;
+            subscriptionRef.current = null;
+          }
+        } catch (validationErr) {
+          await subscription?.unsubscribe();
           subscription = null;
+          subscriptionRef.current = null;
         }
       }
 
@@ -106,20 +148,38 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
           userVisibleOnly: true,
           applicationServerKey: convertedKey
         });
-        console.log("New push subscription created");
+        subscriptionRef.current = subscription;
       }
 
-      // Send subscription to server
-      await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription, userId })
-      });
-
-      console.log("Push subscription saved to server");
+      await sendSubscriptionToServer(subscription);
       return subscription;
+
     } catch (err) {
       console.error("Push subscription failed:", err);
+      subscriptionRef.current = null;
+    }
+  };
+
+  const sendSubscriptionToServer = async (subscription: PushSubscription) => {
+    try {
+      const saveResponse = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          subscription,
+          userId
+        })
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error(`Server returned ${saveResponse.status}`);
+      }
+
+      const result = await saveResponse.json();
+      console.log("Push subscription saved to database");
+    } catch (err) {
+      console.error("Error sending subscription to server:", err);
+      throw err;
     }
   };
 
@@ -130,7 +190,6 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       const n = new Notification("Nova obavijest!", {
         body: notification.message,
         icon: "/logo.png",
-        badge: "/logo.png",
         tag: notification._id,
         data: { url: notification.link || '/notification' }
       });
@@ -142,7 +201,6 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         n.close();
       };
 
-      // Auto-close after 5 seconds
       setTimeout(() => n.close(), 5000);
     } catch (err) {
       console.error("Error showing browser notification:", err);
@@ -193,7 +251,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     try {
       await fetch(`/api/notifications/${id}`, { method: "DELETE" });
       setNotifications(prev => prev.filter(n => n._id !== id));
-      toast.success("Notification deleted");
+      toast.success("Obavijest obrisana");
     } catch (err) {
       console.error("Error deleting notification:", err);
       toast.error("Neuspješno brisanje obavijesti");
@@ -208,41 +266,41 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         body: JSON.stringify({ userId })
       });
       setNotifications([]);
-      toast.success("All notifications cleared");
+      toast.success("Sve obavijesti obrisane");
     } catch (err) {
       console.error("Error clearing notifications:", err);
       toast.error("Neuspješno brisanje obavijesti");
     }
   };
 
-useEffect(() => {
-  if (!userId) return;
+  useEffect(() => {
+    if (!userId) return;
 
-  const es = new EventSource(`/api/notifications/stream?userId=${userId}`);
+    const es = new EventSource(`/api/notifications/stream?userId=${userId}`);
 
-  es.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (Array.isArray(data)) {
-        setNotifications(data);
-      } else {
-        // single new notification
-        setNotifications((prev) => [data, ...prev]);
-        showBrowserNotification(data); 
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        } else {
+          setNotifications((prev) => [data, ...prev]);
+          showBrowserNotification(data); 
+        }
+      } catch (err) {
+        console.error('Error parsing SSE data:', err);
       }
-    } catch (err) {
-    }
-  };
+    };
 
-  es.onerror = (err) => {
-    es.close();
-  };
+    es.onerror = (err) => {
+      console.error('SSE error:', err);
+      es.close();
+    };
 
-  return () => {
-    es.close();
-  };
-}, [userId]);
-
+    return () => {
+      es.close();
+    };
+  }, [userId]);
 
   useEffect(() => {
     const handleServiceWorkerMessage = (event: MessageEvent) => {
@@ -272,10 +330,10 @@ useEffect(() => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-     useEffect(() => {
-    if (userId) {
-      initNotifications();
-    }
+  useEffect(() => {
+    if (!userId || initializedRef.current) return;
+
+    initNotifications();
   }, [userId]);
 
   const filteredNotifications = filter === 'unread'
@@ -326,7 +384,7 @@ useEffect(() => {
       </button>
 
       {open && (
-        <div className="absolute -right-[130px]  md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
+        <div className="absolute -right-[130px] md:mt-2 md:bottom-auto bottom-full mb-2 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50 border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
             <h3 className="font-semibold text-gray-800">Obavijesti</h3>
             <div className="flex items-center space-x-2">
@@ -334,7 +392,7 @@ useEffect(() => {
                 onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
               >
-                {filter === 'all' ? 'Show unread' : 'Show all'}
+                {filter === 'all' ? 'Prikaži nepročitane' : 'Prikaži sve'}
                 <ChevronDown size={14} className="ml-1" />
               </button>
               {unreadCount > 0 && (
@@ -357,7 +415,7 @@ useEffect(() => {
                 <Bell size={48} className="text-gray-300 mb-2" />
                 <p className="text-gray-500 font-medium">Nema obavijesti</p>
                 <p className="text-gray-400 text-sm mt-1">
-                  {filter === 'unread' ? 'You have no unread notifications' : 'Your notification list is empty'}
+                  {filter === 'unread' ? 'Nemate nepročitanih obavijesti' : 'Lista obavijesti je prazna'}
                 </p>
               </div>
             ) : (
@@ -401,7 +459,7 @@ useEffect(() => {
                 className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center"
               >
                 <Trash2 size={14} className="mr-1" />
-                Briši sve
+                Obriši sve
               </button>
             </div>
           )}
