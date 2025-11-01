@@ -25,8 +25,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const initializedRef = useRef(false);
-  const subscriptionRef = useRef<PushSubscription | null>(null);
+  const isInitializing = useRef(false);
 
   const urlBase64ToUint8Array = (base64String: string) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -35,151 +34,125 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
   };
 
-  const initNotifications = async () => {
-    if (!('Notification' in window) || initializedRef.current) {
-      return;
-    }
-
-    try {
-      initializedRef.current = true;
-      
-      const currentPermission = Notification.permission;
-      
-      let permission = currentPermission;
-      
-      if (currentPermission === 'default') {
-        permission = await Notification.requestPermission();
-      }
-      
-      setNotificationPermission(permission);
-
-      if (permission === "granted") {
-        await initializeServiceWorkerAndSubscribe();
-      }
-    } catch (err) {
-      console.error("Error initializing notifications:", err);
-      initializedRef.current = false;
-    }
-  };
-
-  const initializeServiceWorkerAndSubscribe = async () => {
-    if (!('serviceWorker' in navigator)) {
-      return;
-    }
-
-    try {
-      let registration = await navigator.serviceWorker.getRegistration();
-      
-      if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js');
-        
-        if (registration.installing) {
-          await new Promise<void>((resolve, reject) => {
-            const worker = registration!.installing!;
-            const stateChangeHandler = () => {
-              if (worker.state === 'activated') {
-                worker.removeEventListener('statechange', stateChangeHandler);
-                resolve();
-              } else if (worker.state === 'redundant') {
-                worker.removeEventListener('statechange', stateChangeHandler);
-                reject(new Error('Service Worker installation failed'));
-              }
-            };
-            worker.addEventListener('statechange', stateChangeHandler);
-            
-            setTimeout(() => {
-              worker.removeEventListener('statechange', stateChangeHandler);
-              reject(new Error('Service Worker activation timeout'));
-            }, 10000);
-          });
-        }
-      } else {
-        console.log('Found existing Service Worker registration');
-      }
-
-      registration = await navigator.serviceWorker.ready;
-
-      if (!subscriptionRef.current) {
-        await subscribeToPush(registration);
-      }
-    } catch (err) {
-      console.error("Service Worker initialization failed:", err);
-    }
-  };
-
   const subscribeToPush = async (registration: ServiceWorkerRegistration) => {
     try {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        console.error("VAPID public key not found");
-        return;
+        console.error("VAPID public key not found in environment variables");
+        return null;
       }
 
       const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+
+      // Check for existing subscription
       let subscription = await registration.pushManager.getSubscription();
-
+      
       if (subscription) {
-        subscriptionRef.current = subscription;
-        
-        try {
-          const validationResponse = await fetch('/api/push/validate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription })
-          });
-          
-          if (validationResponse.ok) {
-            console.log("Existing subscription is valid");
-            return subscription;
-          } else {
-            await subscription.unsubscribe();
-            subscription = null;
-            subscriptionRef.current = null;
-          }
-        } catch (validationErr) {
-          await subscription?.unsubscribe();
-          subscription = null;
-          subscriptionRef.current = null;
-        }
+        await subscription.unsubscribe();
       }
 
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: convertedKey
-        });
-        subscriptionRef.current = subscription;
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedKey
+      });
+
+
+      // Send subscription to server
+      const response = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription, userId })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
       }
 
-      await sendSubscriptionToServer(subscription);
       return subscription;
-
     } catch (err) {
       console.error("Push subscription failed:", err);
-      subscriptionRef.current = null;
+      toast.error("Neuspješna prijava za notifikacije");
+      return null;
     }
   };
 
-  const sendSubscriptionToServer = async (subscription: PushSubscription) => {
-    try {
-      const saveResponse = await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          subscription,
-          userId
-        })
-      });
+  const registerServiceWorker = async () => {
+    if (!('serviceWorker' in navigator)) {
+      return null;
+    }
 
-      if (!saveResponse.ok) {
-        throw new Error(`Server returned ${saveResponse.status}`);
+    try {
+      // Check if already registered
+      const existingRegistration = await navigator.serviceWorker.getRegistration('/');
+      
+      if (existingRegistration) {
+        if (existingRegistration.installing) {
+          await new Promise((resolve) => {
+            existingRegistration.installing!.addEventListener('statechange', function() {
+              if (this.state === 'activated') {
+                resolve(true);
+              }
+            });
+          });
+        } else if (existingRegistration.waiting) {
+          existingRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        return existingRegistration;
       }
 
-      const result = await saveResponse.json();
-      console.log("Push subscription saved to database");
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      });
++
+
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+
+      return registration;
     } catch (err) {
-      console.error("Error sending subscription to server:", err);
-      throw err;
+      console.error("Service Worker registration failed:", err);
+      toast.error("Neuspješna registracija service worker-a");
+      return null;
+    }
+  };
+
+  const initNotifications = async () => {
+    if (isInitializing.current) {
+      return;
+    }
+
+    isInitializing.current = true;
+
+    try {
+      if (!('Notification' in window)) {
+        toast.info("Vaš pretraživač ne podržava notifikacije");
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+
+      if (permission !== "granted") {
+        toast.info("Dozvole za notifikacije nisu odobrene");
+        return;
+      }
+
+      // Register service worker
+      const registration = await registerServiceWorker();
+      if (!registration) {
+        console.error("Failed to register service worker");
+        return;
+      }
+
+      // Subscribe to push notifications
+      await subscribeToPush(registration);
+
+    } catch (err) {
+      console.error("Error initializing notifications:", err);
+      toast.error("Greška pri inicijalizaciji notifikacija");
+    } finally {
+      isInitializing.current = false;
     }
   };
 
@@ -190,6 +163,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
       const n = new Notification("Nova obavijest!", {
         body: notification.message,
         icon: "/logo.png",
+        badge: "/logo.png",
         tag: notification._id,
         data: { url: notification.link || '/notification' }
       });
@@ -251,7 +225,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     try {
       await fetch(`/api/notifications/${id}`, { method: "DELETE" });
       setNotifications(prev => prev.filter(n => n._id !== id));
-      toast.success("Obavijest obrisana");
+      toast.success("Notification deleted");
     } catch (err) {
       console.error("Error deleting notification:", err);
       toast.error("Neuspješno brisanje obavijesti");
@@ -266,13 +240,14 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
         body: JSON.stringify({ userId })
       });
       setNotifications([]);
-      toast.success("Sve obavijesti obrisane");
+      toast.success("All notifications cleared");
     } catch (err) {
       console.error("Error clearing notifications:", err);
       toast.error("Neuspješno brisanje obavijesti");
     }
   };
 
+  // SSE for real-time notifications
   useEffect(() => {
     if (!userId) return;
 
@@ -288,20 +263,21 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
           showBrowserNotification(data); 
         }
       } catch (err) {
-        console.error('Error parsing SSE data:', err);
+        console.error("Error parsing SSE data:", err);
       }
     };
 
-    es.onerror = (err) => {
-      console.error('SSE error:', err);
+    es.onerror = () => {
+      console.log("SSE connection error, will retry...");
       es.close();
     };
 
     return () => {
       es.close();
     };
-  }, [userId]);
+  }, [userId, notificationPermission, router]);
 
+  // Service worker message handler
   useEffect(() => {
     const handleServiceWorkerMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'NAVIGATE_TO') {
@@ -320,6 +296,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     };
   }, [router]);
 
+  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -330,10 +307,15 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Initialize notifications when component mounts
   useEffect(() => {
-    if (!userId || initializedRef.current) return;
-
-    initNotifications();
+    if (userId && !isInitializing.current) {
+      // Small delay to ensure page is fully loaded
+      const timer = setTimeout(() => {
+        initNotifications();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, [userId]);
 
   const filteredNotifications = filter === 'unread'
@@ -392,7 +374,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
                 onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
               >
-                {filter === 'all' ? 'Prikaži nepročitane' : 'Prikaži sve'}
+                {filter === 'all' ? 'Show unread' : 'Show all'}
                 <ChevronDown size={14} className="ml-1" />
               </button>
               {unreadCount > 0 && (
@@ -415,7 +397,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
                 <Bell size={48} className="text-gray-300 mb-2" />
                 <p className="text-gray-500 font-medium">Nema obavijesti</p>
                 <p className="text-gray-400 text-sm mt-1">
-                  {filter === 'unread' ? 'Nemate nepročitanih obavijesti' : 'Lista obavijesti je prazna'}
+                  {filter === 'unread' ? 'You have no unread notifications' : 'Your notification list is empty'}
                 </p>
               </div>
             ) : (
@@ -459,7 +441,7 @@ export default function NotificationsDropdown({ userId }: { userId: string }) {
                 className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center"
               >
                 <Trash2 size={14} className="mr-1" />
-                Obriši sve
+                Briši sve
               </button>
             </div>
           )}

@@ -529,7 +529,7 @@ export default function LoadsPage() {
                       />
                     ) : (
                       <img
-                        src="/logo.png"
+                        src="/logo-light.png"
                         alt="Deliver4Me"
                         className="h-16 w-16 object-contain opacity-60"
                       />

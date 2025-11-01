@@ -1,22 +1,24 @@
 const CACHE_NAME = 'app-cache-v1';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/logo.png',
   '/manifest.json'
 ];
 
 self.addEventListener('install', function(event) {
-  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        return Promise.allSettled(
+          urlsToCache.map(url => 
+            cache.add(url).catch(err => {
+              console.warn(`Failed to cache ${url}:`, err);
+              return null;
+            })
+          )
+        );
       })
       .then(() => {
-        console.log('All resources cached successfully');
         return self.skipWaiting();
       })
       .catch(error => {
@@ -26,26 +28,29 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
-  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('Service Worker activated and ready to control clients');
       return self.clients.claim();
     })
   );
 });
 
 self.addEventListener('fetch', function(event) {
+  // Skip non-GET requests and external URLs
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Skip API routes and SSE streams
+  if (event.request.url.includes('/api/')) {
     return;
   }
 
@@ -71,14 +76,13 @@ self.addEventListener('fetch', function(event) {
         });
       })
       .catch(function(error) {
-        console.error('Fetch failed; returning offline page:', error);
+        console.error('Fetch failed:', error);
       })
   );
 });
 
 self.addEventListener('push', function(event) {
   if (!event.data) {
-    console.log('Push event but no data');
     return;
   }
 
@@ -127,13 +131,14 @@ self.addEventListener('push', function(event) {
       }
     ],
     vibrate: [200, 100, 200],
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    requireInteraction: false
   };
 
   event.waitUntil(
     self.registration.showNotification(title, options)
       .then(() => {
-        logToServer('Notification shown successfully', {
+        console.log('Notification shown successfully', {
           title: title,
           notificationId: notificationData._id,
           type: notificationData.type
@@ -141,10 +146,6 @@ self.addEventListener('push', function(event) {
       })
       .catch(error => {
         console.error('Error showing notification:', error);
-        logToServer('Error showing notification', {
-          error: error.message,
-          notificationData: notificationData
-        });
       })
   );
 });
@@ -152,30 +153,25 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  logToServer('Notification clicked', {
-    action: event.action,
-    notificationId: event.notification.data?._id,
-    type: event.notification.data?.type,
-    url: event.notification.data?.url
-  });
 
   if (event.action === 'zatvori') {
-    console.log('Notification dismissed');
     return;
   }
 
   let urlToOpen = event.notification.data?.url || '/dashboard';
+  
+  // Handle message notifications
   if (event.notification.data?.type === 'message') {
     const conversationId = event.notification.data.conversationId;
     if (conversationId) {
       const users = conversationId.split('-');
-      const currentUser = event.notification.data._id;
       urlToOpen = `/messages?with=${users[0]}`; 
     } else {
       urlToOpen = '/messages';
     }
   }
 
+  // Ensure full URL
   if (urlToOpen.startsWith('/')) {
     urlToOpen = self.location.origin + urlToOpen;
   }
@@ -186,12 +182,14 @@ self.addEventListener('notificationclick', function(event) {
       includeUncontrolled: true 
     }).then(function(clientList) {
       const targetUrl = new URL(urlToOpen, self.location.origin).href;
+      
+      // Try to focus existing window
       for (let client of clientList) {
         const clientUrl = new URL(client.url, self.location.origin).href;
         if ((clientUrl === targetUrl || 
              (clientUrl.includes('/messages') && targetUrl.includes('/messages'))) && 
             'focus' in client) {
-          logToServer('Existing window focused', { 
+          console.log('Existing window focused', { 
             clientUrl: clientUrl, 
             targetUrl: targetUrl 
           });
@@ -203,20 +201,18 @@ self.addEventListener('notificationclick', function(event) {
         }
       }
       
+      // Open new window if no matching window found
       if (clients.openWindow) {
-        logToServer('Opening new window', { url: targetUrl });
         return clients.openWindow(targetUrl);
       }
     }).catch(error => {
       console.error('Error in notificationclick:', error);
-      logToServer('Error in notificationclick', { error: error.message });
     })
   );
 });
 
 self.addEventListener('sync', function(event) {
   if (event.tag === 'background-sync') {
-    console.log('Background sync triggered');
     event.waitUntil(doBackgroundSync());
   }
 });
@@ -229,35 +225,7 @@ async function doBackgroundSync() {
   }
 }
 
-// Helper function for logging
-function logToServer(message, data) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('SW Log:', message, data);
-  }
-  
-  const shouldLogToServer = false; 
-  
-  if (shouldLogToServer) {
-    fetch('/api/logs', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: message,
-        data: data,
-        timestamp: new Date().toISOString(),
-        type: 'service-worker',
-        userAgent: navigator.userAgent
-      })
-    }).catch(error => {
-      console.log('Server log failed:', error);
-    });
-  }
-}
-
 self.addEventListener('message', function(event) {
-  console.log('Service Worker received message:', event.data);
   
   switch (event.data.type) {
     case 'SKIP_WAITING':
