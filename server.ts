@@ -5,6 +5,8 @@ import { Server, Socket } from 'socket.io';
 import { dbConnect } from './lib/db/db';
 import MessageModel from './lib/models/Message';
 import { Types } from 'mongoose';
+import webpush from 'web-push';
+import { PushSubscription } from './lib/models/PushSubscription';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -14,9 +16,62 @@ const PORT = process.env.PORT || 3000;
 // Singleton Socket.IO instance
 let ioInstance: Server | null = null;
 
+// Helper function to send push notification
+async function sendPushNotification(userId: string, notification: any) {
+  try {
+    const subscriptions = await PushSubscription.find({ userId });
+    
+    if (subscriptions.length === 0) {
+      console.log(`No push subscriptions found for user: ${userId}`);
+      return;
+    }
+
+    const payload = JSON.stringify({
+      type: 'message',
+      message: notification.message,
+      preview: notification.preview,
+      senderName: notification.senderName,
+      conversationId: notification.conversationId,
+      link: notification.link,
+      _id: notification._id,
+      timestamp: new Date().toISOString()
+    });
+
+    const sendPromises = subscriptions.map(async (sub) => {
+      try {
+        await webpush.sendNotification(sub.subscription, payload);
+        console.log('Push notification sent successfully to:', userId);
+      } catch (error: any) {
+        console.error('Error sending push to subscription:', error);
+        // If subscription is invalid (expired/unsubscribed), remove it
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await PushSubscription.findByIdAndDelete(sub._id);
+          console.log('Removed invalid subscription');
+        }
+      }
+    });
+
+    await Promise.all(sendPromises);
+  } catch (error) {
+    console.error('Error in sendPushNotification:', error);
+  }
+}
+
 app.prepare().then(async () => {
   // Ensure DB connection once at server start
   await dbConnect();
+
+  // Configure web-push VAPID details
+  if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+      'mailto:your-email@example.com', // Replace with your email
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    console.log('Web Push configured successfully');
+  } else {
+    console.warn('VAPID keys not found - push notifications will not work');
+  }
 
   const httpServer = createServer((req, res) => {
     const parsedUrl = parse(req.url!, true);
@@ -32,7 +87,10 @@ app.prepare().then(async () => {
     ioInstance.on('connection', (socket: Socket) => {
       console.log(`Socket connected: ${socket.id}`);
       const userId = socket.handshake.query.userId as string;
-      if (!userId) return;
+      if (!userId) {
+        console.log('Socket connected without userId');
+        return;
+      }
 
       socket.join(userId); // Personal room
       console.log(`User ${userId} joined personal room`);
@@ -139,7 +197,10 @@ app.prepare().then(async () => {
       socket.on(
         'send_message',
         async ({ receiverId, content, subject, conversationId }) => {
-          if (!content || !conversationId || !receiverId) return;
+          if (!content || !conversationId || !receiverId) {
+            console.log('Invalid message data received');
+            return;
+          }
 
           try {
             const message = await MessageModel.create({
@@ -156,11 +217,13 @@ app.prepare().then(async () => {
               'name photoUrl'
             );
 
+            // Emit socket event for real-time delivery
             ioInstance!.to(conversationId).emit(
               'new_message',
               populated.toObject()
             );
 
+            // Update unread count for receiver
             const unreadCount = await MessageModel.countDocuments({
               receiver: receiverId,
               isRead: false,
@@ -169,6 +232,21 @@ app.prepare().then(async () => {
             ioInstance!.to(receiverId).emit('global_unread_update', {
               unreadCount,
             });
+
+            // Send push notification to receiver
+            const senderName = populated.sender.name || 'Korisnik';
+            const preview = content.length > 50 ? content.substring(0, 50) + '...' : content;
+            
+            await sendPushNotification(receiverId, {
+              message: `Nova poruka od ${senderName}`,
+              preview: preview,
+              senderName: senderName,
+              conversationId: conversationId,
+              link: `/messages?with=${userId}`,
+              _id: message._id.toString()
+            });
+
+            console.log(`Message sent from ${userId} to ${receiverId}, push notification triggered`);
           } catch (err) {
             console.error('Send message error:', err);
           }
@@ -187,5 +265,6 @@ app.prepare().then(async () => {
 
   httpServer.listen(PORT, () => {
     console.log(`> Ready on http://localhost:${PORT}`);
+    console.log(`> Environment: ${dev ? 'development' : 'production'}`);
   });
 });
