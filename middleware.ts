@@ -1,16 +1,20 @@
-// middleware.ts
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware(req) {
-    // Add your protected routes here
-    if (
-      req.nextUrl.pathname.startsWith('/profile') ||
-      req.nextUrl.pathname.startsWith('/api')
-    ) {
-      return NextResponse.next();
+    const token = req.nextauth.token;
+    const pathname = req.nextUrl.pathname;
+
+
+    const adminRoutes = ['/vehicle-types', '/reports', '/users'];
+    const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
+
+    if (isAdminRoute && token?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
+
+    return NextResponse.next();
   },
   {
     callbacks: {
@@ -23,5 +27,16 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ['/profile/:path*', '/api/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/profile/:path*',
+    '/vehicles/:path*',
+    '/vehicle-types/:path*',
+    '/my-loads/:path*',
+    '/my-wallet/:path*',
+    '/messages/:path*',
+    '/reports/:path*',
+    '/users/:path*',
+    '/load/:path*',
+  ],
 };
