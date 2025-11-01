@@ -471,8 +471,8 @@ const removeImage = (index: number) => {
                 <input className="w-full border rounded p-2 text-sm" placeholder="Volumen (m³)" value={form.cargoVolume} readOnly />
               </div>
               <div className="col-span-2">
-                <label className="block font-semibold mb-1 text-sm">Fiksna cijena</label>
-                <input className="w-full border rounded p-2 text-sm" placeholder="Fiksna cijena" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
+                <label className="block font-semibold mb-1 text-sm">Budžet</label>
+                <input className="w-full border rounded p-2 text-sm" placeholder="Budžet" value={form.fixedPrice} onChange={e => handleChange('fixedPrice', e.target.value)} />
               </div>
             </div>
           </div>
@@ -493,7 +493,7 @@ const removeImage = (index: number) => {
 
         <DialogFooter className="flex flex-col-reverse md:flex-row gap-2 md:gap-0 pt-4 border-t mt-4">
           <Button onClick={handleClose} variant="outline" className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Otkaži</Button>
-          <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
             {isLoading ? 'Spremanje...' : 'Spremi'}
           </Button>
         </DialogFooter>

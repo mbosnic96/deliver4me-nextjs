@@ -81,7 +81,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    Add Card
+                    Dodaj karticu
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -207,7 +207,7 @@ export function AddCardDialog({ onAddCard }: AddCardDialogProps) {
                         </div>
                     </div>
 
-                    <Button type="submit" className="w-full bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" disabled={loading}>
+                    <Button type="submit" className="w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2" disabled={loading}>
                         {loading ? "Spremanje..." : "Sačuvaj"}
                     </Button>
                 </form>

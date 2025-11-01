@@ -70,7 +70,6 @@ type LoadType = {
 type UserType = {
   _id: string;
   name: string;
-  userName: string;
   address: string;
   city: string;
   state: string;
@@ -602,7 +601,7 @@ useEffect(() => {
                   <div className="text-center">
                     <Euro className="text-blue-600 mx-auto mb-2" size={24} />
                     <div className="font-semibold">{loadData.fixedPrice.toFixed(2)} BAM</div>
-                    <div className="text-smtext-white">Cijena</div>
+                    <div className="text-smtext-white">Budžet</div>
                   </div>
                 </div>
               </div>
@@ -679,14 +678,14 @@ useEffect(() => {
                       <button
                         type="button"
                         onClick={() => setShowBidForm(false)}
-                        className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-white"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-800 focus:ring-offset-2"
                       >
                         Otkaži
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmittingBid}
-                        className="flex-1 py-2 px-4 bg-primary-600 text-white rounded-lg disabled:opacity-50"
+                        className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
                       >
                         {isSubmittingBid ? (
                           <Loader2 className="animate-spin mx-auto" size={20} />
@@ -703,7 +702,7 @@ useEffect(() => {
                     </p>
                     <button
                       onClick={() => setShowBidForm(true)}
-                      className="w-full py-2 px-4 bg-primary-600 text-white rounded-lg"
+                      className="w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
                     >
                       Pošalji ponudu
                     </button>
@@ -715,12 +714,12 @@ useEffect(() => {
 
           <div className="space-y-6">
             <div className="content-bg rounded-xl shadow-sm border p-6">
-              <h3 className="font-semibold text-white  mb-4">Cijena usluge</h3>
+              <h3 className="font-semibold text-white  mb-4">Budžet</h3>
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary-600 mb-2">
                   {loadData.fixedPrice.toFixed(2)} BAM
                 </div>
-                <p className="text-white text-sm">Cijena koju korisnik plaća</p>
+                <p className="text-white text-sm">Budžet</p>
               </div>
             </div>
 
@@ -741,10 +740,7 @@ useEffect(() => {
                     </div>
                   )}
                   <h3 className="font-semibold text-white ">{user.name}</h3>
-                  <p className="text-white text-sm flex items-center justify-center">
-                    <AtSign size={12} className="mr-1 text-blue-600"/>
-                    {user.userName}
-                  </p>
+                 
                   
                   {user.rating !== undefined && (
                     <div className="flex items-center justify-center mt-2">
@@ -784,7 +780,7 @@ useEffect(() => {
                 <div className="flex space-x-3 mt-4">
                   <Link
                     href={`/users/${user._id}`}
-                    className="flex-1 btn btn-outline flex items-center justify-center py-2"
+                    className="flex-1 flex items-center justify-center bg-transparent hover:bg-blue-500 text-blue-700 font-medium hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded-lg"
                   >
                     <Eye size={16} className="mr-2 text-blue-600" />
                     Profil
@@ -792,7 +788,7 @@ useEffect(() => {
                   {session?.user?.id && user && session.user.id !== user._id && (
                     <Link
                       href={`/messages?with=${user._id}&subject=${encodeURIComponent(`Pitanje o teretu: ${loadData.title}`)}`}
-                      className="flex-1 btn btn-primary flex items-center justify-center py-2"
+                      className="flex items-center bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
                     >
                       <MessageSquare size={16} className="mr-2" />
                       Pošalji poruku
@@ -830,7 +826,6 @@ useEffect(() => {
                           )}
                           <div>
                             <h4 className="font-medium text-white">{bid.driver?.name}</h4>
-                            <p className="text-sm text-white">@{bid.driver?.userName}</p>
                           </div>
                         </div>
                         <div className="text-right">

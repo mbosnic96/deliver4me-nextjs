@@ -221,7 +221,7 @@ export default function LoadsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-medium text-white">
-                      Cijena (BAM)
+                      Budžet (BAM)
                     </label>
                     <div className="flex gap-2">
                       <Input

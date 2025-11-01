@@ -43,7 +43,7 @@ app.prepare().then(async () => {
           const messages = await MessageModel.find({
             $or: [{ sender: userId }, { receiver: userId }],
           })
-            .populate('sender receiver', 'name userName photoUrl')
+            .populate('sender receiver', 'name photoUrl')
             .sort({ createdAt: -1 })
             .lean();
 
@@ -92,7 +92,7 @@ app.prepare().then(async () => {
           );
 
           const messages = await MessageModel.find({ conversationId })
-            .populate('sender receiver', 'name userName photoUrl')
+            .populate('sender receiver', 'name photoUrl')
             .sort({ createdAt: 1 })
             .lean();
 
@@ -119,7 +119,7 @@ app.prepare().then(async () => {
 
         try {
           const messages = await MessageModel.find({ conversationId })
-            .populate('sender receiver', 'name userName photoUrl')
+            .populate('sender receiver', 'name photoUrl')
             .sort({ createdAt: 1 })
             .limit(50)
             .lean();
@@ -153,7 +153,7 @@ app.prepare().then(async () => {
 
             const populated = await message.populate(
               'sender receiver',
-              'name userName photoUrl'
+              'name photoUrl'
             );
 
             ioInstance!.to(conversationId).emit(

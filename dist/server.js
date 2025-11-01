@@ -38,7 +38,7 @@ app.prepare().then(async () => {
                     const messages = await Message_1.default.find({
                         $or: [{ sender: userId }, { receiver: userId }],
                     })
-                        .populate('sender receiver', 'name userName photoUrl')
+                        .populate('sender receiver', 'name photoUrl')
                         .sort({ createdAt: -1 })
                         .lean();
                     const convMap = new Map();
@@ -78,7 +78,7 @@ app.prepare().then(async () => {
                 try {
                     await Message_1.default.updateMany({ conversationId, receiver: userId, isRead: false }, { $set: { isRead: true } });
                     const messages = await Message_1.default.find({ conversationId })
-                        .populate('sender receiver', 'name userName photoUrl')
+                        .populate('sender receiver', 'name photoUrl')
                         .sort({ createdAt: 1 })
                         .lean();
                     ioInstance.to(conversationId).emit('recent_messages', messages.map(msg => ({ ...msg, status: 'sent' })));
@@ -97,7 +97,7 @@ app.prepare().then(async () => {
                 console.log(`${socket.id} joined conversation ${conversationId}`);
                 try {
                     const messages = await Message_1.default.find({ conversationId })
-                        .populate('sender receiver', 'name userName photoUrl')
+                        .populate('sender receiver', 'name photoUrl')
                         .sort({ createdAt: 1 })
                         .limit(50)
                         .lean();
@@ -123,7 +123,7 @@ app.prepare().then(async () => {
                         conversationId,
                         isRead: false,
                     });
-                    const populated = await message.populate('sender receiver', 'name userName photoUrl');
+                    const populated = await message.populate('sender receiver', 'name photoUrl');
                     ioInstance.to(conversationId).emit('new_message', populated.toObject());
                     const unreadCount = await Message_1.default.countDocuments({
                         receiver: receiverId,

@@ -2,7 +2,6 @@ import { Schema, model, models, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
   name: string;
-  userName: string;
   email: string;
   password: string;
   phone?: string;
@@ -29,7 +28,6 @@ export interface IUser extends Document {
 export interface IUserLean {
   _id: Types.ObjectId;
   name: string;
-  userName: string;
   email: string;
   password: string;
   phone?: string;
@@ -54,7 +52,6 @@ export interface IUserLean {
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
-    userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: String,

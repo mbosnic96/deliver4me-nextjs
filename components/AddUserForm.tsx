@@ -8,7 +8,6 @@ interface Props {
   initialData?: {
     _id: string;
     name: string;
-    userName: string;
     email: string;
     role: "client" | "driver" | "admin";
   };
@@ -18,7 +17,6 @@ interface Props {
 
 export function AddUserForm({ initialData, onClose, onSaved }: Props) {
   const [name, setName] = useState("");
-  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"client" | "driver" | "admin">("client");
   const [loading, setLoading] = useState(false);
@@ -26,7 +24,6 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || "");
-      setUserName(initialData.userName || "");
       setEmail(initialData.email || "");
       setRole(initialData.role || "client");
     }
@@ -36,7 +33,7 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
     e.preventDefault();
     setLoading(true);
 
-    const userData = { name, userName, email, role };
+    const userData = { name, email, role };
 
     try {
       let res;
@@ -95,16 +92,6 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
         />
       </div>
       <div>
-        <label>Korisničko ime</label>
-        <input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          required
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-      <div>
         <label>Email</label>
         <input
           type="email"
@@ -131,7 +118,7 @@ export function AddUserForm({ initialData, onClose, onSaved }: Props) {
         <Button type="button" onClick={onClose} variant="outline" className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
           Otkaži
         </Button>
-        <Button type="submit" disabled={loading} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <Button type="submit" disabled={loading} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
           {loading ? "Spremanje..." : initialData ? "Ažuriraj korisnika" : "Dodaj korisnika"}
         </Button>
       </div>

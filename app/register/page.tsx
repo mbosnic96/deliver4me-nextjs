@@ -8,7 +8,6 @@ import Select from 'react-select';
 
 type FormData = {
   name: string;
-  username: string;
   email: string;
   phone: string;
   address: string;
@@ -183,26 +182,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
                 )}
               </div>
 
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-light">
-                  Korisničko ime
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  {...register('username', { 
-                    required: 'Ovo polje je obavezno!',
-                    pattern: {
-                      value: /^[a-zA-Z0-9_-]+$/,
-                      message: 'Korisničko ime može sadržavati samo slova, brojeve, "-" i "_" bez razmaka.'
-                    }
-                  })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                />
-                {errors.username && (
-                  <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
-                )}
-              </div>
+             
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

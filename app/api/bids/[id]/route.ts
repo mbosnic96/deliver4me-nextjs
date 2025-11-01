@@ -51,7 +51,7 @@ export async function PATCH(
   const { id } = params;
   
   const bid = await Bid.findById(id)
-    .populate("driverId", "name userName photoUrl rating reviewsCount")
+    .populate("driverId", "name photoUrl rating reviewsCount")
     .populate("vehicleId", "brand model plateNumber volume"); 
   if (!bid) {
     return NextResponse.json({ error: "Bid not found" }, { status: 404 });

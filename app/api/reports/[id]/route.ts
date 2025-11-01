@@ -46,8 +46,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   await report.save();
 
   const populatedReport = await Report.findById(id)
-    .populate("reporterId", "name userName")
-    .populate("reportedUserId", "name userName")
+    .populate("reporterId", "name")
+    .populate("reportedUserId", "name")
     .populate("loadId", "title");
 
   return NextResponse.json(populatedReport);
@@ -60,11 +60,11 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { id } = await context.params; // ✅ FIXED
+  const { id } = await context.params; 
 
   const report = await Report.findById(id)
-    .populate("reporterId", "name userName email")
-    .populate("reportedUserId", "name userName email")
+    .populate("reporterId", "name email")
+    .populate("reportedUserId", "name email")
     .populate("loadId", "title");
 
   if (!report) {

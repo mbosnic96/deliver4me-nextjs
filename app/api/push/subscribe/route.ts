@@ -1,4 +1,3 @@
-// app/api/push/subscribe/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import { PushSubscription } from "@/lib/models/PushSubscription";

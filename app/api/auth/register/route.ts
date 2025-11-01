@@ -9,7 +9,6 @@ export async function POST(request: Request) {
 
     const { 
       name,
-      username,
       email,
       phone,
       address,
@@ -29,19 +28,12 @@ export async function POST(request: Request) {
       );
     }
     
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-      return NextResponse.json(
-        { message: 'Username is already taken' },
-        { status: 400 }
-      );
-    }
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       name,
-      userName: username,
       email,
       phone,
       address,

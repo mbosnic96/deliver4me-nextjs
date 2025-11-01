@@ -34,7 +34,6 @@ export class UserService {
 
     // Update basic fields
     user.name = dto.name;
-    user.userName = dto.userName;
     user.email = dto.email;
     user.phone = dto.phone;
     user.address = dto.address;
@@ -169,7 +168,6 @@ export class UserService {
     return {
       id: user._id.toString(),
       name: user.name,
-      userName: user.userName,
       email: user.email,
       phone: user.phone,
       role: user.role,

@@ -191,7 +191,7 @@ export default function MyLoadsPage() {
 
     return (
   <div className="flex gap-2 items-center">
-    <Button size="sm" onClick={() => router.push(`/load/${row.id}`)} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+    <Button size="sm" onClick={() => router.push(`/load/${row.id}`)} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
       <Eye className="h-4 w-4 mr-1" />
       Vidi
     </Button>

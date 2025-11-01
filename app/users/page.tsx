@@ -16,7 +16,6 @@ type UserRow = {
   id: string;
   _id: string;
   name: string;
-  userName: string;
   email: string;
   role: "client" | "driver" | "admin";
   phone: string;
@@ -82,9 +81,6 @@ export default function UsersPage() {
     { accessorKey: "name", header: "Ime", cell: ({ row }) => (
       <div className="max-w-[120px] truncate" title={row.original.name}>{row.original.name}</div>
     ) },
-    { accessorKey: "userName", header: "Korisničko ime", cell: ({ row }) => (
-      <div className="max-w-[150px] truncate" title={row.original.userName}>{row.original.userName}</div>
-    ) },
     { accessorKey: "email", header: "Email", cell: ({ row }) => (
       <div className="max-w-[200px] truncate" title={row.original.email}>{row.original.email}</div>
     ) },
@@ -101,7 +97,7 @@ export default function UsersPage() {
 
   const renderActions = (row: UserRow, edit: (row: UserRow) => void) => (
     <div className="flex flex-nowrap gap-2">
-      <Button size="sm" onClick={() => router.push(`/users/${row._id}`)} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+      <Button size="sm" onClick={() => router.push(`/users/${row._id}`)} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
         <Eye className="h-4 w-4 mr-1" /> Vidi
       </Button>
 

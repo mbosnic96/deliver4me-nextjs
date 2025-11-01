@@ -15,21 +15,27 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
 
-    if (!body.userId || !body.message) {
+    const userId = typeof body.userId === 'string' 
+  ? body.userId 
+  : body.userId._id;
+
+    if (!userId || !body.message) {
       return NextResponse.json({ error: "UserId and message required" }, { status: 400 });
     }
 
     const notification = await Notification.create({
-      userId: body.userId,
+      userId,
       message: body.message,
       link: body.link,
     });
 
 
     try {
-      const subscriptions = await PushSubscription.find({ userId: body.userId });
+      const subscriptions = await PushSubscription.find({ userId: userId });
       
-      console.log(`Found ${subscriptions.length} subscriptions for user ${body.userId}`);
+      console.log(`Found ${subscriptions.length} subscriptions for user ${userId}`);
+      console.log("userId type:", typeof body.userId, "value:", body.userId);
+
       
       const expiredSubscriptions: string[] = [];
 

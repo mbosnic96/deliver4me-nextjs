@@ -13,8 +13,8 @@ import Link from "next/link";
 type Report = {
   id: string;
   _id: string;
-  reporterId: { name: string; userName: string };
-  reportedUserId: { name: string; userName: string };
+  reporterId: { name: string; };
+  reportedUserId: { name: string; };
   loadId?: { title: string; _id: string };
   reportType: string;
   description: string;
@@ -37,7 +37,6 @@ export default function ReportsPage() {
           <User className="h-4 w-4 text-gray-500 shrink-0" />
           <div className="truncate">
             <div className="font-medium truncate" title={row.original.reporterId.name}>{row.original.reporterId.name}</div>
-            <div className="text-sm text-gray-500 truncate" title={`@${row.original.reporterId.userName}`}>@{row.original.reporterId.userName}</div>
           </div>
         </div>
       ),
@@ -50,7 +49,6 @@ export default function ReportsPage() {
           <User className="h-4 w-4 text-red-500 shrink-0" />
           <div className="truncate">
             <div className="font-medium truncate" title={row.original.reportedUserId.name}>{row.original.reportedUserId.name}</div>
-            <div className="text-sm text-gray-500 truncate" title={`@${row.original.reportedUserId.userName}`}>@{row.original.reportedUserId.userName}</div>
           </div>
         </div>
       ),
@@ -159,7 +157,7 @@ export default function ReportsPage() {
   const renderActions = (row: Report) => (
     <div className="flex flex-nowrap gap-2">
       <Link href={`/reports/${row._id}`}>
-        <Button variant="outline" size="sm" className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <Button variant="outline" size="sm" className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
           <Eye className="h-4 w-4 mr-1" />
           Detalji
         </Button>

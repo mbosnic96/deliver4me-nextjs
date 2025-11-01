@@ -20,7 +20,6 @@ import ChangePasswordDialog from "@/components/ChangePasswordDialog"
 type Role = 'client' | 'driver' | 'admin' | undefined
 type FormData = {
   name: string
-  userName: string
   email: string
   phone: string
   address: string
@@ -238,7 +237,6 @@ const mapRef = useRef<any>(null)
       
       reset({
         name: user.name,
-        userName: user.userName,
         email: user.email,
         phone: user.phone,
         address: user.address || '',
@@ -502,29 +500,6 @@ const updatePositionOnly = useCallback(async () => {
                       />
                       {errors.name && (
                         <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Korisničko ime
-                      </label>
-                     <Input
-                        type="text"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                        {...register('userName', { 
-                          required: 'Korisničko ime je obavezno',
-                          pattern: {
-                            value: /^[a-zA-Z0-9_-]+$/,
-                            message: 'Korisničko ime može sadržavati samo slova, brojeve, donje crte i crtice'
-                          }
-                        })}
-                        onInput={(e) => {
-                          e.currentTarget.value = e.currentTarget.value.replace(/\s+/g, '');
-                        }}
-                      />
-                      {errors.userName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.userName.message}</p>
                       )}
                     </div>
 

@@ -22,7 +22,7 @@ export async function PUT(
 
     const bid = await Bid.findById(params.id).populate(
       "driverId",
-      "name userName photoUrl rating reviewsCount"
+      "name photoUrl rating reviewsCount"
     )
     if (!bid) {
       return NextResponse.json({ error: "Bid not found" }, { status: 404 })

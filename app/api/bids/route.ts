@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     .sort({ createdAt: -1 })
     .populate({
       path: "driverId",
-      select: "name userName photoUrl rating reviewsCount",
+      select: "name photoUrl rating reviewsCount",
       strictPopulate: false,
     })
     .populate({
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     // Populate odvojeno jer baguje oko vozila kad je skupa
     await newBid.populate({
       path: "driverId",
-      select: "name userName photoUrl rating reviewsCount",
+      select: "name photoUrl rating reviewsCount",
       strictPopulate: false,
     });
     await newBid.populate({

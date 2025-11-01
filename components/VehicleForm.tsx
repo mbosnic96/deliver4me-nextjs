@@ -311,7 +311,7 @@ export function VehicleForm({ initialData, onClose, onSaved }: VehicleFormProps)
           <Button type="button" variant="outline" onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
             Otkaži
           </Button>
-          <Button type="submit" disabled={isLoading} className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <Button type="submit" disabled={isLoading} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
             {isLoading ? "Spremanje..." : initialData ? "Uredi" : "Sačuvaj"}
           </Button>
         </DialogFooter>

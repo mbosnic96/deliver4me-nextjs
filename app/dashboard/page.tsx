@@ -27,7 +27,6 @@ interface UserType {
   email: string;
   role: string;
   createdAt: string;
-  userName: string;
   photoUrl?: string;
   city?: string;
   state?: string;

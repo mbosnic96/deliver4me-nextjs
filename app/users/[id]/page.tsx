@@ -132,10 +132,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   <div className="flex items-start justify-between">
                     <div>
                       <h1 className="text-2xl font-bold text-white">{user.name}</h1>
-                      <p className="flex items-center text-blue-600">
-                        <AtSign size={14} className="mr-1 text-blue-600" />
-                        {user.userName}
-                      </p>
+                     
                     </div>
                     <div className="flex items-center space-x-2">
                       {user.role === 'admin' && (

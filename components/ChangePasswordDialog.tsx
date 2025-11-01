@@ -120,7 +120,7 @@ export default function ChangePasswordDialog({
           </Button>
           <Button 
             onClick={handleSave} 
-            className="bg-blue-700 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
             disabled={loading || !currentPassword || !newPassword || !confirmPassword}
           >
             {loading ? "Spremanje..." : "Sačuvaj"}

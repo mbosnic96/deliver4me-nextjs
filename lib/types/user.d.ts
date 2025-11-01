@@ -1,7 +1,6 @@
 export interface FullUserDto {
   id: string;
   name: string;
-  userName: string;
   email: string;
   phone?: string;
   role: string;
@@ -20,7 +19,6 @@ export interface FullUserDto {
 
 export interface EditUserDto {
   name: string;
-  userName: string;
   email: string;
   phone: string;
   address?: string;

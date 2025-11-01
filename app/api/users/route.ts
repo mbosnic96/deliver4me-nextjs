@@ -28,7 +28,6 @@ export async function GET(request: Request) {
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
-        { userName: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ];
     }
@@ -64,9 +63,9 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { name, userName, email, role } = body;
+    const { name, email, role } = body;
 
-    if (!name || !userName || !email || !role) {
+    if (!name || !email || !role) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -79,7 +78,6 @@ export async function POST(req: Request) {
 
     const user = await User.create({
       name,
-      userName,
       email,
       role,
       password,

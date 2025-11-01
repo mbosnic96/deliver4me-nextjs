@@ -34,8 +34,8 @@ export async function GET(request: Request) {
 
   const total = await Report.countDocuments(query);
   const reports = await Report.find(query)
-    .populate("reporterId", "name userName email")
-    .populate("reportedUserId", "name userName email")
+    .populate("reporterId", "name email")
+    .populate("reportedUserId", "name email")
     .populate("loadId", "title")
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -127,8 +127,8 @@ export async function POST(request: Request) {
 
 
   const populatedReport = await Report.findById(newReport._id)
-    .populate("reporterId", "name userName")
-    .populate("reportedUserId", "name userName")
+    .populate("reporterId", "name")
+    .populate("reportedUserId", "name")
     .populate("loadId", "title");
 
   return NextResponse.json(populatedReport, { status: 201 });

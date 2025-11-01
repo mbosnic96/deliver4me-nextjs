@@ -31,7 +31,6 @@ type Report = {
   reporterId: {
     _id: string;
     name: string;
-    userName: string;
     email: string;
     phone: string;
     address: string;
@@ -41,7 +40,6 @@ type Report = {
   reportedUserId: {
     _id: string;
     name: string;
-    userName: string;
     email: string;
     phone: string;
     address: string;
@@ -62,7 +60,6 @@ type Report = {
   resolvedAt?: string;
   resolvedBy?: {
     name: string;
-    userName: string;
   };
 };
 
@@ -284,7 +281,7 @@ export default function ReportDetailsPage() {
                       <p><strong>Naslov:</strong> {report.loadId.title}</p>
                       <Link 
                         href={`/load/${report.loadId._id}`}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                        className="inline-flex items-center w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
                         target="_blank"
                       >
                         <Eye className="h-4 w-4 mr-1" />
@@ -294,6 +291,56 @@ export default function ReportDetailsPage() {
                   </CardContent>
                 </Card>
               )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                         <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-green-500" />
+                    Korisnik koji je prijavio
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p><strong>Ime:</strong> {report.reporterId.name}</p>
+                  <p className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    {report.reporterId.email}
+                  </p>
+                  <Link 
+                    href={`/users/${report.reporterId._id}`}
+                  className="flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
+                    target="_blank"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Pogledaj profil
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-red-500" />
+                    Prijavljeni korisnik
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p><strong>Ime:</strong> {report.reportedUserId.name}</p>
+                  <p className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    {report.reportedUserId.email}
+                  </p>
+                  <Link 
+                    href={`/users/${report.reportedUserId._id}`}
+                     className="flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
+                    target="_blank"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Pogledaj profil
+                  </Link>
+                </CardContent>
+              </Card>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -332,7 +379,7 @@ export default function ReportDetailsPage() {
                   <Button 
                     onClick={handleSave} 
                     disabled={saving}
-                    className="w-full"
+                    className=" w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2"
                   >
                     {saving ? (
                       <>
@@ -357,58 +404,9 @@ export default function ReportDetailsPage() {
                   )}
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2 text-green-500" />
-                    Korisnik koji je prijavio
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p><strong>Ime:</strong> {report.reporterId.name}</p>
-                  <p><strong>Korisničko ime:</strong> @{report.reporterId.userName}</p>
-                  <p className="flex items-center">
-                    <Mail className="h-4 w-4 mr-2" />
-                    {report.reporterId.email}
-                  </p>
-                  <Link 
-                    href={`/users/${report.reporterId._id}`}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-                    target="_blank"
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Pogledaj profil
-                  </Link>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2 text-red-500" />
-                    Prijavljeni korisnik
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p><strong>Ime:</strong> {report.reportedUserId.name}</p>
-                  <p><strong>Korisničko ime:</strong> @{report.reportedUserId.userName}</p>
-                  <p className="flex items-center">
-                    <Mail className="h-4 w-4 mr-2" />
-                    {report.reportedUserId.email}
-                  </p>
-                  <Link 
-                    href={`/users/${report.reportedUserId._id}`}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-                    target="_blank"
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Pogledaj profil
-                  </Link>
-                </CardContent>
-              </Card>
             </div>
           </div>
+     
         </div>
       </main>
     </div>
