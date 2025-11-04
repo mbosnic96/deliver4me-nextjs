@@ -7,7 +7,7 @@ export default withAuth(
     const pathname = req.nextUrl.pathname;
 
 
-    const adminRoutes = ['/vehicle-types', '/reports', '/users'];
+    const adminRoutes = ['/vehicle-types', '/reports', '/users', '/cms'];
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
 
     if (isAdminRoute && token?.role !== 'admin') {
@@ -38,5 +38,7 @@ export const config = {
     '/reports/:path*',
     '/users/:path*',
     '/load/:path*',
+    
+    '/cms/:path*',
   ],
 };
