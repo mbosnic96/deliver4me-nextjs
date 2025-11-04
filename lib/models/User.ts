@@ -23,6 +23,9 @@ export interface IUser extends Document {
   unreadMessagesCount: number;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  failedLoginAttempts: number;
+  lockUntil: Date | null;
+  lastFailedLogin: Date | null;
 }
 
 export interface IUserLean {
@@ -47,13 +50,16 @@ export interface IUserLean {
   rating: number;
   reviewsCount: number;
   __v?: number;
+  failedLoginAttempts: number;
+  lockUntil: Date | null;
+  lastFailedLogin: Date | null;
 }
 
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     phone: String,
     role: { type: String, required: true, enum: ['client', 'driver', 'admin'] },
     address: String,
@@ -69,9 +75,11 @@ const UserSchema = new Schema<IUser>(
     rating: { type: Number, default: 0 },
     reviewsCount: { type: Number, default: 0 },
     unreadMessagesCount: { type: Number, default: 0 },
-  resetPasswordToken: String,
-  resetPasswordExpires: Date,
-    
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
+    lastFailedLogin: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -84,5 +92,4 @@ UserSchema.methods.toJSON = function() {
 };
 
 const UserModel = models?.User || model<IUser>('User', UserSchema);
-
 export default UserModel;

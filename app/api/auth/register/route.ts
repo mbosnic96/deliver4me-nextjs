@@ -43,6 +43,9 @@ export async function POST(request: Request) {
       postalCode,
       password: hashedPassword,
       role: role || 'client',
+      failedLoginAttempts: 0,
+      lockUntil: null,
+      lastFailedLogin: null
     });
 
     await newUser.save();

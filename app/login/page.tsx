@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Image from 'next/image';
 import { signIn, getSession } from 'next-auth/react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type LoginFormData = {
   email: string;
@@ -18,26 +20,82 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>();
 
-  const [error, setError] = useState('');
   const router = useRouter();
 
   const onSubmit = async (data: LoginFormData) => {
-    setError('');
+    try {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-    const res = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
+      if (res?.error) {
+        if (res.error.includes('zaključan')) {
+          toast.error(res.error, {
+            position: "top-right",
+            autoClose: 8000, 
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          });
+        } else if (res.error.includes('deaktiviran')) {
+          toast.warning(res.error, {
+            position: "top-right",
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          });
+        } else if (res.error.includes('Unesite podatke')) {
+          toast.warning(res.error, {
+            position: "top-right",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        } else {
+          toast.error(res.error, {
+            position: "top-right",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+      } else {
+        toast.success('Uspješno ste se prijavili!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
 
-    if (res?.error) {
-      setError(res.error || 'Login failed');
-    } else {
-      const session = await getSession();
-
-      if (session?.user?.role) {
-         router.push('/dashboard');
+        const session = await getSession();
+        if (session?.user?.role) {
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 1000);
+        }
       }
+    } catch (error) {
+      toast.error('Došlo je do greške prilikom prijave', {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -103,53 +161,47 @@ export default function LoginPage() {
               )}
             </div>
 
-           <button
-  type="submit"
-  disabled={isSubmitting}
-  className="w-full bg-blue-700 text-white rounded-full py-2 mt-2 hover:bg-blue-700 transition disabled:opacity-50"
->
-  {isSubmitting ? (
-    <span className="flex items-center justify-center">
-      <svg
-        className="animate-spin mr-2 h-4 w-4 text-white"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        ></circle>
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v8z"
-        ></path>
-      </svg>
-    </span>
-  ) : (
-    'Prijavi se'
-  )}
-</button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-blue-700 text-white rounded-full py-2 mt-2 hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin mr-2 h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    ></path>
+                  </svg>
+                  Prijavljivanje...
+                </span>
+              ) : (
+                'Prijavi se'
+              )}
+            </button>
 
-<div className="flex justify-end mt-2">
-  <button
-    type="button"
-    onClick={() => router.push('/forgot-password')}
-    className="text-sm text-blue-600 hover:underline"
-  >
-   Zaboravili ste lozinku?
-  </button>
-</div>
-
-
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 text-sm px-4 py-2 rounded-md">
-                {error}
-              </div>
-            )}
+            <div className="flex justify-end mt-2">
+              <button
+                type="button"
+                onClick={() => router.push('/forgot-password')}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Zaboravili ste lozinku?
+              </button>
+            </div>
 
             <div className="text-center text-sm text-light mt-4">
               Nemate račun?

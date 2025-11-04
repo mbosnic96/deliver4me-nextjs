@@ -14,42 +14,95 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         await dbConnect()
-
+        
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing credentials")
+          throw new Error("Unesite podatke")
         }
+
 
         const user = await UserModel.findOne({
           email: credentials.email.toLowerCase().trim(),
-        })
-          .select("+password")
-          .lean()
+        }).select("+password +failedLoginAttempts +lockUntil +lastFailedLogin")
 
-        if (!user || Array.isArray(user)) {
-          throw new Error("No user found")
+        if (!user) {
+          throw new Error("Korisnik nije pronađen")
         }
 
-        const userData = user as IUserLean
 
-        if (userData.isDeleted) {
-          throw new Error("Account disabled")
+        if (user.isDeleted) {
+          throw new Error("Račun deaktiviran. Kontaktirajte podršku.")
         }
 
-        const isMatch = await bcrypt.compare(
-          credentials.password,
-          userData.password
-        )
+        const failedLoginAttempts = user.failedLoginAttempts || 0;
+        const lockUntil = user.lockUntil || null;
+        const now = new Date();
+
+        if (lockUntil && lockUntil > now) {
+          const minutesLeft = Math.ceil((lockUntil.getTime() - now.getTime()) / 60000)
+          console.log(`Account is locked, minutes left: ${minutesLeft}`);
+          throw new Error(`Račun privremeno zaključan zbog više neuspjelih pokušaja prijave. Pokušajte ponovo za ${minutesLeft} minuta`)
+        }
+
+        if (lockUntil && lockUntil <= now) {
+          await UserModel.updateOne(
+            { _id: user._id },
+            { 
+              failedLoginAttempts: 0,
+              lockUntil: null,
+              lastFailedLogin: null
+            }
+          );
+        }
+
+        const isMatch = await bcrypt.compare(credentials.password, user.password)
+
         if (!isMatch) {
-          throw new Error("Incorrect password")
+          const updatedUser = await UserModel.findOneAndUpdate(
+            { _id: user._id },
+            {
+              $inc: { failedLoginAttempts: 1 },
+              $set: { lastFailedLogin: new Date() }
+            },
+            { new: true, select: '+failedLoginAttempts' }
+          );
+
+          const newAttempts = updatedUser?.failedLoginAttempts || failedLoginAttempts + 1;
+          
+          if (newAttempts >= 5) {
+            const lockUntilDate = new Date(Date.now() + 30 * 60 * 1000);
+            
+            await UserModel.updateOne(
+              { _id: user._id },
+              {
+                $set: { lockUntil: lockUntilDate }
+              }
+            );
+            
+            throw new Error("Račun je privremeno zaključan. Pokušajte ponovo za 30 minuta.");
+          }
+          
+          throw new Error("Netačna lozinka ili email");
         }
+
+
+        await UserModel.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              failedLoginAttempts: 0,
+              lockUntil: null,
+              lastFailedLogin: null
+            }
+          }
+        );
 
         return {
-          id: userData._id.toString(),
-          email: userData.email,
-          name: userData.name,
-          role: userData.role,
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role,
         }
-      },
+      }
     }),
   ],
   callbacks: {

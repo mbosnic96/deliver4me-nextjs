@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { Country, State, City } from 'country-state-city';
 import Select from 'react-select';
+import {signIn} from 'next-auth/react';
 
 type FormData = {
   name: string;
@@ -111,13 +112,23 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.message || 'Registration failed. Please try again.');
+      throw new Error(errorData.message || 'Registracija neuspješna.');
     }
 
-    toast.success('Registration successful! Please login.');
-    router.push('/login');
+    const loginResponse = await signIn('credentials', {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
+
+    if (loginResponse?.error) {
+      throw new Error('Automatska prijava neuspješna, pokušajte ');
+    }
+
+    toast.success('Dobrodošli!.');
+    router.push('/dashboard');
   } catch (error: any) {
-    toast.error(error.message || 'Registration failed. Please try again.');
+    toast.error(error.message || 'Došlo je do greške tokom registracije.');
   } finally {
     setLoading(false);
   }
@@ -166,7 +177,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-light">
                   Ime i prezime
