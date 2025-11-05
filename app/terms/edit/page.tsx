@@ -50,16 +50,17 @@ export default function EditTermsPage() {
       />
 
       <Editor
+        tinymceScriptSrc="/tinymce/tinymce.min.js"  
         value={content}
-        onEditorChange={(newValue) => setContent(newValue)}
+        onEditorChange={(val) => setContent(val)}
         init={{
           height: 500,
           menubar: true,
           plugins: "link lists code table",
           toolbar:
-            "undo redo | formatselect | bold italic | bullist numlist | link | code",
-          skin: false,
-          content_css: false,
+            "undo redo | formatselect | bold italic underline | bullist numlist | link | code",
+          skin: "oxide",
+          content_css: "default",
         }}
       />
 
