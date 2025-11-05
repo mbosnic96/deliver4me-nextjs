@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
 import Terms from "@/models/Terms";
+import { getServerSession } from "next-auth"; 
+import { authOptions } from "@/lib/authOptions"; 
 
 export async function GET() {
   await dbConnect();
@@ -10,6 +12,13 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   await dbConnect();
+
+  const session = await getServerSession(authOptions); 
+
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
   const data = await req.json();
   let terms = await Terms.findOne();
 
