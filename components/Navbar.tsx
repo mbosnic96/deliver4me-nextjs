@@ -53,6 +53,7 @@ export default function Navbar() {
         { href: '/my-loads', label: 'Svi tereti', icon: Truck },
         { href: '/reports', label: 'Prijave korisnika', icon: AlertTriangle },
         { href: '/my-wallet', label: 'Novčanik', icon: Wallet },
+        {href: '/cms', label: 'CMS', icon: Settings},
       ];
     }
 
