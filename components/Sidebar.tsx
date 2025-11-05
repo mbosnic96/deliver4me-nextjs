@@ -10,7 +10,7 @@ import {
   UserCog,
   Settings,
   Wallet,
-  AlertTriangle,
+  AlertTriangle, Gear
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -133,6 +133,7 @@ const Sidebar = ({
                 <SidebarLink href="/my-loads" icon={<Truck size={18} />} label="Svi tereti" />
                 <SidebarLink href="/reports" icon={<AlertTriangle size={18} />} label="Prijave korisnika" />
                 <SidebarLink href="/my-wallet" icon={<Wallet size={18} />} label="Novčanik" />
+                <SidebarLink href="/cms" icon={<Gear size={18} />} label="CMS" />
               </>
             )}
 
