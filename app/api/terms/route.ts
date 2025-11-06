@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/db";
-import Terms from "@/models/Terms";
+import Terms from "@/lib/models/Terms";
 import { getServerSession } from "next-auth"; 
 import { authOptions } from "@/lib/authOptions"; 
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface Terms {
   title: string;
@@ -16,8 +17,9 @@ export default function TermsPage() {
       .then((res) => res.json())
       .then((data) => setTerms(data));
   }, []);
-
-  if (!terms) return <p className="p-4">Učitavanje...</p>;
+  if (!terms) return <div className="flex justify-center items-center py-20">
+            <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+          </div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6">

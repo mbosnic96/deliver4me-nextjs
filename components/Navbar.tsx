@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Truck, Bell, LogOut, Plus, Wallet, UserCog, Settings, AlertTriangle } from 'lucide-react';
+import { Home, User, Truck, Bell, LogOut, Plus, Wallet, UserCog, Settings, AlertTriangle, BookAlert } from 'lucide-react';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import NotificationsDropdown from './NotificationsDropdown';
@@ -54,6 +54,7 @@ export default function Navbar() {
         { href: '/reports', label: 'Prijave korisnika', icon: AlertTriangle },
         { href: '/my-wallet', label: 'Novčanik', icon: Wallet },
         {href: '/cms', label: 'CMS', icon: Settings},
+        {href: '/terms/edit', label: 'Pravila korištenja', icon: BookAlert},
       ];
     }
 

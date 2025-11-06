@@ -36,7 +36,7 @@ export default function ReportsPage() {
         <div className="flex items-center space-x-2 max-w-[180px] truncate">
           <User className="h-4 w-4 text-gray-500 shrink-0" />
           <div className="truncate">
-            <div className="font-medium truncate" title={row.original.reporterId.name}>{row.original.reporterId.name}</div>
+            <div className="font-medium truncate" title={row.original.reporterId?.name}>{row.original.reporterId?.name}</div>
           </div>
         </div>
       ),
@@ -48,7 +48,7 @@ export default function ReportsPage() {
         <div className="flex items-center space-x-2 max-w-[180px] truncate">
           <User className="h-4 w-4 text-red-500 shrink-0" />
           <div className="truncate">
-            <div className="font-medium truncate" title={row.original.reportedUserId.name}>{row.original.reportedUserId.name}</div>
+            <div className="font-medium truncate" title={row.original.reportedUserId?.name}>{row.original.reportedUserId?.name}</div>
           </div>
         </div>
       ),

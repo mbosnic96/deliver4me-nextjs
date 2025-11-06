@@ -43,12 +43,12 @@ export const getStates = (countryCode: string) => {
   return cache.states.get(cacheKey) || [];
 };
 
-export const getCities = (countryCode: string, stateCode: string) => {
-  if (!countryCode || !stateCode) return [];
+export const getCities = (countryCode: string) => {
+  if (!countryCode) return [];
   
-  const cacheKey = `${countryCode}-${stateCode}`;
+  const cacheKey = `${countryCode}`;
   if (!cache.cities.has(cacheKey)) {
-    const cities = City.getCitiesOfState(countryCode, stateCode);
+    const cities = City.getCitiesOfCountry(countryCode);
     if (!cities || cities.length === 0) {
       cache.cities.set(cacheKey, []);
       return [];
