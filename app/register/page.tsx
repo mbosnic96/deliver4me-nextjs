@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { Country, State, City } from 'country-state-city';
+import { getCountries, getStates, getCities, getCityLatLng } from '@/lib/services/CscService'
 import Select from 'react-select';
 import {signIn} from 'next-auth/react';
 
@@ -32,6 +32,7 @@ export default function Register() {
   const [countryOptions, setCountryOptions] = useState<SelectOption[]>([]);
   const [stateOptions, setStateOptions] = useState<SelectOption[]>([]);
   const [cityOptions, setCityOptions] = useState<SelectOption[]>([]);
+  const [accepted, setAccepted] = useState(false);
 
   const {
     register,
@@ -46,7 +47,7 @@ export default function Register() {
   const selectedState = watch('state');
 
   useEffect(() => {
-    const countries = Country.getAllCountries().map((country) => ({
+    const countries = getCountries().map((country) => ({
       value: country.isoCode,
       label: country.name,
     }));
@@ -55,7 +56,7 @@ export default function Register() {
 
   useEffect(() => {
     if (selectedCountry) {
-      const states = State.getStatesOfCountry(selectedCountry).map((state) => ({
+      const states = getStates(selectedCountry).map((state) => ({
         value: state.isoCode,
         label: state.name,
       }));
@@ -67,15 +68,15 @@ export default function Register() {
   }, [selectedCountry, setValue]);
 
   useEffect(() => {
-    if (selectedCountry && selectedState) {
-      const cities = City.getCitiesOfState(selectedCountry, selectedState).map((city) => ({
+    if (selectedCountry) {
+      const cities = getCities(selectedCountry).map((city) => ({
         value: city.name,
         label: city.name,
       }));
       setCityOptions(cities);
       setValue('city', '');
     }
-  }, [selectedCountry, selectedState, setValue]);
+  }, [selectedCountry, setValue]);
 
   const onCountrySelect = (selectedOption: SelectOption | null) => {
     if (selectedOption) {
@@ -96,6 +97,11 @@ export default function Register() {
   };
 
 const onSubmit: SubmitHandler<FormData> = async (data) => {
+  if (!accepted) {
+      toast.warning('Morate prihvatiti uvjete korištenja.');
+      return;
+    }
+
   try {
     setLoading(true);
 
@@ -374,6 +380,27 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
               )}
             </div>
+
+             <div className="flex items-center mt-3">
+            <input
+              id="terms"
+              type="checkbox"
+              checked={accepted}
+              onChange={(e) => setAccepted(e.target.checked)}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="terms" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+              Slažem se s{' '}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                uvjetima korištenja
+              </a>
+            </label>
+          </div>
 
             <button
               type="submit"

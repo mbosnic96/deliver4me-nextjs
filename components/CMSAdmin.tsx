@@ -16,8 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, GripVertical, Edit, Trash2, Eye, EyeOff, Save, X, Upload, Image, FileText, Search } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { CMSContent, ContentType, UploadedFile } from '@/lib/types/cms';
-
-  import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
+import Sidebar from "@/components/Sidebar";
+import { useSession } from "next-auth/react";
 
 interface SortableItemProps {
   id: string;
@@ -363,6 +364,9 @@ export default function CMSAdmin() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const [fileManagerOpen, setFileManagerOpen] = useState<boolean>(false);
   const [currentImageField, setCurrentImageField] = useState<{ setter: (url: string) => void } | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { data: session } = useSession();
+  const role = session?.user?.role as "client" | "driver" | "admin" | undefined;
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -531,73 +535,86 @@ const handleDelete = async (id: string) => {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">Upravljajte sadržajem</h1>
-          <p className="text-white">Upravljajte sadržajem i sekcijama</p>
-        </div>
+    <div className="min-h-screen">
+      <Sidebar
+        role={role}
+        navbarHeight={84}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Akcije</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button 
-                  className="w-full justify-start"
-                  onClick={() => setIsCreateDialogOpen(true)}
-                >
-                  <Plus size={16} className="mr-2" />
-                  Nova sekcija
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => openFileManager(() => {})}
-                >
-                  <Image size={16} className="mr-2" />
-                  File Manager
-                </Button>
-              </CardContent>
-            </Card>
+      <main 
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
+        }`}
+      >
+        <div className="py-8">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-blue-600 mb-2">Upravljajte sadržajem</h1>
+              <p className="text-white">Upravljajte sadržajem i sekcijama</p>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Statistika</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Ukupno sekcija</span>
-                    <span className="font-semibold">{contents.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Aktivne</span>
-                    <span className="font-semibold text-green-600">
-                      {contents.filter(c => c.isActive).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Neaktivne</span>
-                    <span className="font-semibold text-gray-600">
-                      {contents.filter(c => !c.isActive).length}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Akcije</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Button 
+                      className="w-full justify-start"
+                      onClick={() => setIsCreateDialogOpen(true)}
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Nova sekcija
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => openFileManager(() => {})}
+                    >
+                      <Image size={16} className="mr-2" />
+                      File Manager
+                    </Button>
+                  </CardContent>
+                </Card>
 
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Website Sections</CardTitle>
-                <p className="text-sm text-gray-600">Prevucite da uredite pozicije. Promjene se spremaju automatski</p>
-              </CardHeader>
-              <CardContent>
-              <DndContext 
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Statistika</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Ukupno sekcija</span>
+                        <span className="font-semibold">{contents.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Aktivne</span>
+                        <span className="font-semibold text-green-600">
+                          {contents.filter(c => c.isActive).length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Neaktivne</span>
+                        <span className="font-semibold text-gray-600">
+                          {contents.filter(c => !c.isActive).length}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-3">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Website Sections</CardTitle>
+                    <p className="text-sm text-gray-600">Prevucite da uredite pozicije. Promjene se spremaju automatski</p>
+                  </CardHeader>
+                  <CardContent>
+                  <DndContext 
   sensors={sensors} 
   collisionDetection={closestCenter} 
   onDragEnd={handleDragEnd}
@@ -679,42 +696,44 @@ const handleDelete = async (id: string) => {
                     </Button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogContent className="max-w-2xl">
+                <CreateContentForm 
+                  onSave={(data) => handleSave(data, false)} 
+                  onCancel={() => setIsCreateDialogOpen(false)} 
+                />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                {editingContent && (
+                  <EditContentForm
+                    content={editingContent}
+                    onSave={(data) => handleSave(data, true)}
+                    onCancel={() => {
+                      setIsDialogOpen(false);
+                      setEditingContent(null);
+                    }}
+                    onOpenFileManager={openFileManager}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
+
+            <FileManager
+              isOpen={fileManagerOpen}
+              onClose={() => setFileManagerOpen(false)}
+              onSelectImage={handleSelectImage}
+            />
           </div>
         </div>
-
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent className="max-w-2xl">
-            <CreateContentForm 
-              onSave={(data) => handleSave(data, false)} 
-              onCancel={() => setIsCreateDialogOpen(false)} 
-            />
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            {editingContent && (
-              <EditContentForm
-                content={editingContent}
-                onSave={(data) => handleSave(data, true)}
-                onCancel={() => {
-                  setIsDialogOpen(false);
-                  setEditingContent(null);
-                }}
-                onOpenFileManager={openFileManager}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-
-        <FileManager
-          isOpen={fileManagerOpen}
-          onClose={() => setFileManagerOpen(false)}
-          onSelectImage={handleSelectImage}
-        />
-      </div>
+      </main>
     </div>
   );
 }

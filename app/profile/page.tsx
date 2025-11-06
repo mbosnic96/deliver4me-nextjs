@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import Select from 'react-select'
-import { getCountries, getStates, getCities, getCityLatLng } from '../../lib/services/CscService'
+import { getCountries, getStates, getCities, getCityLatLng } from '@/lib/services/CscService'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import Sidebar from '@/components/Sidebar'
@@ -252,7 +252,7 @@ const mapRef = useRef<any>(null)
       if (user.country) {
         setSelectedStates(getStates(user.country))
         if (user.state) {
-          setSelectedCities(getCities(user.country, user.state))
+          setSelectedCities(getCities(user.country))
         }
       }
 
@@ -295,7 +295,7 @@ const mapRef = useRef<any>(null)
     
     setLoadingCities(true)
     const timer = setTimeout(() => {
-      const countryCities = getCities(country, state)
+      const countryCities = getCities(country)
       setSelectedCities(countryCities)
       if(!city){
         setValue('city', '', { shouldDirty: true })
@@ -316,7 +316,7 @@ const updateMapWithCity = useCallback(async () => {
 
   try {
     setLoading(true)
-    const coords = await getCityLatLng(city, country, state)
+    const coords = await getCityLatLng(city, country)
     if (coords && !isNaN(coords.lat) && !isNaN(coords.lng)) {
       setValue('latitude', coords.lat, { shouldDirty: true })
       setValue('longitude', coords.lng, { shouldDirty: true })
@@ -330,7 +330,7 @@ const updateMapWithCity = useCallback(async () => {
   } finally {
     setLoading(false)
   }
-}, [city, country, state, setValue])
+}, [city, country, setValue])
 
   const handleFileUpload = useCallback(async (file: File) => {
     const formData = new FormData()

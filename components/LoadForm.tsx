@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { LeafletMap } from './LeafletMap'
-import { getCountries, getStates, getCities, getCityLatLng } from '../lib/services/CscService'
+import { getCountries, getStates, getCities, getCityLatLng } from '@/lib/services/CscService'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import Datetime from 'react-datetime';
@@ -85,24 +85,24 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
         ...initialData,
         pickupCountry: mapOption(initialData.pickupCountry, getCountries()),
         pickupState: mapOption(initialData.pickupState, getStates(initialData.pickupCountry)),
-        pickupCity: mapOption(initialData.pickupCity, getCities(initialData.pickupCountry, initialData.pickupState)),
+        pickupCity: mapOption(initialData.pickupCity, getCities(initialData.pickupCountry)),
         deliveryCountry: mapOption(initialData.deliveryCountry, getCountries()),
         deliveryState: mapOption(initialData.deliveryState, getStates(initialData.deliveryCountry)),
-        deliveryCity: mapOption(initialData.deliveryCity, getCities(initialData.deliveryCountry, initialData.deliveryState)),
+        deliveryCity: mapOption(initialData.deliveryCity, getCities(initialData.deliveryCountry)),
         pickupLatitude: initialData.pickupLatitude ?? 0,
         pickupLongitude: initialData.pickupLongitude ?? 0,
         images: initialData.images || []
       }))
 
       if (initialData.pickupCountry) setPickupStates(getStates(initialData.pickupCountry).map(s => ({ value: s.value, label: s.label })))
-      if (initialData.pickupState) setPickupCities(getCities(initialData.pickupCountry, initialData.pickupState).map(c => ({ value: c.value, label: c.label })))
+      if (initialData.pickupState) setPickupCities(getCities(initialData.pickupCountry).map(c => ({ value: c.value, label: c.label })))
       if (initialData.deliveryCountry) setDeliveryStates(getStates(initialData.deliveryCountry).map(s => ({ value: s.value, label: s.label })))
-      if (initialData.deliveryState) setDeliveryCities(getCities(initialData.deliveryCountry, initialData.deliveryState).map(c => ({ value: c.value, label: c.label })))
+      if (initialData.deliveryState) setDeliveryCities(getCities(initialData.deliveryCountry).map(c => ({ value: c.value, label: c.label })))
       if (initialData.images) setImagePreviews(initialData.images)
     } else if (currentUser) {
       const userCountry = currentUser.country ? mapOption(currentUser.country, getCountries()) : null
       const userState = currentUser.state && userCountry ? mapOption(currentUser.state, getStates(userCountry.value)) : null
-      const userCity = currentUser.city && userState && userCountry ? mapOption(currentUser.city, getCities(userCountry.value, userState.value)) : null
+      const userCity = currentUser.city && userState && userCountry ? mapOption(currentUser.city, getCities(userCountry.value)) : null
 
       setForm((prev: any) => ({
         ...prev,
@@ -115,7 +115,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
       }))
 
       if (userCountry) setPickupStates(getStates(userCountry.value).map(s => ({ value: s.value, label: s.label })))
-      if (userState) setPickupCities(getCities(userCountry.value, userState.value).map(c => ({ value: c.value, label: c.label })))
+      if (userState) setPickupCities(getCities(userCountry.value).map(c => ({ value: c.value, label: c.label })))
     }
   }, [initialData, currentUser])
 
@@ -135,7 +135,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   const handlePickupStateChange = (option: any) => {
     handleChange('pickupState', option)
     handleChange('pickupCity', null)
-    setPickupCities(option ? getCities(form.pickupCountry.value, option.value).map(c => ({ value: c.value, label: c.label })) : [])
+    setPickupCities(option ? getCities(form.pickupCountry.value).map(c => ({ value: c.value, label: c.label })) : [])
   }
 
   const handlePickupCityChange = async (option: any) => {
@@ -156,7 +156,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   const handleDeliveryStateChange = (option: any) => {
     handleChange('deliveryState', option)
     handleChange('deliveryCity', null)
-    setDeliveryCities(option ? getCities(form.deliveryCountry.value, option.value).map(c => ({ value: c.value, label: c.label })) : [])
+    setDeliveryCities(option ? getCities(form.deliveryCountry.value).map(c => ({ value: c.value, label: c.label })) : [])
   }
 
   const handleDeliveryCityChange = async (option: any) => {
