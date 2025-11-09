@@ -1,0 +1,234 @@
+[{
+  "_id": {
+    "$oid": "690e592b324033f9b95c9305"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Paleta miješanog tereta\" od Vozač",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T20:40:11.423Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5a55324033f9b95c95e1"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Paleta miješanog tereta\" od Elvir Milenković",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T20:45:09.881Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5aed324033f9b95c977b"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Paleta miješanog tereta\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T20:47:41.289Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5d70324033f9b95c9f4e"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Prihvaćena ponuda za teret \"Paleta miješanog tereta\" je otkazana.",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T20:58:24.955Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5dc7324033f9b95ca09c"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Paleta miješanog tereta\" od Vozač",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T20:59:51.416Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5dda324033f9b95ca118"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Paleta miješanog tereta\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T21:00:10.623Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5e35324033f9b95ca2b7"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Paleta miješanog tereta\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690e56de324033f9b95c8e22",
+  "createdAt": {
+    "$date": "2025-11-07T21:01:41.738Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690f9353495c2e8780bc8a8b"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Prijevoz motora za auto\" od Vozač",
+  "seen": true,
+  "link": "/load/690f7bdb495c2e8780bbb859",
+  "createdAt": {
+    "$date": "2025-11-08T19:00:35.140Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690f938c495c2e8780bc8cc7"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Prijevoz motora za auto\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690f7bdb495c2e8780bbb859",
+  "createdAt": {
+    "$date": "2025-11-08T19:01:32.251Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690fbda9495c2e8780be1765"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Prihvaćena ponuda za teret \"Prijevoz motora za auto\" je otkazana.",
+  "seen": false,
+  "link": "/load/690f7bdb495c2e8780bbb859",
+  "createdAt": {
+    "$date": "2025-11-08T22:01:13.727Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691086f1a2f8cf5275d85651"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Kutija s knjigama\" od Vozač",
+  "seen": true,
+  "link": "/load/690fc37688ebdefc9afc30c2",
+  "createdAt": {
+    "$date": "2025-11-09T12:20:01.707Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108703a2f8cf5275d856c1"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Kutija s knjigama\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690fc37688ebdefc9afc30c2",
+  "createdAt": {
+    "$date": "2025-11-09T12:20:19.368Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108a9fa2f8cf5275d85d17"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Branik od auta\" od Vozač",
+  "seen": true,
+  "link": "/load/690fc30088ebdefc9afc30b2",
+  "createdAt": {
+    "$date": "2025-11-09T12:35:43.940Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108aafa2f8cf5275d85d92"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Branik od auta\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690fc30088ebdefc9afc30b2",
+  "createdAt": {
+    "$date": "2025-11-09T12:35:59.178Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108ac4a2f8cf5275d85dc6"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Vozač je označio teret \"Branik od auta\" kao dostavljen. Molimo potvrdite dostavu.",
+  "seen": true,
+  "link": "/load/690fc30088ebdefc9afc30b2",
+  "createdAt": {
+    "$date": "2025-11-09T12:36:20.736Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108ceaa2f8cf5275d862c7"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Nova ponuda za vaš teret \"Prijevoz motora za auto\" od Vozač",
+  "seen": true,
+  "link": "/load/690f7bdb495c2e8780bbb859",
+  "createdAt": {
+    "$date": "2025-11-09T12:45:30.223Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108d1ba2f8cf5275d8638f"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "message": "Vaša ponuda za teret \"Prijevoz motora za auto\" je prihvaćena!",
+  "seen": false,
+  "link": "/load/690f7bdb495c2e8780bbb859",
+  "createdAt": {
+    "$date": "2025-11-09T12:46:19.981Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108d2da2f8cf5275d863c7"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "message": "Vozač je označio teret \"Prijevoz motora za auto\" kao dostavljen. Molimo potvrdite dostavu.",
+  "seen": true,
+  "link": "/my-loads",
+  "createdAt": {
+    "$date": "2025-11-09T12:46:37.774Z"
+  },
+  "__v": 0
+}]

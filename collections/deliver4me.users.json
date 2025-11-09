@@ -1,0 +1,1698 @@
+[{
+  "_id": {
+    "$oid": "6f9c377b64c6fa3d571b80db"
+  },
+  "name": "Mehmed Bosnić",
+  "email": "mehmedbossnic@gmail.com",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+387603004395",
+  "role": "admin",
+  "address": "Kostelska bb",
+  "city": "Bihać",
+  "state": "01",
+  "country": "BA",
+  "postalCode": "77000",
+  "photoUrl": "/api/uploads/profile/1762616815411.jpeg",
+  "latitude": 44.880763478343056,
+  "longitude": 15.892817961377268,
+  "isDeleted": false,
+  "rating": 5,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-11-06T20:26:32.813Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:12:26.391Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "9ebe717668628f197370eec3"
+  },
+  "name": "Hasan Đokić",
+  "email": "korisnik1@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769906153",
+  "role": "client",
+  "address": "Marsala Tita 19",
+  "city": "Sanski Most",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "79260",
+  "photoUrl": "/user.png",
+  "latitude": 44.77307303901831,
+  "longitude": 16.67551666098401,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 2,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-08-21T20:26:32.813Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-08T08:57:16.816Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "418a4ec86151ecbd80acdfae"
+  },
+  "name": "Mirza Hodžić",
+  "email": "korisnik2@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763691344",
+  "role": "driver",
+  "address": "Antuna Branka Šimića 103 C",
+  "city": "Stolac",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88360",
+  "photoUrl": "/user.png",
+  "latitude": 43.0842586996372,
+  "longitude": 17.948857994274512,
+  "isDeleted": false,
+  "rating": 4,
+  "reviewsCount": 77,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-06-11T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "f70c4289a83bbe0e562c40cb"
+  },
+  "name": "Faruk Maksimović",
+  "email": "korisnik3@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765317396",
+  "role": "client",
+  "address": "Bulevar Meše Selimovića 130 A",
+  "city": "Konjic",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88400",
+  "photoUrl": "/user.png",
+  "latitude": 43.65096309972492,
+  "longitude": 17.95428377762616,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 6,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-05-27T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "bd79314468f90e4681078494"
+  },
+  "name": "Sabahudin Knežević",
+  "email": "korisnik4@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769545835",
+  "role": "driver",
+  "address": "Put života 89",
+  "city": "Prijedor",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "79101",
+  "photoUrl": "/user.png",
+  "latitude": 44.97572322637379,
+  "longitude": 16.71566225267165,
+  "isDeleted": false,
+  "rating": 3.6,
+  "reviewsCount": 21,
+  "unreadMessagesCount": 8,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-07-04T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a949b2186da8f918e1f6175b"
+  },
+  "name": "Emina Đurić",
+  "email": "korisnik5@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767579725",
+  "role": "client",
+  "address": "Hrasnička 29",
+  "city": "Banja Luka",
+  "state": "RS",
+  "country": "BA",
+  "postalCode": "78000",
+  "photoUrl": "/user.png",
+  "latitude": 44.77271088925744,
+  "longitude": 17.191417569162606,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 1,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-10-05T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "116c22e22cbc80acd205b13f"
+  },
+  "name": "Emina Vasić",
+  "email": "korisnik6@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767379480",
+  "role": "driver",
+  "address": "Stjepana Radića 41",
+  "city": "Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72270",
+  "photoUrl": "/user.png",
+  "latitude": 44.232690435453726,
+  "longitude": 17.669142590701217,
+  "isDeleted": false,
+  "rating": 4.2,
+  "reviewsCount": 26,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-12-28T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "0361461354b1a3871f73b775"
+  },
+  "name": "Gordana Pešić",
+  "email": "korisnik7@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768431715",
+  "role": "client",
+  "address": "Mula Mustafe Bašeskije 1",
+  "city": "Čapljina",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88300",
+  "photoUrl": "/user.png",
+  "latitude": 43.10288690530035,
+  "longitude": 17.701446334075918,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 6,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-28T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "51339104aa9543c3de157bb8"
+  },
+  "name": "Elvir Jović",
+  "email": "korisnik8@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769595058",
+  "role": "driver",
+  "address": "Skenderija 101 A",
+  "city": "Čapljina",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88300",
+  "photoUrl": "/user.png",
+  "latitude": 43.119106903080464,
+  "longitude": 17.71529779258134,
+  "isDeleted": false,
+  "rating": 4.7,
+  "reviewsCount": 46,
+  "unreadMessagesCount": 8,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-21T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "20efd087888b989890b181e7"
+  },
+  "name": "Jasmin Milanović",
+  "email": "korisnik9@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765424216",
+  "role": "client",
+  "address": "Skenderija 19",
+  "city": "Ljubuški",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88320",
+  "photoUrl": "/user.png",
+  "latitude": 43.1993097036212,
+  "longitude": 17.5362899794031,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 4,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-08-27T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "229ce8fa30097c1f158e21eb"
+  },
+  "name": "Jadranka Radović",
+  "email": "korisnik10@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768004044",
+  "role": "driver",
+  "address": "Vilsonovo šetalište 101 A",
+  "city": "Jajce",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "70101",
+  "photoUrl": "/user.png",
+  "latitude": 44.33499196409308,
+  "longitude": 17.271092387128913,
+  "isDeleted": false,
+  "rating": 4.7,
+  "reviewsCount": 57,
+  "unreadMessagesCount": 6,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-09-23T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "274e3b0abad02fc45948a966"
+  },
+  "name": "Mirsad Simić",
+  "email": "korisnik11@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767174538",
+  "role": "client",
+  "address": "Antuna Branka Šimića 72",
+  "city": "Kakanj",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72240",
+  "photoUrl": "/user.png",
+  "latitude": 44.13432779699405,
+  "longitude": 18.125032744267052,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-08-15T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "0989db40fd616ae1cd7a63de"
+  },
+  "name": "Dženita Lukić",
+  "email": "korisnik12@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769760841",
+  "role": "driver",
+  "address": "Mostarska 109 C",
+  "city": "Prijedor",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "79101",
+  "photoUrl": "/user.png",
+  "latitude": 44.972525257593546,
+  "longitude": 16.71098483202428,
+  "isDeleted": false,
+  "rating": 4.4,
+  "reviewsCount": 67,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-11-21T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a0bd5c083b41e4be424c36a2"
+  },
+  "name": "Damir Miletić",
+  "email": "korisnik13@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38764764988",
+  "role": "client",
+  "address": "Alipašina 92",
+  "city": "Kakanj",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72240",
+  "photoUrl": "/user.png",
+  "latitude": 44.12688232687951,
+  "longitude": 18.11643496045195,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 1,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-04-13T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "de6c87082645ee78296a81e2"
+  },
+  "name": "Ivan Mihajlović",
+  "email": "korisnik14@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763129554",
+  "role": "driver",
+  "address": "Hrasnička 7",
+  "city": "Mostar",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88000",
+  "photoUrl": "/user.png",
+  "latitude": 43.33980047711147,
+  "longitude": 17.799034174458033,
+  "isDeleted": false,
+  "rating": 4.7,
+  "reviewsCount": 82,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-05-28T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "9120a80e073f8a333080bbb4"
+  },
+  "name": "Nada Stevanović",
+  "email": "korisnik15@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765112960",
+  "role": "client",
+  "address": "Bulevar Meše Selimovića 85",
+  "city": "Zenica",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72000",
+  "photoUrl": "/user.png",
+  "latitude": 44.20789419673563,
+  "longitude": 17.912725155717936,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 3,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-24T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "8d0013690d35f19605811256"
+  },
+  "name": "Hana Đurić",
+  "email": "korisnik16@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769542611",
+  "role": "driver",
+  "address": "Marsala Tita 46",
+  "city": "Stolac",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88360",
+  "photoUrl": "/user.png",
+  "latitude": 43.08947337732385,
+  "longitude": 17.96081461498888,
+  "isDeleted": false,
+  "rating": 3.7,
+  "reviewsCount": 5,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-10-23T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "b0d2ed3438c138669500c197"
+  },
+  "name": "Alen Lukić",
+  "email": "korisnik17@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763770933",
+  "role": "client",
+  "address": "Kralja Tvrtka 7",
+  "city": "Bijeljina",
+  "state": "RS",
+  "country": "BA",
+  "postalCode": "76300",
+  "photoUrl": "/user.png",
+  "latitude": 44.76841062912918,
+  "longitude": 19.218667020867308,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-19T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "e2c120ebcdf2938fbce64150"
+  },
+  "name": "Merima Marković",
+  "email": "korisnik18@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763683222",
+  "role": "driver",
+  "address": "Skenderija 91",
+  "city": "Široki Brijeg",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88220",
+  "photoUrl": "/user.png",
+  "latitude": 43.39263151871095,
+  "longitude": 17.589310711411247,
+  "isDeleted": false,
+  "rating": 3.6,
+  "reviewsCount": 42,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-04-16T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "083cb3da91017bfa74967878"
+  },
+  "name": "Mirza Jovanović",
+  "email": "korisnik19@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765048442",
+  "role": "client",
+  "address": "Sarajevska 123 D",
+  "city": "Mostar",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88000",
+  "photoUrl": "/user.png",
+  "latitude": 43.335452355486794,
+  "longitude": 17.8100957690332,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-10-16T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a792550afca1606a2f7ebd4e"
+  },
+  "name": "Jadranka Mitić",
+  "email": "korisnik20@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763756737",
+  "role": "driver",
+  "address": "Hrasnička 122 A",
+  "city": "Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72270",
+  "photoUrl": "/user.png",
+  "latitude": 44.21985697570187,
+  "longitude": 17.65914826733907,
+  "isDeleted": false,
+  "rating": 3.6,
+  "reviewsCount": 29,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-29T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "ccc3a72ef3a8a0aa3255c417"
+  },
+  "name": "Amra Milanović",
+  "email": "korisnik21@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763582928",
+  "role": "client",
+  "address": "Skenderija 123 C",
+  "city": "Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72270",
+  "photoUrl": "/user.png",
+  "latitude": 44.21868545948195,
+  "longitude": 17.673649753847478,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 2,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-12T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "dc239c63b390f8bb881a29e2"
+  },
+  "name": "Nada Jevtić",
+  "email": "korisnik22@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38764026883",
+  "role": "driver",
+  "address": "Kralja Tvrtka 48",
+  "city": "Trebinje",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "89101",
+  "photoUrl": "/user.png",
+  "latitude": 42.71270551478844,
+  "longitude": 18.34595958775226,
+  "isDeleted": false,
+  "rating": 3.9,
+  "reviewsCount": 83,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-20T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "797251d4c4e5dd9f87822faa"
+  },
+  "name": "Kemal Blagojević",
+  "email": "korisnik23@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38764786138",
+  "role": "client",
+  "address": "Antuna Branka Šimića 14",
+  "city": "Sarajevo",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "71000",
+  "photoUrl": "/user.png",
+  "latitude": 43.86449510602406,
+  "longitude": 18.412299074469793,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-08-08T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "63cce192e5fb6ce287446e80"
+  },
+  "name": "Jadranka Perić",
+  "email": "korisnik24@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38764024880",
+  "role": "driver",
+  "address": "Alipašina 27",
+  "city": "Mostar",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88000",
+  "photoUrl": "/user.png",
+  "latitude": 43.34334427704004,
+  "longitude": 17.812692289416656,
+  "isDeleted": false,
+  "rating": 3.8,
+  "reviewsCount": 59,
+  "unreadMessagesCount": 3,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-06-08T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "96e1e79eae34807141d2f0dc"
+  },
+  "name": "Tarik Marković",
+  "email": "korisnik25@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38766890781",
+  "role": "client",
+  "address": "Aleja Bosne Srebrene 44",
+  "city": "Cazin",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "77220",
+  "photoUrl": "/user.png",
+  "latitude": 44.960857149376416,
+  "longitude": 15.950794677287316,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-06T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "cd2a556c3ed33db163461d0e"
+  },
+  "name": "Merima Pešić",
+  "email": "korisnik26@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763190219",
+  "role": "driver",
+  "address": "Meše Selimovića 143 A",
+  "city": "Živinice",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "75270",
+  "photoUrl": "/user.png",
+  "latitude": 44.45281556862165,
+  "longitude": 18.643159750772664,
+  "isDeleted": false,
+  "rating": 4.2,
+  "reviewsCount": 84,
+  "unreadMessagesCount": 6,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-11-14T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "2d9bc0cc7b750e8131fad796"
+  },
+  "name": "Lejla Đurić",
+  "email": "korisnik27@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768421144",
+  "role": "client",
+  "address": "Mostarska 109 B",
+  "city": "Cazin",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "77220",
+  "photoUrl": "/user.png",
+  "latitude": 44.960307486848,
+  "longitude": 15.940110255205182,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 2,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-05-12T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "02ceba15f42e9f1c1df14b5a"
+  },
+  "name": "Amar Nikolić",
+  "email": "korisnik28@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765860223",
+  "role": "driver",
+  "address": "Mostarska 62",
+  "city": "Mostar",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88000",
+  "photoUrl": "/user.png",
+  "latitude": 43.34788911034678,
+  "longitude": 17.8129224925765,
+  "isDeleted": false,
+  "rating": 4.2,
+  "reviewsCount": 9,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-08-11T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "54a85ee80c7760dce1679684"
+  },
+  "name": "Amra Ilić",
+  "email": "korisnik29@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38766413264",
+  "role": "client",
+  "address": "Tuzlanska 89",
+  "city": "Tuzla",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "75000",
+  "photoUrl": "/user.png",
+  "latitude": 44.53946988683623,
+  "longitude": 18.674705631209786,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-10-06T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "1a8425a81c65ef150fac314f"
+  },
+  "name": "Jadranka Vuković",
+  "email": "korisnik30@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765266615",
+  "role": "driver",
+  "address": "Stjepana Radića 79",
+  "city": "Jajce",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "70101",
+  "photoUrl": "/user.png",
+  "latitude": 44.351672067472954,
+  "longitude": 17.269782466491105,
+  "isDeleted": false,
+  "rating": 4.2,
+  "reviewsCount": 69,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-15T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "c12d91a93412f8bd239e881e"
+  },
+  "name": "Fatima Pavlović",
+  "email": "korisnik31@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768623852",
+  "role": "client",
+  "address": "Hrasnička 113 D",
+  "city": "Čapljina",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88300",
+  "photoUrl": "/user.png",
+  "latitude": 43.11411535544559,
+  "longitude": 17.7078421690843,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-03-23T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "29f50d7ec3fc5efd885aded4"
+  },
+  "name": "Mirza Čengić",
+  "email": "korisnik32@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768785066",
+  "role": "driver",
+  "address": "Safvet-bega Bašagića 116 C",
+  "city": "Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72270",
+  "photoUrl": "/user.png",
+  "latitude": 44.22594634164065,
+  "longitude": 17.660514770057517,
+  "isDeleted": false,
+  "rating": 4,
+  "reviewsCount": 75,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 1,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-11-10T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a5f99729ce0bfb8fedfa00bd"
+  },
+  "name": "Stefan Milosavljević",
+  "email": "korisnik33@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767361582",
+  "role": "client",
+  "address": "Zmaja od Bosne 10",
+  "city": "Sanski Most",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "79260",
+  "photoUrl": "/user.png",
+  "latitude": 44.761359528454044,
+  "longitude": 16.67571364654691,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-11-04T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6ed4ee67811636f11630d1b0"
+  },
+  "name": "Berina Trifunović",
+  "email": "korisnik34@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765911544",
+  "role": "driver",
+  "address": "Hrasnička 30",
+  "city": "Tomislavgrad",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "80240",
+  "photoUrl": "/user.png",
+  "latitude": 43.7261032946485,
+  "longitude": 17.22992835679135,
+  "isDeleted": false,
+  "rating": 3.5,
+  "reviewsCount": 40,
+  "unreadMessagesCount": 9,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-05-03T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "b56dc1c2e7949acd71c8f899"
+  },
+  "name": "Mirsad Perić",
+  "email": "korisnik35@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769548476",
+  "role": "client",
+  "address": "Skenderija 78",
+  "city": "Cazin",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "77220",
+  "photoUrl": "/user.png",
+  "latitude": 44.9617671943145,
+  "longitude": 15.947901360317239,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 2,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-06-22T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "cf2f8808dbdcb75cb1fb8554"
+  },
+  "name": "Zlata Vasić",
+  "email": "korisnik36@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769502455",
+  "role": "driver",
+  "address": "Safvet-bega Bašagića 21",
+  "city": "Novi Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72290",
+  "photoUrl": "/user.png",
+  "latitude": 44.177702610052904,
+  "longitude": 17.657433899731856,
+  "isDeleted": false,
+  "rating": 3.8,
+  "reviewsCount": 92,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-03T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "43f2a6446b96548272c0aa20"
+  },
+  "name": "Hamza Mladenović",
+  "email": "korisnik37@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765174853",
+  "role": "client",
+  "address": "Kulina bana 80",
+  "city": "Tomislavgrad",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "80240",
+  "photoUrl": "/user.png",
+  "latitude": 43.715022513762975,
+  "longitude": 17.214314209017637,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 5,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-15T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a3935a5c381a012ad0346991"
+  },
+  "name": "Nedim Živković",
+  "email": "korisnik38@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768610964",
+  "role": "driver",
+  "address": "Zmaja od Bosne 66",
+  "city": "Široki Brijeg",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88220",
+  "photoUrl": "/user.png",
+  "latitude": 43.38950128972821,
+  "longitude": 17.587448584348834,
+  "isDeleted": true,
+  "rating": 4.3,
+  "reviewsCount": 10,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-11-05T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-08T10:32:29.570Z"
+  },
+  "__v": 0,
+  "deletedAt": {
+    "$date": "2025-11-08T10:32:29.566Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "804e1ec80b02fbedcc67146b"
+  },
+  "name": "Ivan Janković",
+  "email": "korisnik39@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38766477895",
+  "role": "client",
+  "address": "Bulevar Meše Selimovića 59",
+  "city": "Sarajevo",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "71000",
+  "photoUrl": "/user.png",
+  "latitude": 43.85258447514041,
+  "longitude": 18.406577630536393,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 9,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-07-05T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "7ac621dd4d6702e68df2d37b"
+  },
+  "name": "Samra Knežević",
+  "email": "korisnik40@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767815153",
+  "role": "driver",
+  "address": "Hamdije Kreševljakovića 34",
+  "city": "Bugojno",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "70230",
+  "photoUrl": "/user.png",
+  "latitude": 44.05287093809854,
+  "longitude": 17.450708511780654,
+  "isDeleted": false,
+  "rating": 3.6,
+  "reviewsCount": 41,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-07-12T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "991d2c539a55a9177549cdd0"
+  },
+  "name": "Sanja Živković",
+  "email": "korisnik41@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763829645",
+  "role": "client",
+  "address": "Džemala Bijedića 88",
+  "city": "Travnik",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "72270",
+  "photoUrl": "/user.png",
+  "latitude": 44.23472565670467,
+  "longitude": 17.665040846475765,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 2,
+  "failedLoginAttempts": 1,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-06-06T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "db80c8d463b834932bc38392"
+  },
+  "name": "Faruk Mitić",
+  "email": "korisnik42@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767090829",
+  "role": "driver",
+  "address": "Hamdije Kreševljakovića 128 D",
+  "city": "Mostar",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88000",
+  "photoUrl": "/user.png",
+  "latitude": 43.350542024297475,
+  "longitude": 17.81501008767299,
+  "isDeleted": false,
+  "rating": 4.4,
+  "reviewsCount": 69,
+  "unreadMessagesCount": 3,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-12-24T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "f655348b49725d44687b4d02"
+  },
+  "name": "Osman Nikolić",
+  "email": "korisnik43@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38764012074",
+  "role": "client",
+  "address": "Ferhadija 4",
+  "city": "Stolac",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88360",
+  "photoUrl": "/user.png",
+  "latitude": 43.081929338510804,
+  "longitude": 17.94823492171269,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 3,
+  "failedLoginAttempts": 1,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-01-23T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "9969ba7e73d3561c5164b91d"
+  },
+  "name": "Edin Ilić",
+  "email": "korisnik44@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38769880088",
+  "role": "driver",
+  "address": "Aleja Bosne Srebrene 38",
+  "city": "Živinice",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "75270",
+  "photoUrl": "/user.png",
+  "latitude": 44.45781656256617,
+  "longitude": 18.656114250175868,
+  "isDeleted": false,
+  "rating": 3.9,
+  "reviewsCount": 93,
+  "unreadMessagesCount": 8,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-09-27T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "58825044589e35bb6af2de87"
+  },
+  "name": "Berina Janković",
+  "email": "korisnik45@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768720785",
+  "role": "client",
+  "address": "Tuzlanska 107 D",
+  "city": "Sanski Most",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "79260",
+  "photoUrl": "/user.png",
+  "latitude": 44.76896625968081,
+  "longitude": 16.662382169852364,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 6,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-10-16T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "9dabaf15af6dbfc7340021f4"
+  },
+  "name": "Dženita Simić",
+  "email": "korisnik46@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38767780154",
+  "role": "driver",
+  "address": "Hamdije Kreševljakovića 70",
+  "city": "Jajce",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "70101",
+  "photoUrl": "/user.png",
+  "latitude": 44.33565026957377,
+  "longitude": 17.272013808763546,
+  "isDeleted": false,
+  "rating": 4.4,
+  "reviewsCount": 68,
+  "unreadMessagesCount": 8,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-04-07T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.814Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "a4c4fd8c59dc69a720927694"
+  },
+  "name": "Elvir Milenković",
+  "email": "korisnik47@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38763041447",
+  "role": "driver",
+  "address": "Marsala Tita 71",
+  "city": "Živinice",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "75270",
+  "photoUrl": "/user.png",
+  "latitude": 44.45845179900288,
+  "longitude": 18.639962190281004,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 8,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-07-08T20:26:32.814Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:31:59.966Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "7eb172aef8d5f0ddb09832e9"
+  },
+  "name": "Nedim Radović",
+  "email": "korisnik48@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765273704",
+  "role": "driver",
+  "address": "Bulevar Meše Selimovića 49",
+  "city": "Doboj",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "74000",
+  "photoUrl": "/user.png",
+  "latitude": 44.72675777541602,
+  "longitude": 18.092692353911815,
+  "isDeleted": false,
+  "rating": 4.7,
+  "reviewsCount": 57,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-18T20:26:32.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.815Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "305c2ee32b7715b9eba12516"
+  },
+  "name": "Elvir Jović",
+  "email": "korisnik49@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38768626710",
+  "role": "client",
+  "address": "Kralja Tvrtka 114 D",
+  "city": "Čapljina",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88300",
+  "photoUrl": "/user.png",
+  "latitude": 43.11038428501994,
+  "longitude": 17.69580265913465,
+  "isDeleted": false,
+  "rating": 0,
+  "reviewsCount": 0,
+  "unreadMessagesCount": 7,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2024-12-04T20:26:32.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.815Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "495c7946ef1a0702b441dafa"
+  },
+  "name": "Marko Filipović",
+  "email": "korisnik50@d4me.ba",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+38765162604",
+  "role": "driver",
+  "address": "Tuzlanska 73",
+  "city": "Čapljina",
+  "state": "FBiH",
+  "country": "BA",
+  "postalCode": "88300",
+  "photoUrl": "/user.png",
+  "latitude": 43.10711365071732,
+  "longitude": 17.70146370554763,
+  "isDeleted": false,
+  "rating": 4.3,
+  "reviewsCount": 47,
+  "unreadMessagesCount": 1,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-02-21T20:26:32.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T20:26:32.815Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "name": "Korisnik",
+  "email": "mbosnic996@gmail.com",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+387603004395",
+  "role": "client",
+  "address": "Kostelska bb",
+  "city": "Bihać",
+  "state": "01",
+  "country": "BA",
+  "postalCode": "77000",
+  "isDeleted": false,
+  "rating": 5,
+  "reviewsCount": 1,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-11-07T19:03:00.584Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T12:53:50.861Z"
+  },
+  "__v": 0,
+  "latitude": 44.807051290190834,
+  "longitude": 15.831298828125002
+},
+{
+  "_id": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "name": "Vozač",
+  "email": "mehmed_bossnic@hotmail.com",
+  "password": "$2b$10$B9VojV17gh4TiOtmwFrlAeaqMLm/kOWjmtkUoY5XHVBD62oUHv0g.",
+  "phone": "+123123123",
+  "role": "driver",
+  "address": "Kostelska bb",
+  "city": "Bihać",
+  "state": "01",
+  "country": "BA",
+  "postalCode": "77000",
+  "isDeleted": false,
+  "rating": 5,
+  "reviewsCount": 1,
+  "unreadMessagesCount": 0,
+  "failedLoginAttempts": 0,
+  "lockUntil": null,
+  "lastFailedLogin": null,
+  "createdAt": {
+    "$date": "2025-11-07T20:32:20.574Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:16:17.255Z"
+  },
+  "__v": 0,
+  "photoUrl": "/api/uploads/profile/1762550452739.webp",
+  "latitude": 44.829699968527315,
+  "longitude": 15.864944458007814
+}]

@@ -1,0 +1,46 @@
+[{
+  "_id": {
+    "$oid": "690e621a6ba76026caf3a68c"
+  },
+  "fromUserId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "toUserId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "loadId": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "rating": 5,
+  "comment": "Sve pohvale!",
+  "createdAt": {
+    "$date": "2025-11-07T21:18:18.044Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:18:18.044Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690f2667495c2e8780b93f4c"
+  },
+  "fromUserId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "toUserId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "loadId": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "rating": 5,
+  "comment": "Odličan vozač!",
+  "createdAt": {
+    "$date": "2025-11-08T11:15:51.662Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-08T11:15:51.662Z"
+  },
+  "__v": 0
+}]

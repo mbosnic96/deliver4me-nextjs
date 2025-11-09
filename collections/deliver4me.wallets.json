@@ -1,0 +1,1082 @@
+[{
+  "_id": {
+    "$oid": "690352f1189bb9e4a60d404d"
+  },
+  "userId": "68b09f810834dbbee77045fc",
+  "balance": 0,
+  "escrow": 0,
+  "cards": [],
+  "transactions": [],
+  "createdAt": {
+    "$date": "2025-10-30T11:58:41.119Z"
+  },
+  "updatedAt": {
+    "$date": "2025-10-30T11:58:41.119Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690353ae189bb9e4a60d416b"
+  },
+  "userId": "69035394189bb9e4a60d4131",
+  "balance": 84,
+  "escrow": 1,
+  "cards": [
+    {
+      "cardNumber": "U2FsdGVkX1/Td5aKpXOWqrKq2kCcL09EklPOM7wQSOfw/DSgyWAd+v0cJ3Qr9zlT",
+      "holderName": "U2FsdGVkX19VMVS1W4FbaLYCAnf4bvsqan7J6AIzvpU=",
+      "expiry": "U2FsdGVkX1+y5ZacQPmZmFIz9Ck9CYkDBkSZijjSMOI=",
+      "cvv": "U2FsdGVkX189f0g2K58kzZ2lQZ0LH79egjHlto0VndQ=",
+      "brand": "Visa",
+      "last4": "5555",
+      "displayName": "MEHMED BOSNIC",
+      "_id": {
+        "$oid": "690353c3189bb9e4a60d4198"
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "amount": 100,
+      "type": "credit",
+      "description": "Funds added from card ending 5555",
+      "createdAt": {
+        "$date": "2025-10-30T12:02:18.003Z"
+      },
+      "_id": {
+        "$oid": "690353ca189bb9e4a60d41ae"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_deposit",
+      "description": "Escrow deposit for accepted bid on load \"blah\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:01:36.469Z"
+      },
+      "_id": {
+        "$oid": "69037dd07b695ce7114c1d60"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"blah\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:02:18.107Z"
+      },
+      "_id": {
+        "$oid": "69037dfa7b695ce7114c1dcd"
+      }
+    },
+    {
+      "amount": -2,
+      "type": "escrow_deposit",
+      "description": "Escrow deposit for accepted bid on load \"hamzoni\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:04:19.119Z"
+      },
+      "_id": {
+        "$oid": "69037e737b695ce7114c1f4f"
+      }
+    },
+    {
+      "amount": -2,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"hamzoni\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:04:41.474Z"
+      },
+      "_id": {
+        "$oid": "69037e897b695ce7114c1fbb"
+      }
+    },
+    {
+      "amount": -2,
+      "type": "escrow_deposit",
+      "description": "Escrow deposit for accepted bid on load \"majkam\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:08:36.472Z"
+      },
+      "_id": {
+        "$oid": "69037f747b695ce7114c2365"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"blah\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:09:01.012Z"
+      },
+      "_id": {
+        "$oid": "69037f8d7b695ce7114c23f9"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow deposit for accepted bid on load \"Teret4\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:11:03.966Z"
+      },
+      "_id": {
+        "$oid": "690380077b695ce7114c2706"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"Teret4\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:11:33.066Z"
+      },
+      "_id": {
+        "$oid": "690380257b695ce7114c27ef"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_deposit",
+      "description": "Escrow deposit for accepted bid on load \"test3\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:33:24.612Z"
+      },
+      "_id": {
+        "$oid": "690385447d1b6b94caa976f8"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-10-30T12:01:50.172Z"
+  },
+  "updatedAt": {
+    "$date": "2025-10-30T15:33:24.612Z"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "6903558b189bb9e4a60d457e"
+  },
+  "userId": "6903556e189bb9e4a60d452c",
+  "balance": 13.72,
+  "escrow": 1,
+  "cards": [],
+  "transactions": [
+    {
+      "amount": 1,
+      "type": "escrow_pending",
+      "description": "Escrow reserved for your accepted bid on load \"blah\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:01:36.474Z"
+      },
+      "_id": {
+        "$oid": "69037dd07b695ce7114c1d65"
+      }
+    },
+    {
+      "amount": 0.98,
+      "type": "credit",
+      "description": "Plaćanje za teret \"blah\" (nakon platform fee)",
+      "createdAt": {
+        "$date": "2025-10-30T15:02:18.111Z"
+      },
+      "_id": {
+        "$oid": "69037dfa7b695ce7114c1dd4"
+      }
+    },
+    {
+      "amount": 2,
+      "type": "escrow_pending",
+      "description": "Escrow reserved for your accepted bid on load \"hamzoni\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:04:19.123Z"
+      },
+      "_id": {
+        "$oid": "69037e737b695ce7114c1f58"
+      }
+    },
+    {
+      "amount": 1.96,
+      "type": "credit",
+      "description": "Plaćanje za teret \"hamzoni\" (nakon platform fee)",
+      "createdAt": {
+        "$date": "2025-10-30T15:04:41.478Z"
+      },
+      "_id": {
+        "$oid": "69037e897b695ce7114c1fc2"
+      }
+    },
+    {
+      "amount": 2,
+      "type": "escrow_pending",
+      "description": "Escrow reserved for your accepted bid on load \"majkam\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:08:36.477Z"
+      },
+      "_id": {
+        "$oid": "69037f747b695ce7114c2372"
+      }
+    },
+    {
+      "amount": 0.98,
+      "type": "credit",
+      "description": "Plaćanje za teret \"blah\" (nakon platform fee)",
+      "createdAt": {
+        "$date": "2025-10-30T15:09:01.016Z"
+      },
+      "_id": {
+        "$oid": "69037f8d7b695ce7114c2402"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow reserved for your accepted bid on load \"Teret4\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:11:03.971Z"
+      },
+      "_id": {
+        "$oid": "690380077b695ce7114c2717"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"Teret4\" (nakon platform fee)",
+      "createdAt": {
+        "$date": "2025-10-30T15:11:33.070Z"
+      },
+      "_id": {
+        "$oid": "690380257b695ce7114c27fa"
+      }
+    },
+    {
+      "amount": 1,
+      "type": "escrow_pending",
+      "description": "Escrow reserved for your accepted bid on load \"test3\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:33:24.618Z"
+      },
+      "_id": {
+        "$oid": "690385447d1b6b94caa9770d"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-10-30T12:09:47.354Z"
+  },
+  "updatedAt": {
+    "$date": "2025-10-30T15:33:24.619Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69037e937b695ce7114c1feb"
+  },
+  "userId": "69037d107b695ce7114c1bb1",
+  "balance": 0.22,
+  "escrow": 0,
+  "cards": [
+    {
+      "cardNumber": "U2FsdGVkX18MHKYLOZvimWWfPteM0rw+9Cj09E+MU2RVDAl16fAyboYVKMFOLEy9",
+      "holderName": "U2FsdGVkX1/retYdILFBBubVYbWzK0lirgLXK8Dd8Ys=",
+      "expiry": "U2FsdGVkX1+JMpAKDNAASCnoqbl/Ddon2/5u9zA9h4I=",
+      "cvv": "U2FsdGVkX19A9rFJOCO4/aM1QWE2yOb48jyWIKUy/hU=",
+      "brand": "Mastercard",
+      "last4": "4444",
+      "displayName": "ADMIN",
+      "_id": {
+        "$oid": "69037f497b695ce7114c2292"
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "amount": 0.02,
+      "type": "credit",
+      "description": "Platform fee za teret \"blah\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:09:01.025Z"
+      },
+      "_id": {
+        "$oid": "69037f8d7b695ce7114c240c"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"Teret4\"",
+      "createdAt": {
+        "$date": "2025-10-30T15:11:33.077Z"
+      },
+      "_id": {
+        "$oid": "690380257b695ce7114c2807"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-10-30T15:04:51.619Z"
+  },
+  "updatedAt": {
+    "$date": "2025-10-30T15:11:33.078Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "690c71ed9a97c5be164cc52e"
+  },
+  "userId": "690c64050c1fe386b21fa006",
+  "balance": 0,
+  "escrow": 0,
+  "cards": [],
+  "transactions": [],
+  "createdAt": {
+    "$date": "2025-11-06T10:01:17.569Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-06T10:01:17.569Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e546e324033f9b95c89ff"
+  },
+  "userId": "690e4264e0bb63abc9cafacc",
+  "balance": 149,
+  "escrow": 0,
+  "cards": [
+    {
+      "cardNumber": "U2FsdGVkX18hXd7zdBXmyvd3vXxMQMOJUg2R1GgYoKYIo0vVHp8V3RpaXom5ngT+",
+      "holderName": "U2FsdGVkX18Ji8ZRqNo3SL+C5VAVAILmZDirezY9MSM=",
+      "expiry": "U2FsdGVkX19JiKQXzkw2D1yU15fZ7z4Ih9qioMotGI8=",
+      "cvv": "U2FsdGVkX1+CphFSLxA1a10gOI2gRrf9M0h1+Odf+c8=",
+      "brand": "Visa",
+      "last4": "0000",
+      "displayName": "MEHMED BOSNIC",
+      "_id": {
+        "$oid": "690e548e324033f9b95c8a3b"
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "amount": 120,
+      "type": "credit",
+      "description": "Funds added from card ending 0000",
+      "createdAt": {
+        "$date": "2025-11-07T20:20:36.869Z"
+      },
+      "_id": {
+        "$oid": "690e5494324033f9b95c8a49"
+      }
+    },
+    {
+      "amount": -90,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T20:47:40.753Z"
+      },
+      "_id": {
+        "$oid": "690e5aec324033f9b95c976b"
+      }
+    },
+    {
+      "amount": 90,
+      "type": "escrow_refund",
+      "description": "Escrow refunded for canceled bid on load \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T20:58:19.433Z"
+      },
+      "_id": {
+        "$oid": "690e5d6b324033f9b95c9f2c"
+      }
+    },
+    {
+      "amount": -80,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:00:10.572Z"
+      },
+      "_id": {
+        "$oid": "690e5dda324033f9b95ca108"
+      }
+    },
+    {
+      "amount": 80,
+      "type": "escrow_refund",
+      "description": "Escrow refunded for canceled bid on load \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:01:14.859Z"
+      },
+      "_id": {
+        "$oid": "690e5e1a324033f9b95ca20f"
+      }
+    },
+    {
+      "amount": -90,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:01:41.666Z"
+      },
+      "_id": {
+        "$oid": "690e5e35324033f9b95ca2a1"
+      }
+    },
+    {
+      "amount": -90,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:03:14.016Z"
+      },
+      "_id": {
+        "$oid": "690e5e926ba76026caf39e8f"
+      }
+    },
+    {
+      "amount": 200,
+      "type": "credit",
+      "description": "Funds added from card ending 0000",
+      "createdAt": {
+        "$date": "2025-11-07T21:43:46.929Z"
+      },
+      "_id": {
+        "$oid": "690e68126ba76026caf3b85f"
+      }
+    },
+    {
+      "amount": -20,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-08T19:01:32.145Z"
+      },
+      "_id": {
+        "$oid": "690f938c495c2e8780bc8caa"
+      }
+    },
+    {
+      "amount": 20,
+      "type": "escrow_refund",
+      "description": "Escrow refunded for canceled bid on load \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-08T22:00:49.649Z"
+      },
+      "_id": {
+        "$oid": "690fbd91495c2e8780be1684"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Kutija s knjigama\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:20:19.261Z"
+      },
+      "_id": {
+        "$oid": "69108703a2f8cf5275d8569e"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"Kutija s knjigama\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:21:53.230Z"
+      },
+      "_id": {
+        "$oid": "69108761a2f8cf5275d857cf"
+      }
+    },
+    {
+      "amount": -30,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Branik od auta\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:35:59.097Z"
+      },
+      "_id": {
+        "$oid": "69108aafa2f8cf5275d85d69"
+      }
+    },
+    {
+      "amount": -30,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"Branik od auta\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:36:45.368Z"
+      },
+      "_id": {
+        "$oid": "69108adda2f8cf5275d85e27"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:46:19.906Z"
+      },
+      "_id": {
+        "$oid": "69108d1ba2f8cf5275d86360"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:46:57.742Z"
+      },
+      "_id": {
+        "$oid": "69108d41a2f8cf5275d8642d"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"aa\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:57:09.425Z"
+      },
+      "_id": {
+        "$oid": "69108fa5a2f8cf5275d86ba4"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"aa\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:58:47.674Z"
+      },
+      "_id": {
+        "$oid": "69109007a2f8cf5275d86d40"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"test2\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:08:39.475Z"
+      },
+      "_id": {
+        "$oid": "69109257a2f8cf5275d876bd"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"test2\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:10:15.922Z"
+      },
+      "_id": {
+        "$oid": "691092b7a2f8cf5275d878b0"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"test3\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:15:40.448Z"
+      },
+      "_id": {
+        "$oid": "691093fca2f8cf5275d87f24"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"test3\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:16:18.679Z"
+      },
+      "_id": {
+        "$oid": "69109422a2f8cf5275d8804a"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_deposit",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"uu\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:21:02.525Z"
+      },
+      "_id": {
+        "$oid": "6910953ea2f8cf5275d88668"
+      }
+    },
+    {
+      "amount": -1,
+      "type": "escrow_release",
+      "description": "Plaćanje za teret \"uu\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:21:31.829Z"
+      },
+      "_id": {
+        "$oid": "6910955ba2f8cf5275d8878e"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-11-07T20:19:58.062Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T13:21:31.829Z"
+  },
+  "__v": 3
+},
+{
+  "_id": {
+    "$oid": "690e5d20324033f9b95c9e18"
+  },
+  "userId": "690e5754324033f9b95c8eec",
+  "balance": 167.58000000000004,
+  "escrow": 0,
+  "cards": [
+    {
+      "cardNumber": "U2FsdGVkX1+s9IDNMdea8nhlg3JjmC0LvFSUJLerCXjV2Mpkk2rlR+CUosfJ6NBU",
+      "holderName": "U2FsdGVkX19tMpZ0p1mQoyG3yE0AslcmV5ZdsW6EaHM=",
+      "expiry": "U2FsdGVkX1/IrNaeHoiW1asaYTsTWQhlmCyXEe3UADA=",
+      "cvv": "U2FsdGVkX18mfEMW2z+6tlAfcGm9gDXfFHvP+5vKjRs=",
+      "brand": "Visa",
+      "last4": "0000",
+      "displayName": "MBOSNIC",
+      "_id": {
+        "$oid": "690e5d34324033f9b95c9e5c"
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "amount": -90,
+      "type": "escrow_cancel",
+      "description": "Escrow adjustment - bid canceled for load \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T20:58:19.450Z"
+      },
+      "_id": {
+        "$oid": "690e5d6b324033f9b95c9f34"
+      }
+    },
+    {
+      "amount": 80,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:00:10.579Z"
+      },
+      "_id": {
+        "$oid": "690e5dda324033f9b95ca111"
+      }
+    },
+    {
+      "amount": -80,
+      "type": "escrow_cancel",
+      "description": "Escrow removed - bid canceled for load \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:01:14.866Z"
+      },
+      "_id": {
+        "$oid": "690e5e1a324033f9b95ca21b"
+      }
+    },
+    {
+      "amount": 90,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:01:41.672Z"
+      },
+      "_id": {
+        "$oid": "690e5e35324033f9b95ca2ae"
+      }
+    },
+    {
+      "amount": 88.2,
+      "type": "credit",
+      "description": "Plaćanje za teret \"Paleta miješanog tereta\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-07T21:03:14.022Z"
+      },
+      "_id": {
+        "$oid": "690e5e926ba76026caf39e98"
+      }
+    },
+    {
+      "amount": 20,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-08T19:01:32.153Z"
+      },
+      "_id": {
+        "$oid": "690f938c495c2e8780bc8cbc"
+      }
+    },
+    {
+      "amount": -20,
+      "type": "escrow_cancel",
+      "description": "Escrow removed - bid canceled for load \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-08T22:00:49.665Z"
+      },
+      "_id": {
+        "$oid": "690fbd91495c2e8780be1699"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Kutija s knjigama\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:20:19.285Z"
+      },
+      "_id": {
+        "$oid": "69108703a2f8cf5275d856b4"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"Kutija s knjigama\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T12:21:53.235Z"
+      },
+      "_id": {
+        "$oid": "69108761a2f8cf5275d857dd"
+      }
+    },
+    {
+      "amount": 30,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Branik od auta\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:35:59.106Z"
+      },
+      "_id": {
+        "$oid": "69108aafa2f8cf5275d85d83"
+      }
+    },
+    {
+      "amount": 29.4,
+      "type": "credit",
+      "description": "Plaćanje za teret \"Branik od auta\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T12:36:45.373Z"
+      },
+      "_id": {
+        "$oid": "69108adda2f8cf5275d85e37"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:46:19.913Z"
+      },
+      "_id": {
+        "$oid": "69108d1ba2f8cf5275d8637e"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"Prijevoz motora za auto\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T12:46:57.747Z"
+      },
+      "_id": {
+        "$oid": "69108d41a2f8cf5275d8643f"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"aa\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:57:09.438Z"
+      },
+      "_id": {
+        "$oid": "69108fa5a2f8cf5275d86bc6"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"aa\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T12:58:47.680Z"
+      },
+      "_id": {
+        "$oid": "69109007a2f8cf5275d86d54"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"test2\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:08:39.486Z"
+      },
+      "_id": {
+        "$oid": "69109257a2f8cf5275d876e3"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"test2\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T13:10:15.928Z"
+      },
+      "_id": {
+        "$oid": "691092b7a2f8cf5275d878c6"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"test3\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:15:40.471Z"
+      },
+      "_id": {
+        "$oid": "691093fca2f8cf5275d87f4e"
+      }
+    },
+    {
+      "amount": 9.8,
+      "type": "credit",
+      "description": "Plaćanje za teret \"test3\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T13:16:18.684Z"
+      },
+      "_id": {
+        "$oid": "69109422a2f8cf5275d88062"
+      }
+    },
+    {
+      "amount": 1,
+      "type": "escrow_pending",
+      "description": "Escrow za prihvvaćenu ponudu tereta \"uu\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:21:02.543Z"
+      },
+      "_id": {
+        "$oid": "6910953ea2f8cf5275d88696"
+      }
+    },
+    {
+      "amount": 0.98,
+      "type": "credit",
+      "description": "Plaćanje za teret \"uu\" (nakon odbitka 2%)",
+      "createdAt": {
+        "$date": "2025-11-09T13:21:31.834Z"
+      },
+      "_id": {
+        "$oid": "6910955ba2f8cf5275d887a8"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-11-07T20:57:04.011Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T13:21:31.834Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "690e5dfa324033f9b95ca192"
+  },
+  "userId": "6f9c377b64c6fa3d571b80db",
+  "balance": 3.420000000000183,
+  "escrow": 0,
+  "cards": [
+    {
+      "cardNumber": "U2FsdGVkX1+PSm9XOU2kcTZMd+hzxKr2XzFp+rwPR/f19uub4gaggCM1KVjLGB5B",
+      "holderName": "U2FsdGVkX18fsLNQyO1pMTiwMfI2L7FlJHd+9K4kR8Y=",
+      "expiry": "U2FsdGVkX186g7jcT2X9sILCmBh5cVZY2Xl6HoMEAyY=",
+      "cvv": "U2FsdGVkX1/WIMkdz4IijEcA86p5/Rkz0Vwk7BhmcXw=",
+      "brand": "Visa",
+      "last4": "0000",
+      "displayName": "ADMIN",
+      "_id": {
+        "$oid": "690e5e13324033f9b95ca1f0"
+      }
+    }
+  ],
+  "transactions": [
+    {
+      "amount": 1.8,
+      "type": "credit",
+      "description": "Platform fee za teret \"Paleta miješanog tereta\"",
+      "createdAt": {
+        "$date": "2025-11-07T21:03:14.032Z"
+      },
+      "_id": {
+        "$oid": "690e5e926ba76026caf39ea2"
+      }
+    },
+    {
+      "amount": -5000,
+      "type": "debit",
+      "description": "Payout of $5000 to card ending 0000",
+      "createdAt": {
+        "$date": "2025-11-08T14:07:24.549Z"
+      },
+      "_id": {
+        "$oid": "690f4e9c495c2e8780ba30d2"
+      }
+    },
+    {
+      "amount": 5000,
+      "type": "credit",
+      "description": "Funds added from card ending 0000",
+      "createdAt": {
+        "$date": "2025-11-08T14:07:39.227Z"
+      },
+      "_id": {
+        "$oid": "690f4eab495c2e8780ba3154"
+      }
+    },
+    {
+      "amount": 10,
+      "type": "credit",
+      "description": "Funds added from card ending 0000",
+      "createdAt": {
+        "$date": "2025-11-08T14:11:15.323Z"
+      },
+      "_id": {
+        "$oid": "690f4f83495c2e8780ba381f"
+      }
+    },
+    {
+      "amount": -10,
+      "type": "debit",
+      "description": "Isplata 10 BAM na karticu koja završava na 0000",
+      "createdAt": {
+        "$date": "2025-11-08T14:11:28.730Z"
+      },
+      "_id": {
+        "$oid": "690f4f90495c2e8780ba3887"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"Kutija s knjigama\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:21:53.247Z"
+      },
+      "_id": {
+        "$oid": "69108761a2f8cf5275d857f0"
+      }
+    },
+    {
+      "amount": 0.6,
+      "type": "credit",
+      "description": "Platform fee za teret \"Branik od auta\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:36:45.384Z"
+      },
+      "_id": {
+        "$oid": "69108adda2f8cf5275d85e4d"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"Prijevoz motora za auto\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:46:57.761Z"
+      },
+      "_id": {
+        "$oid": "69108d41a2f8cf5275d86458"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"aa\"",
+      "createdAt": {
+        "$date": "2025-11-09T12:58:47.695Z"
+      },
+      "_id": {
+        "$oid": "69109007a2f8cf5275d86d70"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"test2\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:10:15.945Z"
+      },
+      "_id": {
+        "$oid": "691092b7a2f8cf5275d878e5"
+      }
+    },
+    {
+      "amount": 0.2,
+      "type": "credit",
+      "description": "Platform fee za teret \"test3\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:16:18.700Z"
+      },
+      "_id": {
+        "$oid": "69109422a2f8cf5275d88084"
+      }
+    },
+    {
+      "amount": 0.02,
+      "type": "credit",
+      "description": "Platform fee za teret \"uu\"",
+      "createdAt": {
+        "$date": "2025-11-09T13:21:31.849Z"
+      },
+      "_id": {
+        "$oid": "6910955ba2f8cf5275d887cd"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-11-07T21:00:42.919Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T13:21:31.849Z"
+  },
+  "__v": 5
+},
+{
+  "_id": {
+    "$oid": "690f0675495c2e8780b91f5f"
+  },
+  "userId": "9ebe717668628f197370eec3",
+  "balance": 0,
+  "escrow": 0,
+  "cards": [],
+  "transactions": [],
+  "createdAt": {
+    "$date": "2025-11-08T08:59:33.700Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-08T08:59:33.700Z"
+  },
+  "__v": 0
+}]

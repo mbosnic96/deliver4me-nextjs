@@ -1,5 +1,6 @@
 ## Getting Started
-.env.local poslan u mail-u
+1. Kreirati bazu podataka, nazvati je deliver4me. Importovati fajlove iz /
+.env.local poslan u mail-u.
 Za pokrenuti build, jer dev server refresha stalno i compile-a svaku stranicu iznova:
 
 ```bash

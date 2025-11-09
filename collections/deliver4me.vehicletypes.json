@@ -1,0 +1,112 @@
+[{
+  "_id": {
+    "$oid": "69037d527b695ce7114c1c39"
+  },
+  "name": "Kombi",
+  "description": "Mali komercijalni kombi do 3.5 tone",
+  "createdAt": {
+    "$date": "2025-10-30T14:59:30.118Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:13:24.979Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5834324033f9b95c90f3"
+  },
+  "name": "Otvoreni kamion s kranom",
+  "description": "Otvoreni kamion s kranom",
+  "createdAt": {
+    "$date": "2025-11-07T20:36:04.292Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T20:36:04.292Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e7e8a2f8cf5275da0323"
+  },
+  "name": "Kamion",
+  "description": "Standardni kamion za teretni transport",
+  "createdAt": {
+    "$date": "2025-11-09T19:13:44.728Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:13:44.728Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e7fba2f8cf5275da037f"
+  },
+  "name": "Šleper",
+  "description": "Teški kamion sa prikolicom",
+  "createdAt": {
+    "$date": "2025-11-09T19:14:03.967Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:14:03.967Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e813a2f8cf5275da040b"
+  },
+  "name": "Hladnjača",
+  "description": "Vozilo sa rashladnim uređajem",
+  "createdAt": {
+    "$date": "2025-11-09T19:14:27.732Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:14:27.732Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e824a2f8cf5275da047a"
+  },
+  "name": "Cisterna",
+  "description": "Vozilo za transport tečnosti",
+  "createdAt": {
+    "$date": "2025-11-09T19:14:44.938Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:14:44.938Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e840a2f8cf5275da050f"
+  },
+  "name": "Auto prevoznik",
+  "description": "Vozilo za prevoz automobila",
+  "createdAt": {
+    "$date": "2025-11-09T19:15:12.054Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:15:12.054Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910e856a2f8cf5275da0587"
+  },
+  "name": "Pauk",
+  "description": "Vozilo za vuču i transport vozila",
+  "createdAt": {
+    "$date": "2025-11-09T19:15:34.476Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T19:15:34.476Z"
+  },
+  "__v": 0
+}]

@@ -1,0 +1,53 @@
+[{
+  "_id": {
+    "$oid": "690e63966ba76026caf3aab7"
+  },
+  "reporterId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "reportedUserId": {
+    "$oid": "a4c4fd8c59dc69a720927694"
+  },
+  "loadId": null,
+  "reportType": "fake_profile",
+  "description": "Korisnik koristi lažne podatke!",
+  "evidence": [],
+  "status": "resolved",
+  "createdAt": {
+    "$date": "2025-11-07T21:24:38.243Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:28:23.868Z"
+  },
+  "__v": 0,
+  "adminNotes": "Prrofil deaktiviran, korisnik koristi lažne podatke.",
+  "resolvedAt": {
+    "$date": "2025-11-07T21:28:23.867Z"
+  },
+  "resolvedBy": {
+    "$oid": "6f9c377b64c6fa3d571b80db"
+  }
+},
+{
+  "_id": {
+    "$oid": "6910a144a2f8cf5275d8c129"
+  },
+  "reporterId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "reportedUserId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "loadId": null,
+  "reportType": "fraud",
+  "description": "Korisnik pokušava dogovor van aplikacije",
+  "evidence": [],
+  "status": "pending",
+  "createdAt": {
+    "$date": "2025-11-09T14:12:20.472Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T14:12:20.472Z"
+  },
+  "__v": 0
+}]

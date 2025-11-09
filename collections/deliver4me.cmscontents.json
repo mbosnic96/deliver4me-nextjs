@@ -1,0 +1,342 @@
+[{
+  "_id": {
+    "$oid": "69076bcd10cf3b567e2414af"
+  },
+  "type": "hero",
+  "title": "Pridruži se Deliver4Me platformi",
+  "subtitle": "Pronađi vozača ili objavi teret za prevesti",
+  "content": {
+    "ctaText": "Registruj se",
+    "ctaLink": "/register",
+    "backgroundImage": "/api/uploads/cms/078812ca-4397-4f15-a7b8-2df8525e7c74.jpg"
+  },
+  "order": 0,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T14:33:49.499Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T16:41:33.865Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "backgroundImage": "",
+    "backgroundColor": "#1c2434"
+  }
+},
+{
+  "_id": {
+    "$oid": "6907748110cf3b567e242d58"
+  },
+  "type": "testimonials",
+  "title": "Šta kažu naši korisnici?",
+  "subtitle": "Korisnici znaju najbolje",
+  "content": {
+    "items": [
+      {
+        "name": "Adem",
+        "role": "Vozač",
+        "text": "Lako za pronaći terete, sve se brzo odvija. Jednostavno za komunicirati s klijentima.",
+        "rating": 5
+      },
+      {
+        "name": "Admira",
+        "role": "Klijent",
+        "text": "Trebao mi prevoz peleta. U roku od 15 minuta već sam imala 10 ponuda",
+        "rating": 5
+      },
+      {
+        "name": "Enes",
+        "role": "Klijent",
+        "text": "Lako za koristiti, vozači me ne zovu 20 puta da pitaju gdje tačno treba odvesti, označeno im na mapi.",
+        "rating": 5
+      },
+      {
+        "name": "Emir",
+        "role": "Vozač",
+        "text": "Brzo, jednostavno, laka isplata. Lako sortirati terete koji su mi usput ili odgovaraju dimenzijama mog vozila.",
+        "rating": 5
+      }
+    ]
+  },
+  "order": 6,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:10:57.362Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:35:13.640Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "backgroundColor": "#1c2434",
+    "layout": "left-aligned",
+    "textColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "69077afe10cf3b567e244c11"
+  },
+  "type": "contact",
+  "title": "Kontaktirajte nas!",
+  "subtitle": "Imate pitanja? Pošaljite poruku!",
+  "content": {
+    "email": "mehmedbossnic@gmail.com",
+    "phone": "",
+    "address": "Kostelska bb, Bihać, Bosna i Hercegovina",
+    "formFields": [
+      "name",
+      "email",
+      "message",
+      "phone",
+      "subject"
+    ]
+  },
+  "order": 8,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:38:38.966Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:38:47.163Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "textColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "69077b7c10cf3b567e244e88"
+  },
+  "type": "features",
+  "title": "Deliver4me",
+  "subtitle": "Vam nudi da nađete najbolje za vaš transport",
+  "content": {
+    "items": [
+      {
+        "title": "Upravljanje teretima",
+        "description": "Objavite terete, primajte ponude vozača i pratite status dostave u realnom vremenu.",
+        "icon": "X"
+      },
+      {
+        "title": "Digitalni novčanik",
+        "description": "Sigurno dodajte sredstva, upravljajte transakcijama i koristite escrow sistem za bezbjedna plaćanja.",
+        "icon": "Check"
+      },
+      {
+        "title": "Prevozite terete",
+        "description": "Pretražite terete, šaljite ponude i zarađujte!",
+        "icon": "Truck"
+      }
+    ]
+  },
+  "order": 1,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:40:44.978Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T16:56:53.774Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "backgroundColor": "#1c2434",
+    "textColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "69077bd010cf3b567e245033"
+  },
+  "type": "cta",
+  "title": "Postani član!",
+  "subtitle": "Postani član i otkrij sve funkcionalnosti aplikacije.",
+  "content": {
+    "buttonText": "Prijavi se",
+    "buttonLink": "/login",
+    "secondaryButtonText": "Registruj se",
+    "secondaryButtonLink": "/register"
+  },
+  "order": 7,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:42:08.123Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:36:13.447Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "backgroundColor": "#ffffff",
+    "textColor": "#000000"
+  }
+},
+{
+  "_id": {
+    "$oid": "69077c5410cf3b567e2452c9"
+  },
+  "type": "gallery",
+  "title": "Nije bitno kakav teret!",
+  "subtitle": "Naši klijenti i vozači su uvijek zadovoljni",
+  "content": {
+    "images": [
+      {
+        "src": "/api/uploads/cms/507feb8a-25bc-45ac-bf18-7ac301b42097.webp",
+        "alt": "",
+        "caption": ""
+      },
+      {
+        "src": "/api/uploads/cms/4fe546c0-a8d7-4727-aaa5-302682936d6b.jpg",
+        "alt": "",
+        "caption": ""
+      },
+      {
+        "src": "/api/uploads/cms/05ca09c4-4fda-4c81-9820-fb724669f63d.webp",
+        "alt": "",
+        "caption": ""
+      }
+    ],
+    "columns": 3
+  },
+  "order": 3,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:44:20.685Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:17:06.398Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "textColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "69077d0f10cf3b567e2456a0"
+  },
+  "type": "about",
+  "title": "O nama",
+  "subtitle": "",
+  "content": {
+    "description": "Deliver4me je inovativna platforma koja povezuje osobe kojima je potreban prevoz robe sa lokalnim vozačima i dostavljačima. Naša aplikacija omogućava jednostavno, brzo i sigurno dogovaranje transporta — bez posrednika i nepotrebnih komplikacija. Cilj nam je stvoriti zajednicu povjerenja između korisnika i vozača, gdje svaka isporuka prolazi efikasno, transparentno i po fer cijeni.\nNaša misija je digitalizirati i pojednostaviti proces dostave i transporta na lokalnom nivou. Želimo omogućiti korisnicima da lako pronađu dostupne vozače, dok vozačima pružamo priliku da ostvare dodatnu zaradu iskorištavanjem slobodnih vožnji i resursa. Kroz pametnu tehnologiju, želimo unaprijediti način na koji ljudi razmjenjuju usluge prevoza — brzo, sigurno i pouzdano.\nNaša vizija je postati vodeća regionalna platforma za pametan transport i dostavu — mjesto gdje svaka potreba za prevozom nalazi idealno rješenje. Težimo tome da Deliver4me postane sinonim za povjerenje, efikasnost i inovaciju u logistici budućnosti, povezujući ljude, gradove i prilike.",
+    "image": "/api/uploads/cms/554eebf6-6d75-46da-b475-b37161868c30.png",
+    "buttonText": "",
+    "buttonLink": ""
+  },
+  "order": 2,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T15:47:27.134Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:05:48.954Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "backgroundColor": "#0f172a",
+    "textColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "6907815010cf3b567e246fdf"
+  },
+  "type": "stats",
+  "title": "Statistika",
+  "subtitle": "Neka brojevi pričaju za nas!",
+  "content": {
+    "items": [
+      {
+        "value": "100",
+        "label": "Završenih transporta",
+        "suffix": "+"
+      },
+      {
+        "value": "100",
+        "label": "Aktivnih transporta",
+        "suffix": "+"
+      },
+      {
+        "value": "200",
+        "label": "Vozača",
+        "suffix": "+"
+      },
+      {
+        "value": "2000",
+        "label": "Klijenata",
+        "suffix": "+"
+      }
+    ]
+  },
+  "order": 4,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T16:05:36.284Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:56:40.966Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "layout": "centered",
+    "textColor": "#000000",
+    "backgroundColor": "#ffffff"
+  }
+},
+{
+  "_id": {
+    "$oid": "690782f410cf3b567e247a5a"
+  },
+  "type": "slider",
+  "title": "Sponzori",
+  "subtitle": "",
+  "content": {
+    "slides": [
+      {
+        "title": "",
+        "description": "",
+        "image": "/api/uploads/cms/db1ca538-ce1c-4577-a186-f1c15974dd7c.png",
+        "link": "",
+        "ctaText": ""
+      },
+      {
+        "title": "",
+        "description": "",
+        "image": "/api/uploads/cms/cb595c72-4a49-4f1c-83e1-52cba470a3ee.png",
+        "link": "",
+        "ctaText": ""
+      },
+      {
+        "title": "",
+        "description": "",
+        "image": "/api/uploads/cms/47e6519a-a3be-4caa-9261-d2181bf89aa9.png",
+        "link": "",
+        "ctaText": ""
+      },
+      {
+        "title": "",
+        "description": "",
+        "image": "/api/uploads/cms/257726d3-cbb9-467d-9780-b955015aa6d3.png",
+        "link": "",
+        "ctaText": ""
+      }
+    ],
+    "autoplay": true,
+    "interval": 5000
+  },
+  "order": 5,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-11-02T16:12:36.623Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T17:25:19.408Z"
+  },
+  "__v": 0,
+  "metadata": {
+    "textColor": "#ffffff"
+  }
+}]

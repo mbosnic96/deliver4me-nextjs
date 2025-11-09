@@ -1,0 +1,228 @@
+[{
+  "_id": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "userId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "title": "Paleta miješanog tereta",
+  "description": "Paleta miješanog tereta - potreban viljuškar/paletar/kran",
+  "pickupCountry": "BA",
+  "pickupState": "01",
+  "pickupCity": "Bihać",
+  "pickupAddress": "Kostelska bb",
+  "preferredPickupDate": {
+    "$date": "2025-11-05T07:00:00.000Z"
+  },
+  "pickupTime": "",
+  "deliveryCountry": "BA",
+  "deliveryState": "01",
+  "deliveryCity": "Cazin",
+  "deliveryAddress": "Japića brdo",
+  "preferredDeliveryDate": {
+    "$date": "2025-11-13T17:00:00.000Z"
+  },
+  "contactPerson": "Mujo Mujić",
+  "contactPhone": "+3876123123",
+  "maxDeliveryTime": "",
+  "cargoWeight": 800,
+  "cargoVolume": 1,
+  "cargoWidth": 1,
+  "cargoHeight": 1,
+  "cargoLength": 1,
+  "pickupLatitude": 44.8807638073665,
+  "pickupLongitude": 15.892817974090578,
+  "deliveryLatitude": 44.966521082412434,
+  "deliveryLongitude": 15.956321954727175,
+  "fixedPrice": 100,
+  "status": "Dostavljen",
+  "images": [
+    "/api/uploads/loads/690e56de324033f9b95c8e22/1762547426072-pakovanje-transport.jpg"
+  ],
+  "createdAt": {
+    "$date": "2025-11-07T20:30:22.973Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:03:14.050Z"
+  },
+  "__v": 1,
+  "assignedBidId": {
+    "$oid": "690e5926324033f9b95c92f7"
+  }
+},
+{
+  "_id": {
+    "$oid": "690f7bdb495c2e8780bbb859"
+  },
+  "userId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "title": "Prijevoz motora za auto",
+  "description": "Motor za auto, vezan na paleti",
+  "pickupCountry": "BA",
+  "pickupState": "01",
+  "pickupCity": "Bihać",
+  "pickupAddress": "Kostelska bb",
+  "preferredPickupDate": {
+    "$date": "2025-11-16T07:00:00.000Z"
+  },
+  "pickupTime": "",
+  "deliveryCountry": "BA",
+  "deliveryState": "01",
+  "deliveryCity": "Tuzla",
+  "deliveryAddress": "Tuzla Centar",
+  "preferredDeliveryDate": {
+    "$date": "2025-11-21T08:00:00.000Z"
+  },
+  "contactPerson": "Emir Čengić",
+  "contactPhone": "+387123123",
+  "maxDeliveryTime": "",
+  "cargoWeight": 200,
+  "cargoVolume": 1,
+  "cargoWidth": 1,
+  "cargoHeight": 1,
+  "cargoLength": 1,
+  "pickupLatitude": 44.807051290190834,
+  "pickupLongitude": 15.831298828125002,
+  "deliveryLatitude": 44.5391105,
+  "deliveryLongitude": 18.675193,
+  "fixedPrice": 100,
+  "status": "Dostavljen",
+  "images": [
+    "/api/uploads/loads/690f7bdb495c2e8780bbb859/1762622438056-unnamed.jpg"
+  ],
+  "createdAt": {
+    "$date": "2025-11-08T17:20:27.350Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T12:46:57.782Z"
+  },
+  "__v": 1,
+  "assignedBidId": {
+    "$oid": "69108ce5a2f8cf5275d862b9"
+  },
+  "clientConfirmedDelivery": true,
+  "driverConfirmedDelivery": true,
+  "driverConfirmedAt": {
+    "$date": "2025-11-09T12:46:37.737Z"
+  },
+  "clientConfirmedAt": {
+    "$date": "2025-11-09T12:46:57.781Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "690fc30088ebdefc9afc30b2"
+  },
+  "userId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "title": "Branik od auta",
+  "description": "Potreban neko da preveze branik od auta",
+  "pickupCountry": "BA",
+  "pickupState": "01",
+  "pickupCity": "Bihać",
+  "pickupAddress": "Donje prekounje",
+  "preferredPickupDate": {
+    "$date": "2025-11-28T08:00:00.000Z"
+  },
+  "pickupTime": "",
+  "deliveryCountry": "BA",
+  "deliveryState": "09",
+  "deliveryCity": "Sarajevo",
+  "deliveryAddress": "Grbavica",
+  "preferredDeliveryDate": {
+    "$date": "2025-11-29T11:00:00.000Z"
+  },
+  "contactPerson": "Asim Bajrić",
+  "contactPhone": "+123456",
+  "maxDeliveryTime": "",
+  "cargoWeight": 0.5,
+  "cargoVolume": 0.2,
+  "cargoWidth": 0.3,
+  "cargoHeight": 0.3,
+  "cargoLength": 2.2,
+  "pickupLatitude": 44.81216649342176,
+  "pickupLongitude": 15.87489504170843,
+  "deliveryLatitude": 43.852231181812684,
+  "deliveryLongitude": 18.39866822384057,
+  "fixedPrice": 50,
+  "status": "Dostavljen",
+  "images": [],
+  "createdAt": {
+    "$date": "2025-11-08T22:24:00.909Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T12:36:45.408Z"
+  },
+  "__v": 0,
+  "assignedBidId": {
+    "$oid": "69108a9ea2f8cf5275d85d13"
+  },
+  "clientConfirmedDelivery": true,
+  "driverConfirmedDelivery": true,
+  "driverConfirmedAt": {
+    "$date": "2025-11-09T12:36:20.688Z"
+  },
+  "clientConfirmedAt": {
+    "$date": "2025-11-09T12:36:45.408Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "690fc37688ebdefc9afc30c2"
+  },
+  "userId": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "title": "Kutija s knjigama",
+  "description": "Potrebno prevesti kutiju knjiga za studenta",
+  "pickupCountry": "BA",
+  "pickupState": "01",
+  "pickupCity": "Bihać",
+  "pickupAddress": "Luke",
+  "preferredPickupDate": {
+    "$date": "2025-11-29T09:00:00.000Z"
+  },
+  "pickupTime": "",
+  "deliveryCountry": "BA",
+  "deliveryState": "03",
+  "deliveryCity": "Tuzla",
+  "deliveryAddress": "Slatina",
+  "preferredDeliveryDate": {
+    "$date": "2025-12-11T14:00:00.000Z"
+  },
+  "contactPerson": "Suljo Suljić",
+  "contactPhone": "+458745222",
+  "maxDeliveryTime": "",
+  "cargoWeight": 10,
+  "cargoVolume": 0.13,
+  "cargoWidth": 0.5,
+  "cargoHeight": 0.5,
+  "cargoLength": 0.5,
+  "pickupLatitude": 44.80766026674454,
+  "pickupLongitude": 15.859275925818295,
+  "deliveryLatitude": 44.541670096337924,
+  "deliveryLongitude": 18.66748912148043,
+  "fixedPrice": 20,
+  "status": "Dostavljen",
+  "images": [],
+  "createdAt": {
+    "$date": "2025-11-08T22:25:58.415Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-09T12:21:53.281Z"
+  },
+  "__v": 0,
+  "assignedBidId": {
+    "$oid": "691086efa2f8cf5275d8564c"
+  },
+  "clientConfirmedDelivery": true,
+  "driverConfirmedDelivery": true,
+  "driverConfirmedAt": {
+    "$date": "2025-11-09T12:20:52.653Z"
+  },
+  "clientConfirmedAt": {
+    "$date": "2025-11-09T12:21:53.281Z"
+  }
+}]

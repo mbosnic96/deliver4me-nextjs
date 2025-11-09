@@ -1,0 +1,231 @@
+[{
+  "_id": {
+    "$oid": "690e5926324033f9b95c92f7"
+  },
+  "loadId": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 90,
+  "message": "Pozdrav, prevozim kamionom s kranom.",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-07T20:40:06.736Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5a52324033f9b95c95dd"
+  },
+  "loadId": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "driverId": {
+    "$oid": "a4c4fd8c59dc69a720927694"
+  },
+  "vehicleId": {
+    "$oid": "690e5a19324033f9b95c953c"
+  },
+  "price": 50,
+  "message": "Pozdrav, odgovara li kombi s paletarom?",
+  "status": "rejected",
+  "createdAt": {
+    "$date": "2025-11-07T20:45:06.039Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e5dc7324033f9b95ca098"
+  },
+  "loadId": {
+    "$oid": "690e56de324033f9b95c8e22"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 80,
+  "message": "Druga ponuda",
+  "status": "rejected",
+  "createdAt": {
+    "$date": "2025-11-07T20:59:51.352Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690f934b495c2e8780bc8a51"
+  },
+  "loadId": {
+    "$oid": "690f7bdb495c2e8780bbb859"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 20,
+  "message": "",
+  "status": "rejected",
+  "createdAt": {
+    "$date": "2025-11-08T19:00:27.933Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691086efa2f8cf5275d8564c"
+  },
+  "loadId": {
+    "$oid": "690fc37688ebdefc9afc30c2"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 10,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T12:19:59.472Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108a9ea2f8cf5275d85d13"
+  },
+  "loadId": {
+    "$oid": "690fc30088ebdefc9afc30b2"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 30,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T12:35:42.099Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108ce5a2f8cf5275d862b9"
+  },
+  "loadId": {
+    "$oid": "690f7bdb495c2e8780bbb859"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 10,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T12:45:25.898Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69108f95a2f8cf5275d86b34"
+  },
+  "loadId": {
+    "$oid": "69108f53a2f8cf5275d86a52"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 10,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T12:56:53.680Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6910923ba2f8cf5275d87611"
+  },
+  "loadId": {
+    "$oid": "691091f4a2f8cf5275d874eb"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 10,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T13:08:11.835Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691093cfa2f8cf5275d87e11"
+  },
+  "loadId": {
+    "$oid": "691093a5a2f8cf5275d87d40"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 10,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T13:14:55.660Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691094e9a2f8cf5275d8849f"
+  },
+  "loadId": {
+    "$oid": "691094baa2f8cf5275d883a9"
+  },
+  "driverId": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "vehicleId": {
+    "$oid": "690e58d0324033f9b95c9239"
+  },
+  "price": 1,
+  "message": "",
+  "status": "accepted",
+  "createdAt": {
+    "$date": "2025-11-09T13:19:37.501Z"
+  },
+  "__v": 0
+}]

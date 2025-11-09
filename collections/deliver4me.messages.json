@@ -1,0 +1,44 @@
+[{
+  "_id": {
+    "$oid": "690e623d6ba76026caf3a6f7"
+  },
+  "sender": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "receiver": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "content": "Pozdrav, mogu vam kranom to povesti, ako ima prilaza.",
+  "subject": "Pitanje o teretu: Paleta miješanog tereta",
+  "isRead": true,
+  "conversationId": "690e4264e0bb63abc9cafacc-690e5754324033f9b95c8eec",
+  "createdAt": {
+    "$date": "2025-11-07T21:18:53.950Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:19:25.671Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "690e62836ba76026caf3a7bc"
+  },
+  "sender": {
+    "$oid": "690e4264e0bb63abc9cafacc"
+  },
+  "receiver": {
+    "$oid": "690e5754324033f9b95c8eec"
+  },
+  "content": "Ima prilaz, sad ću prihvatiti ponudu. Kontakt i lokaciju imate. Pozdrav!",
+  "subject": "Pitanje o teretu: Paleta miješanog tereta",
+  "isRead": true,
+  "conversationId": "690e4264e0bb63abc9cafacc-690e5754324033f9b95c8eec",
+  "createdAt": {
+    "$date": "2025-11-07T21:20:03.890Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-07T21:20:03.901Z"
+  },
+  "__v": 0
+}]
