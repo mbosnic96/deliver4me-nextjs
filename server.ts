@@ -8,6 +8,29 @@ import { Types } from 'mongoose';
 import webpush from 'web-push';
 import { PushSubscription } from './lib/models/PushSubscription';
 
+// Memory management
+if (global.gc) {
+  
+ let previousHeap = 0;
+
+setInterval(() => {
+  const usage = process.memoryUsage();
+  const heapUsedMB = Math.round(usage.heapUsed / 1024 / 1024);
+  const heapTotalMB = Math.round(usage.heapTotal / 1024 / 1024);
+  const externalMB = Math.round(usage.external / 1024 / 1024);
+  const heapPercent = (usage.heapUsed / usage.heapTotal) * 100;
+  const heapGrowth = heapUsedMB - previousHeap;
+
+  previousHeap = heapUsedMB;
+  
+  if (heapPercent > 70 && global.gc) {
+    global.gc();
+  }
+}, 15000);
+} else {
+  console.warn('Garbage collection not exposed. Run with --expose-gc flag.');
+}
+
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -103,6 +126,7 @@ app.prepare().then(async () => {
           })
             .populate('sender receiver', 'name photoUrl')
             .sort({ createdAt: -1 })
+             .limit(100)
             .lean();
 
           const convMap = new Map<string, any>();
@@ -256,6 +280,7 @@ app.prepare().then(async () => {
       // --- Disconnect ---
       socket.on('disconnect', () => {
         console.log(`Socket disconnected: ${socket.id}`);
+         socket.removeAllListeners();
       });
     });
   }

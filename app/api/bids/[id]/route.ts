@@ -113,7 +113,7 @@ export async function PATCH(
           transactions: {
             amount: -bid.price,
             type: "escrow_deposit",
-            description: `Escrow deposit for accepted bid on load "${load.title}"`,
+            description: `Escrow za prihvvaćenu ponudu tereta "${load.title}"`,
             createdAt: new Date(),
           },
         },
@@ -128,7 +128,7 @@ export async function PATCH(
             transactions: {
               amount: +bid.price,
               type: "escrow_pending",
-              description: `Escrow reserved for your accepted bid on load "${load.title}"`,
+              description: `Escrow za prihvvaćenu ponudu tereta "${load.title}"`,
               createdAt: new Date(),
             },
           },
@@ -163,4 +163,23 @@ export async function PATCH(
   }
 
   return NextResponse.json(bid);
+}
+
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  await dbConnect();
+  const { id } = await context.params;
+  
+  try {
+    const bid = await Bid.findById(id);
+    if (!bid) {
+      return NextResponse.json({ error: "Bid not found" }, { status: 404 });
+    }
+    return NextResponse.json(bid);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch bid" }, { status: 500 });
+  }
 }

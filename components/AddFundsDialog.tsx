@@ -56,7 +56,7 @@ export function AddFundsDialog({ cards, onAddFunds }: AddFundsDialogProps) {
                     </div>
 
                     <div>
-                        <Label>Odaberite karticz</Label>
+                        <Label>Odaberite karticu</Label>
                         <Select
                             value={selectedCard.toString()}
                             onValueChange={(v) => setSelectedCard(parseInt(v))}

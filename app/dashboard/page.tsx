@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const role = session?.user?.role as "client" | "driver" | "admin" | undefined;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
+  const [wallet, setWallet] = useState<any>(null);
   const [loads, setLoads] = useState<Load[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [allUsers, setAllUsers] = useState<UserType[]>([]);
@@ -168,6 +168,19 @@ export default function DashboardPage() {
 
     fetchData();
   }, [session?.user?.id, role]);
+
+  useEffect(() => {
+  const fetchWallet = async () => {
+    const res = await fetch('/api/wallet');
+    if (res.ok) {
+      const data = await res.json();
+      setWallet(data);
+    } else {
+      setWallet(null);
+    }
+  };
+  fetchWallet();
+}, []);
 
   const sentLoads = loads.filter(load => 
     load.status === "Poslan" || load.status === "Sent"

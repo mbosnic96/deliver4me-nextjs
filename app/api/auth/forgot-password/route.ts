@@ -23,7 +23,6 @@ export async function POST(request: Request) {
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
-    // ✉️ Lijepo formatiran email na bosanskom
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 40px 0;">
         <div style="max-width: 480px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 30px; text-align: center;">

@@ -112,8 +112,8 @@ export async function POST(req: NextRequest) {
             amount,
             type: "credit",
             description: cardLast4
-                ? `Funds added from card ending ${cardLast4}`
-                : "Funds added",
+                ? `Uplata sa kartice ${cardLast4}`
+                : "Sredstva dodana",
             createdAt: new Date(),
         });
     }
@@ -124,27 +124,38 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "payout") {
-        const { amount, cardIndex } = data;
+    const { amount, cardIndex } = data;
 
-        const selectedCard = wallet.cards[cardIndex];
-        if (!selectedCard) {
-            return NextResponse.json({ error: "Selected card not found" }, { status: 404 });
-        }
-
-        const cardLast4 =
-            selectedCard.last4 ||
-            decryptCardData(selectedCard.cardNumber).slice(-4);
-
-        //ovdje se poziva api za isplate, za dev samo simulacija
-
-        wallet.balance -= amount;
-        wallet.transactions.push({
-            amount: -amount,
-            type: "debit",
-            description: `Payout of $${amount} to card ending ${cardLast4}`,
-            createdAt: new Date(),
-        });
+    if (amount <= 0) {
+        return NextResponse.json({ error: "Iznos mora biti veći od nule." }, { status: 400 });
     }
+
+    const selectedCard = wallet.cards[cardIndex];
+    if (!selectedCard) {
+        return NextResponse.json({ error: "Odabrana kartica nije pronađena." }, { status: 404 });
+    }
+
+    if (wallet.balance < amount) {
+        return NextResponse.json(
+            { error: "Nemate dovoljno sredstava na računu za ovu isplatu." },
+            { status: 400 }
+        );
+    }
+
+    const cardLast4 =
+        selectedCard.last4 ||
+        decryptCardData(selectedCard.cardNumber).slice(-4);
+
+    // ovdje bi inače išao API za stvarnu isplatu
+
+    wallet.balance -= amount;
+    wallet.transactions.push({
+        amount: -amount,
+        type: "debit",
+        description: `Isplata ${amount} BAM na karticu koja završava na ${cardLast4}`,
+        createdAt: new Date(),
+    });
+}
 
 
 

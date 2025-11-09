@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email already exists" }, { status: 400 });
     }
 
-    const password = await bcrypt.hash("d4meadministrator", 10); // default password
+    const password = await bcrypt.hash("password123", 10); // default password
 
     const user = await User.create({
       name,

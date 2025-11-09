@@ -197,7 +197,7 @@ export default function ContactSection({ data, className = '', style }: ContactS
                     <MapPin className="text-white" size={20} />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Address</h4>
+                    <h4 className="font-semibold text-gray-900 text-lg">Adresa</h4>
                     <p className="text-gray-600 group-hover:text-orange-600 transition-colors">
                       {content.address}
                     </p>
@@ -217,7 +217,7 @@ export default function ContactSection({ data, className = '', style }: ContactS
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">1hr</div>
+                  <div className="text-2xl font-bold text-gray-900">1 sat</div>
                   <div className="text-sm text-gray-600">Vrijeme odgovora</div>
                 </div>
               </div>
@@ -234,8 +234,8 @@ export default function ContactSection({ data, className = '', style }: ContactS
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                       <CheckCircle className="text-green-600" size={40} />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Poruka poslana!</h3>
-                    <p className="text-gray-600 mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">Poruka poslana!</h3>
+                    <p className="text-white mb-6">
                       Hvala Vam što ste nas kontaktirali. Odgovorit ćemo Vam u najkraćem mogućem roku.
                     </p>
                     <Button 

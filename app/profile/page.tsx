@@ -380,7 +380,7 @@ const onSubmit = useCallback(async (data: FormData) => {
       body: JSON.stringify(data)
     });
     if (!res.ok) throw new Error('Neuspješno ažuriranje profila');
-    toast.success('Profilu je uspješno ažuriran');
+    toast.success('Profil je uspješno ažuriran');
     reset(data);
   } catch (error) {
     console.error('Failed to update profile', error);
@@ -674,7 +674,7 @@ const updatePositionOnly = useCallback(async () => {
                 <section className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-red-500">
                   <h3 className="text-xl font-bold mb-4 text-red-500">Opasna zona</h3>
                   <p className="mb-4 text-gray-600 dark:text-gray-300">
-                    Ovime uklanjate Vaš račun!
+                    Ovime uklanjate Vaš račun! U slučaju brisanja za reaktivaciju računa kontaktirajte korisničku podršku pomoću forme na početno strani.
                   </p>
                   <div className="flex justify-end">
                     <button

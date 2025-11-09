@@ -35,6 +35,7 @@ interface VehicleFormProps {
 interface VehicleType {
   _id: string;
   name: string;
+  description: string;
 }
 
 export function VehicleForm({ initialData, onClose, onSaved }: VehicleFormProps) {
@@ -261,22 +262,33 @@ export function VehicleForm({ initialData, onClose, onSaved }: VehicleFormProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Tip vozila</label>
-          <Select
-            options={vehicleTypes.map((vt) => ({ value: vt._id, label: vt.name }))}
-            value={selectedVehicleType}
-            onChange={(selected) =>
-              form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
-            }
-            placeholder="Odaberite tip vozila"
-            isLoading={loadingVehicleTypes}
-          />
-          {form.formState.errors.vehicleTypeId && (
-            <p className="text-red-500 text-xs">
-              {form.formState.errors.vehicleTypeId.message}
-            </p>
-          )}
-        </div>
+  <label className="block text-sm font-medium mb-1">Tip vozila</label>
+  <Select
+    options={vehicleTypes.map((vt) => ({
+      value: vt._id,
+      label: `${vt.name}${vt.description ? ` (${vt.description})` : ""}`,
+    }))}
+    value={
+      vehicleTypes
+        .map((vt) => ({
+          value: vt._id,
+          label: `${vt.name}${vt.description ? ` (${vt.description})` : ""}`,
+        }))
+        .find((opt) => opt.value === form.watch("vehicleTypeId")) || null
+    }
+    onChange={(selected) =>
+      form.setValue("vehicleTypeId", selected?.value || "", { shouldDirty: true })
+    }
+    placeholder="Odaberite tip vozila"
+    isLoading={loadingVehicleTypes}
+  />
+  {form.formState.errors.vehicleTypeId && (
+    <p className="text-red-500 text-xs">
+      {form.formState.errors.vehicleTypeId.message}
+    </p>
+  )}
+</div>
+
 
         <div>
           <label className="block text-sm font-medium mb-1">Slike vozila</label>

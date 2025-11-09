@@ -33,12 +33,16 @@ export async function dbConnect(): Promise<Connection> {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
+      minPoolSize: 2, 
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+      maxIdleTimeMS: 1000, 
     };
 
     cached.promise = connect(MONGODB_URI, opts)
       .then((mongoose) => {
+        mongoose.set('debug', false); 
+        
         return mongoose;
       })
       .catch((error) => {

@@ -151,7 +151,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center text-white">
                       <MapPin size={16} className="mr-2 text-blue-600" />
-                      <span>{user.city || 'Nepoznato'}, {user.country || 'Nepoznato'}</span>
+                      <span>{user.address || 'Nepoznato'},{user.city || 'Nepoznato'}, {user.country || 'Nepoznato'}</span>
                     </div>
                   </div>
 

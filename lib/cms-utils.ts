@@ -1,22 +1,21 @@
+import mongoose from 'mongoose';
+import CMSContentModel, { ICMSContent } from '@/lib/models/CMSContent';
 import { CMSContent } from '@/lib/types/cms';
+import { dbConnect } from '@/lib/db/db';
+
+async function ensureDbConnection() {
+  if (mongoose.connection.readyState === 0) {
+    await dbConnect();
+  }
+}
 
 export async function getCMSContents(): Promise<CMSContent[]> {
   try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/cms/content`, {
-      next: { 
-        tags: ['cms-content'] 
-      }
-    });
+    await ensureDbConnection();
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch CMS content');
-    }
+    const contents = await CMSContentModel.find({ isActive: true }).sort({ order: 1 }).lean();
 
-    const contents = await response.json();
-    
-    return contents
-      .filter((content: CMSContent) => content.isActive)
-      .sort((a: CMSContent, b: CMSContent) => a.order - b.order);
+    return contents as unknown as CMSContent[];
   } catch (error) {
     console.error('Error fetching CMS contents:', error);
     return [];
@@ -24,6 +23,12 @@ export async function getCMSContents(): Promise<CMSContent[]> {
 }
 
 export async function getContentByType(type: string): Promise<CMSContent | null> {
-  const contents = await getCMSContents();
-  return contents.find(content => content.type === type) || null;
+  try {
+    await ensureDbConnection();
+    const content = await CMSContentModel.findOne({ type, isActive: true }).lean();
+    return content as unknown as CMSContent | null;
+  } catch (error) {
+    console.error(`Error fetching CMS content for type "${type}":`, error);
+    return null;
+  }
 }

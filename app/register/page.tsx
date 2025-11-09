@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { getCountries, getStates, getCities, getCityLatLng } from '@/lib/services/CscService'
+import { Country, State, City } from 'country-state-city';
 import Select from 'react-select';
 import {signIn} from 'next-auth/react';
 
@@ -47,7 +47,7 @@ export default function Register() {
   const selectedState = watch('state');
 
   useEffect(() => {
-    const countries = getCountries().map((country) => ({
+    const countries = Country.getAllCountries().map((country) => ({
       value: country.isoCode,
       label: country.name,
     }));
@@ -56,7 +56,7 @@ export default function Register() {
 
   useEffect(() => {
     if (selectedCountry) {
-      const states = getStates(selectedCountry).map((state) => ({
+      const states = State.getStatesOfCountry(selectedCountry).map((state) => ({
         value: state.isoCode,
         label: state.name,
       }));
@@ -68,15 +68,16 @@ export default function Register() {
   }, [selectedCountry, setValue]);
 
   useEffect(() => {
-    if (selectedCountry) {
-      const cities = getCities(selectedCountry).map((city) => ({
+    if (selectedCountry && selectedState) {
+      const citiesData = City.getCitiesOfCountry(selectedCountry) || [];
+      const cities = citiesData.map((city) => ({
         value: city.name,
         label: city.name,
       }));
       setCityOptions(cities);
       setValue('city', '');
     }
-  }, [selectedCountry, setValue]);
+  }, [selectedCountry, selectedState, setValue]);
 
   const onCountrySelect = (selectedOption: SelectOption | null) => {
     if (selectedOption) {

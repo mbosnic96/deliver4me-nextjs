@@ -139,7 +139,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   }
 
   const handlePickupCityChange = async (option: any) => {
-    const coords = await getCityLatLng(option.value, form.pickupCountry.value, form.pickupState.value)
+    const coords = await getCityLatLng(option.value, form.pickupCountry.value)
     handleChange('pickupCity', option)
     handleChange('pickupLatitude', coords?.lat ?? 0)
     handleChange('pickupLongitude', coords?.lng ?? 0)
@@ -160,7 +160,7 @@ export const LoadForm: React.FC<LoadFormProps> = ({ initialData, onClose, onSave
   }
 
   const handleDeliveryCityChange = async (option: any) => {
-    const coords = await getCityLatLng(option.value, form.deliveryCountry.value, form.deliveryState.value)
+    const coords = await getCityLatLng(option.value, form.deliveryCountry.value)
     handleChange('deliveryCity', option)
     handleChange('deliveryLatitude', coords?.lat ?? 0)
     handleChange('deliveryLongitude', coords?.lng ?? 0)

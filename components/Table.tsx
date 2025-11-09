@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import { Pagination } from "./Pagination";
+import { usePathname } from "next/navigation";
 
 const Spinner = ({ size = "lg" }: { size?: "sm" | "lg" }) => (
   <div
@@ -77,6 +78,8 @@ export function Table<T extends { id: string }>({
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [userRole, setUserRole] = useState<"driver" | "admin" | "other">("other");
+  const pathname = usePathname();
+
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -185,7 +188,7 @@ const handleFilterChange = (key: string, value: string) => {
           )}
         </div>
 
-        {FormComponent ? (
+        {FormComponent && !((userRole === "driver" || userRole === "admin") && pathname === "/my-loads") ? (
   <Button
     onClick={() => {
       setEditingRow(undefined);
@@ -196,6 +199,7 @@ const handleFilterChange = (key: string, value: string) => {
     Dodaj
   </Button>
 ) : null}
+
 
       </div>
 
@@ -216,7 +220,7 @@ const handleFilterChange = (key: string, value: string) => {
 
             {(searchTerm || Object.values(filters).some((v) => v)) && (
               <Button variant="outline" onClick={clearFilters}>
-                Clear Filters
+                Poništi filter
               </Button>
             )}
           </div>

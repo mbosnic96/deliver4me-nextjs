@@ -62,7 +62,7 @@ export default function Navbar() {
   };
 
   const roleLinks = getRoleLinks();
-  const showCreateButton = role === 'client' || role === 'admin';
+  const showCreateButton = role === 'client';
 
   return (
     <>

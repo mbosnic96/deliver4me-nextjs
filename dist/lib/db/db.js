@@ -24,11 +24,14 @@ async function dbConnect() {
         const opts = {
             bufferCommands: false,
             maxPoolSize: 10,
+            minPoolSize: 2,
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
+            maxIdleTimeMS: 1000,
         };
         cached.promise = (0, mongoose_1.connect)(MONGODB_URI, opts)
             .then((mongoose) => {
+            mongoose.set('debug', false);
             return mongoose;
         })
             .catch((error) => {

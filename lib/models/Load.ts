@@ -36,7 +36,12 @@ const LoadSchema = new Schema({
   status: String,
   assignedBidId: { type: Schema.Types.ObjectId, ref: 'Bid' },
 
-  images: [String]
+  images: [String],
+  
+  driverConfirmedDelivery: { type: Boolean, default: false },
+  driverConfirmedAt: { type: Date },
+  clientConfirmedDelivery: { type: Boolean, default: false },
+  clientConfirmedAt: { type: Date },
 }, { timestamps: true });
 
 export default models.Load || model('Load', LoadSchema);

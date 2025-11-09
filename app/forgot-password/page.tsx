@@ -48,7 +48,7 @@ export default function ForgotPassword() {
         onSubmit={handleSubmit}
         className="p-8 content-bg rounded shadow-md w-full max-w-md"
       >
-        <h2 className="text-xl font-bold mb-4">Forgot Password</h2>
+        <h2 className="text-xl font-bold mb-4">Zaboravljena lozinka</h2>
         <input
           type="email"
           placeholder="Unesite vaš email"

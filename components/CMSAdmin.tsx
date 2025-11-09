@@ -118,7 +118,8 @@ const handleDeleteFile = async (filename: string) => {
     reverseButtons: true,
     customClass: {
       confirmButton: 'swal2-confirm',
-      cancelButton: 'swal2-cancel'
+      cancelButton: 'swal2-cancel',
+     popup: 'pointer-events-auto'
     }
   });
 
@@ -143,7 +144,8 @@ const handleDeleteFile = async (filename: string) => {
         confirmButtonColor: '#3085d6',
         confirmButtonText: 'U redu',
         timer: 3000,
-        timerProgressBar: true
+        timerProgressBar: true,
+         customClass: { popup: 'pointer-events-auto' }
       });
     } else {
       // Error message in Bosnian
@@ -152,7 +154,8 @@ const handleDeleteFile = async (filename: string) => {
         text: 'Brisanje datoteke nije uspjelo. Pokušajte ponovo.',
         icon: 'error',
         confirmButtonColor: '#d33',
-        confirmButtonText: 'U redu'
+        confirmButtonText: 'U redu',
+         customClass: { popup: 'pointer-events-auto' }
       });
     }
   } catch (error) {
@@ -164,7 +167,8 @@ const handleDeleteFile = async (filename: string) => {
       text: 'Došlo je do greške prilikom brisanja. Provjerite vezu i pokušajte ponovo.',
       icon: 'error',
       confirmButtonColor: '#d33',
-      confirmButtonText: 'U redu'
+      confirmButtonText: 'U redu',
+       customClass: { popup: 'pointer-events-auto' }
     });
   }
 };
@@ -465,6 +469,7 @@ const handleDelete = async (id: string) => {
     confirmButtonText: 'Da!',
     cancelButtonText: 'Otkaži',
     reverseButtons: true,
+     customClass: { popup: 'pointer-events-auto' }
   });
 
   if (!result.isConfirmed) return;
@@ -481,6 +486,7 @@ const handleDelete = async (id: string) => {
       text: 'Uspješno ste obrisali sadržaj.',
       timer: 1500,
       showConfirmButton: false,
+       customClass: { popup: 'pointer-events-auto' }
     });
 
     toast.success('Uspješno ste obrisali sadržaj!');
@@ -489,6 +495,7 @@ const handleDelete = async (id: string) => {
       icon: 'error',
       title: 'Error',
       text: 'Greška pri brisanju sadržaja. Pokušajte ponovo.',
+       customClass: { popup: 'pointer-events-auto' }
     });
     toast.error('Greška pri brisanju sadržaja. Pokušajte ponovo.');
   }
@@ -807,7 +814,7 @@ function CreateContentForm({ onSave, onCancel }: {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Create New Section</DialogTitle>
+        <DialogTitle>Nova sekcija</DialogTitle>
       </DialogHeader>
       <div className="space-y-6 py-4">
         <div className="space-y-2">

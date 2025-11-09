@@ -23,7 +23,7 @@ export function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsPr
   };
 
   const getVehicleImageUrl = (vehicle: Vehicle, imagePath: string) => {
-    if (!imagePath) return "/assets/default-vehicle.jpg";
+    if (!imagePath) return "/truck.png";
     if (imagePath.startsWith("http") || imagePath.startsWith("data:")) return imagePath;
     const vehicleId = getVehicleId(vehicle);
     return `/uploads/vehicles/${vehicleId}/${imagePath}`;
@@ -104,7 +104,7 @@ export function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsPr
                                 <img
                                   src={url}
                                   alt={`${v.brand} ${v.model} - Slika ${index + 1}`}
-                                  className="object-contain"
+                                  className="object-contain w-full h-full"
                                 />
                                 <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
                                   {index + 1} / {v.images.length}
@@ -176,7 +176,7 @@ export function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsPr
                       <div>
                         <label className="text-sm text-blue-500 font-medium">Dimenzije (š×v×d)</label>
                         <p className="text-white">
-                          {v.width || 0} × {v.height || 0} × {v.length || 0} cm
+                          {v.width || 0} × {v.height || 0} × {v.length || 0} m
                         </p>
                       </div>
                       <div>
@@ -243,7 +243,7 @@ export function VehicleTabs({ vehicles, activeTab, setActiveTab }: VehicleTabsPr
                       </div>
 
                       <div className="bg-gray-800 rounded-lg p-4">
-                        <h4 className="font-medium text-white mb-3">Istorija tereta</h4>
+                        <h4 className="font-medium text-white mb-3">Historija tereta</h4>
                         <div className="space-y-2 max-h-96 overflow-y-auto">
                           {v.currentLoads
                             .slice()

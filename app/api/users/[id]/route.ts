@@ -12,7 +12,7 @@ export async function GET(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const user = await userService.getUserById(id);
     
-    if (!user) {
+    if (!user || user.isDeleted) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     

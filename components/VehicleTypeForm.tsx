@@ -104,7 +104,7 @@ export function VehicleTypeForm({
               Spremanje...
             </>
           ) : (
-            initialData?._id ? "Ažuriraj" : "Sačuva"
+            initialData?._id ? "Ažuriraj" : "Sačuvaj"
           )}
         </Button>
       </div>

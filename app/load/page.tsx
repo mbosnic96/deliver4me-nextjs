@@ -50,6 +50,10 @@ interface Filters {
   maxPrice: string;
   minWeight: string;
   maxWeight: string;
+  minLenght: string;
+  maxLenght: string;
+  minHeight: string;
+  maxHeight: string;
   pickupCountry: string;
   pickupState: string;
   pickupCity: string;
@@ -59,8 +63,6 @@ interface Filters {
   minWidth: string;
   maxWidth: string;
   minPickupDate: string;
-  maxPickupDate: string;
-  minDeliveryDate: string;
   maxDeliveryDate: string;
 }
 
@@ -79,6 +81,10 @@ export default function LoadsPage() {
     maxPrice: "",
     minWeight: "",
     maxWeight: "",
+    minLenght: "",
+    maxLenght: "",
+    minHeight: "",
+    maxHeight: "",
     pickupCountry: "",
     pickupState: "",
     pickupCity: "",
@@ -88,8 +94,6 @@ export default function LoadsPage() {
     minWidth: "",
     maxWidth: "",
     minPickupDate: "",
-    maxPickupDate: "",
-    minDeliveryDate: "",
     maxDeliveryDate: "",
   });
 
@@ -149,6 +153,10 @@ export default function LoadsPage() {
       maxPrice: "",
       minWeight: "",
       maxWeight: "",
+      minLenght: "",
+      maxLenght: "",
+      minHeight: "",
+      maxHeight: "",
       pickupCountry: "",
       pickupState: "",
       pickupCity: "",
@@ -158,8 +166,6 @@ export default function LoadsPage() {
       minWidth: "",
       maxWidth: "",
       minPickupDate: "",
-      maxPickupDate: "",
-      minDeliveryDate: "",
       maxDeliveryDate: "",
     });
     setSearchTerm("");
@@ -291,6 +297,7 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite državu"
                       isClearable
+                      className="text-gray-900"
                     />
                     <Select
                       options={
@@ -316,14 +323,15 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite regiju"
                       isClearable
+                      
+                      className="text-gray-900"
                     />
                     <Select
                       options={
                         filters.pickupCountry && filters.pickupState
-                          ? City.getCitiesOfState(
-                              filters.pickupCountry,
-                              filters.pickupState
-                            ).map((c) => ({
+                          ? (City.getCitiesOfCountry(
+                              filters.pickupCountry
+                            ) || []).map((c) => ({
                               value: c.name,
                               label: c.name,
                             }))
@@ -339,6 +347,8 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite grad"
                       isClearable
+                      
+                      className="text-gray-900"
                     />
                   </div>
 
@@ -365,6 +375,8 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite državu"
                       isClearable
+                      
+                      className="text-gray-900"
                     />
                     <Select
                       options={
@@ -390,14 +402,15 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite regiju"
                       isClearable
+                      
+                      className="text-gray-900"
                     />
                     <Select
                       options={
-                        filters.deliveryCountry && filters.deliveryState
-                          ? City.getCitiesOfState(
-                              filters.deliveryCountry,
-                              filters.deliveryState
-                            ).map((c) => ({
+                        filters.deliveryCountry && filters.pickupState
+                          ? (City.getCitiesOfCountry(
+                              filters.deliveryCountry
+                            ) || []).map((c) => ({
                               value: c.name,
                               label: c.name,
                             }))
@@ -413,6 +426,8 @@ export default function LoadsPage() {
                       }
                       placeholder="Odaberite grad"
                       isClearable
+                      
+                      className="text-gray-900"
                     />
                   </div>
                 </div>
@@ -442,6 +457,55 @@ export default function LoadsPage() {
                       />
                     </div>
                   </div>
+
+                     <div>
+                    <label className="text-sm font-medium text-white">
+                      Dužina (m)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.minLenght}
+                        onChange={(e) =>
+                          handleFilterChange("minLenght", e.target.value)
+                        }
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.maxLenght}
+                        onChange={(e) =>
+                          handleFilterChange("maxLenght", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                     <div>
+                    <label className="text-sm font-medium text-white">
+                      Visina (m)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.minHeight}
+                        onChange={(e) =>
+                          handleFilterChange("minHeight", e.target.value)
+                        }
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.maxHeight}
+                        onChange={(e) =>
+                          handleFilterChange("maxHeight", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                  
                   <div>
                     <label className="text-sm font-medium text-white">
                       Datum preuzimanja
@@ -454,13 +518,7 @@ export default function LoadsPage() {
                           handleFilterChange("minPickupDate", e.target.value)
                         }
                       />
-                      <Input
-                        type="date"
-                        value={filters.maxPickupDate}
-                        onChange={(e) =>
-                          handleFilterChange("maxPickupDate", e.target.value)
-                        }
-                      />
+                      
                     </div>
                   </div>
                   <div>
@@ -470,18 +528,12 @@ export default function LoadsPage() {
                     <div className="flex gap-2">
                       <Input
                         type="date"
-                        value={filters.minDeliveryDate}
-                        onChange={(e) =>
-                          handleFilterChange("minDeliveryDate", e.target.value)
-                        }
-                      />
-                      <Input
-                        type="date"
                         value={filters.maxDeliveryDate}
                         onChange={(e) =>
                           handleFilterChange("maxDeliveryDate", e.target.value)
                         }
                       />
+                      
                     </div>
                   </div>
                 </div>

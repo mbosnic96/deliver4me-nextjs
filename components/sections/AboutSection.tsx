@@ -24,7 +24,7 @@ export default function AboutSection({ data, className = '', style }: AboutSecti
               <img 
                 src={content.image} 
                 alt={title || 'About us'}
-                className="rounded-lg shadow-xl w-full h-full object-cover"
+                className="rounded-lg shadow-xl w-full h-96 object-contain"
               />
             </div>
           )}

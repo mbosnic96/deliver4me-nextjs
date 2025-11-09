@@ -7,18 +7,19 @@ import Sidebar from "@/components/Sidebar";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { createNotification } from "@/lib/notifications";
 
 type Load = {
   id: string;
   userId: string;
   title: string;
   description: string;
-  status?: "aktivan" | "poslan" | "dostavljen" | "otkazan";
+  status?: string;
   pickupCountry?: string;
   pickupState?: string;
   pickupCity?: string;
@@ -31,34 +32,136 @@ type Load = {
   cargoLength?: number;
   preferredPickupDate?: string;
   preferredDeliveryDate?: string;
+  driverConfirmedDelivery?: boolean;
+  clientConfirmedDelivery?: boolean;
+  driverConfirmedAt?: string;
+  clientConfirmedAt?: string;
+  assignedBidId?: string;
+};
+
+type Bid = {
+  _id: string;
+  driverId: string;
 };
 
 export default function MyLoadsPage() {
   const { data: session } = useSession();
   const role = session?.user?.role as "client" | "driver" | "admin" | undefined;
+  const userId = session?.user?.id;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const handleStatusChange = async (id: string, newStatus: string, load: Load) => {
     try {
       const response = await fetch(`/api/loads/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!response.ok) throw new Error("Failed to update status");
-      toast.success(`Status ažuriran na "${newStatus}"`);
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        toast.error(result.error || "Greška pri ažuriranju statusa");
+        return;
+      }
+      
+      if (result.awaitingClientConfirmation) {
+        await createNotification(
+          load.userId,
+          `Vozač je označio teret "${load.title}" kao dostavljen. Molimo potvrdite dostavu.`,
+          `/my-loads`
+        );
+        toast.info("Dostava potvrđena. Čeka se potvrda od klijenta.");
+      } else if (newStatus === "otkazan" || newStatus === "Otkazan" || newStatus === "canceled") {
+        if (load.assignedBidId) {
+          const bidRes = await fetch(`/api/bids/${load.assignedBidId}`);
+          if (bidRes.ok) {
+            const bid: Bid = await bidRes.json();
+            const canceledBy = role === "driver" ? "vozača" : "klijenta";
+            const notifyUserId = role === "driver" ? load.userId : bid.driverId;
+            
+            await createNotification(
+              notifyUserId,
+              `Teret "${load.title}" je otkazan od strane ${canceledBy}.`,
+              `/load/${id}`
+            );
+          }
+        }
+        toast.success(result.message || "Teret otkazan");
+      } else {
+        toast.success(result.message || `Status ažuriran na "${newStatus}"`);
+      }
+      
+      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error("Greška pri ažuriranju statusa");
     }
   };
 
+ const handleClientConfirmDelivery = async (id: string, load: Load) => {
+    const result = await Swal.fire({
+      title: "Potvrdite dostavu",
+      text: "Da li ste sigurni da je teret dostavljen? Ova radnja će osloboditi sredstva vozaču. Ne zaboravite ocijeniti vozača na stranici tereta!",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Potvrdi dostavu",
+      cancelButtonText: "Otkaži",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`/api/loads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmDelivery: true }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Greška pri potvrdi dostave");
+        return;
+      }
+
+      if (load.assignedBidId) {
+        const bidRes = await fetch(`/api/bids/${load.assignedBidId}`);
+        console.log("Bid response status:", bidRes.status);
+        
+        if (bidRes.ok) {
+          const bid: Bid = await bidRes.json();
+          try {
+            await createNotification(
+              bid.driverId.toString(),
+              `Klijent je potvrdio dostavu tereta "${load.title}". Plaćanje je izvršeno!`,
+              `/load/${id}`
+            );
+          } catch (notifError) {
+            console.error("Error sending notification:", notifError);
+          }
+        } else {
+          console.error("Failed to fetch bid:", await bidRes.text());
+        }
+      } else {
+        console.log("No assignedBidId found");
+      }
+
+      toast.success(data.message || "Dostava potvrđena i plaćanje izvršeno!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error in handleClientConfirmDelivery:", error);
+      toast.error("Greška pri potvrdi dostave");
+    }
+  };
   const columns: ColumnDef<Load>[] = [
     { 
       accessorKey: "title", 
       header: "Naziv",
       cell: ({ row }) => (
-        <div className="max-w-[150px] truncate" title={row.original.title}>
+        <div className="max-w-[100px] truncate" title={row.original.title}>
           {row.original.title}
         </div>
       )
@@ -67,7 +170,7 @@ export default function MyLoadsPage() {
       accessorKey: "description", 
       header: "Opis",
       cell: ({ row }) => (
-        <div className="max-w-[200px] truncate" title={row.original.description}>
+        <div className="max-w-[100px] truncate" title={row.original.description}>
           {row.original.description}
         </div>
       )
@@ -82,7 +185,7 @@ export default function MyLoadsPage() {
     },
     {
       accessorKey: "pickupCountry",
-      header: "Pickup Location",
+      header: "Preuzimanje",
       cell: ({ row }) => (
         <div className="min-w-[180px]">
           {row.original.pickupCountry || "-"} / {row.original.pickupState || "-"} / {row.original.pickupCity || "-"}
@@ -91,7 +194,7 @@ export default function MyLoadsPage() {
     },
     {
       accessorKey: "deliveryCountry",
-      header: "Delivery Location",
+      header: "Dostavljanje",
       cell: ({ row }) => (
         <div className="min-w-[180px]">
           {row.original.deliveryCountry || "-"} / {row.original.deliveryState || "-"} / {row.original.deliveryCity || "-"}
@@ -100,50 +203,72 @@ export default function MyLoadsPage() {
     },
     {
       accessorKey: "pickupTime",
-      header: "Pickup Time",
+      header: "Vrijeme preuzimanja",
       cell: ({ row }) => row.original.preferredPickupDate?.slice(0, 16).replace("T", " ") || "-",
     },
     {
       accessorKey: "deliveryTime",
-      header: "Delivery Time",
+      header: "Vrijeme dostavljanja",
       cell: ({ row }) => row.original.preferredDeliveryDate?.slice(0, 16).replace("T", " ") || "-",
     },
-{
-  accessorKey: "status",
-  header: "Status",
-  cell: ({ row }) => {
-    const dbStatus = (row.original.status || "").toLowerCase(); 
-    
-    // Prevent editing if in final state
-    if (["dostavljen", "otkazan"].includes(dbStatus)) {
-      return (
-        <div className={`px-2 py-1 rounded text-xs font-medium ${
-          dbStatus === "dostavljen" ? "bg-green-100 text-green-800" :
-          "bg-gray-100 text-gray-800"
-        }`}>
-          {dbStatus}
-        </div>
-      );
-    }
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const load = row.original;
+        const dbStatus = (load.status || "").toLowerCase();
+        const isOwner = load.userId === userId;
+        
+        if (isOwner && load.driverConfirmedDelivery && !load.clientConfirmedDelivery) {
+          return (
+            <Button
+              size="sm"
+              onClick={() => handleClientConfirmDelivery(load.id, load)}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Potvrdi dostavu
+            </Button>
+          );
+        }
 
-    return (
-      <Select
-        value={dbStatus}
-        onValueChange={(value) => handleStatusChange(row.original.id, value)}
-      >
-        <SelectTrigger className="w-32">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="aktivan">Aktivan</SelectItem>
-          <SelectItem value="poslan">Poslan</SelectItem>
-          <SelectItem value="dostavljen">Dostavljen</SelectItem>
-          <SelectItem value="otkazan">Otkazan</SelectItem>
-        </SelectContent>
-      </Select>
-    );
-  },
-},
+        if (["dostavljen", "otkazan"].includes(dbStatus)) {
+          return (
+            <div className={`px-2 py-1 rounded text-xs font-medium ${
+              dbStatus === "dostavljen" ? "bg-green-100 text-green-800" :
+              "bg-gray-100 text-gray-800"
+            }`}>
+              {dbStatus === "dostavljen" ? "✓ Dostavljen" : "✗ Otkazan"}
+            </div>
+          );
+        }
+
+        if (dbStatus.includes("čekanju")) {
+          return (
+            <div className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+              Čeka potvrdu klijenta
+            </div>
+          );
+        }
+
+        return (
+          <Select
+            value={dbStatus}
+            onValueChange={(value) => handleStatusChange(load.id, value, load)}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="aktivan">Aktivan</SelectItem>
+              <SelectItem value="poslan">Poslan</SelectItem>
+              {role === "driver" && <SelectItem value="dostavljen">Dostavljen</SelectItem>}
+              <SelectItem value="otkazan">Otkazan</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      },
+    },
   ];
 
   const additionalFilters = [
@@ -188,55 +313,61 @@ export default function MyLoadsPage() {
 
     const router = useRouter();
 
-
     return (
-  <div className="flex gap-2 items-center">
-    <Button size="sm" onClick={() => router.push(`/load/${row.id}`)} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2">
-      <Eye className="h-4 w-4 mr-1" />
-      Vidi
-    </Button>
-
-    {role !== "driver" && (
-      <>
-        <Button size="sm" onClick={() => edit(row)} className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
-          <Edit className="h-4 w-4 mr-1" />
-          Uredi
-        </Button>
-
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => handleDelete(row.id)}
-          className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+      <div className="flex gap-2 items-center">
+        <Button 
+          size="sm" 
+          onClick={() => router.push(`/load/${row.id}`)} 
+          className="bg-blue-700 hover:bg-blue-800 text-white"
         >
-          <Trash2 className="h-4 w-4 mr-1" />
-          Briši
+          <Eye className="h-4 w-4 mr-1" />
+          Vidi
         </Button>
-      </>
-    )}
-  </div>
-);
-  }
 
+        {role !== "driver" && (
+          <>
+            <Button 
+              size="sm" 
+              onClick={() => edit(row)} 
+              className="bg-yellow-500 hover:bg-yellow-600 text-white"
+            >
+              <Edit className="h-4 w-4 mr-1" />
+              Uredi
+            </Button>
+
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => handleDelete(row.id)}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Briši
+            </Button>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
-  <div className="min-h-screen">
-    <Sidebar
-      role={role}
-      navbarHeight={84}
-      collapsed={sidebarCollapsed}
-      setCollapsed={setSidebarCollapsed}
-    />
+    <div className="min-h-screen">
+      <Sidebar
+        role={role}
+        navbarHeight={84}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+      />
 
- <main 
+      <main 
         className={`flex-1 transition-all duration-300 min-h-screen ${
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         }`}
       >
-      <div className="p-4 md:p-6 h-full flex flex-col">
+        <div className="p-4 md:p-6 h-full flex flex-col">
           <div className="rounded-lg shadow-sm flex-1 flex flex-col min-h-0">
             <Table<Load>
-              title="Moji tereti"
+              title="Tereti"
               columns={columns}
               apiBase="/api/loads"
               FormComponent={LoadForm}
