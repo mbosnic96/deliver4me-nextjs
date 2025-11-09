@@ -24,3 +24,12 @@ pnpm dev
 bun dev
 ```
 
+za kreirati VAPID_KEY:
+```bash
+web-push generate-vapid-keys
+```
+za kreirati key za karticu i next_authsecret:
+
+```bash
+openssl rand -base64 32
+```
